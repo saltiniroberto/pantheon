@@ -3,6 +3,8 @@ package net.consensys.pantheon.consensus.ibft.protocol;
 import net.consensys.pantheon.consensus.ibft.IbftEvent;
 import net.consensys.pantheon.consensus.ibft.IbftEventQueue;
 import net.consensys.pantheon.consensus.ibft.IbftEvents;
+import net.consensys.pantheon.consensus.ibft.IbftMessages;
+import net.consensys.pantheon.consensus.ibft.ibftmessagedecoded.AbstractIbftMessageDecoded;
 import net.consensys.pantheon.ethereum.p2p.api.Message;
 import net.consensys.pantheon.ethereum.p2p.api.PeerConnection;
 import net.consensys.pantheon.ethereum.p2p.api.ProtocolManager;
@@ -62,7 +64,9 @@ public class IbftProtocolManager implements ProtocolManager {
    */
   @Override
   public void processMessage(final Capability cap, final Message message) {
-    final IbftEvent messageEvent = IbftEvents.fromMessage(message);
+    final AbstractIbftMessageDecoded ibftMessage = IbftMessages.fromMessage(message);
+    final IbftEvent messageEvent = IbftEvents.fromMessage(ibftMessage);
+
     ibftEventQueue.add(messageEvent);
   }
 

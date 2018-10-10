@@ -45,7 +45,7 @@ public class EventEmitter extends Contract {
 
   public static final String FUNC_STORE = "store";
 
-  public static final String FUNC_SENDER = "sender";
+  public static final String FUNC_SENDER = "getSender";
 
   public static final Event STORED_EVENT =
       new Event(
