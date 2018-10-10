@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static tech.pegasys.pantheon.ethereum.core.InMemoryWorldState.createInMemoryWorldStateArchive;
 
-public class IbftPreparedCertificateTest {
+public class IbftRoundChangeMessageDecodedTest {
 
   private final String HEX_PRIVATE_KEY =
       "8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63";
@@ -55,7 +55,9 @@ public class IbftPreparedCertificateTest {
   private final ConsensusRoundIdentifier ROUND_IDENTIFIER =
       new ConsensusRoundIdentifier(SEQUENCE, ROUND);
   private final long BLOCK_TIMESTAMP = 1_000;
+  private final int NUM_PREPARE_MESSAGES = 10;
   private Block BLOCK;
+  private IbftPreparedCertificate PREPARED_CERTIFICATE;
 
   @Before
   public void setUp() {
@@ -106,50 +108,57 @@ public class IbftPreparedCertificateTest {
             parentHeader);
 
     BLOCK = blockCreator.createBlock(BLOCK_TIMESTAMP);
-  }
 
-  /**
-   * NOTE: Is the following test good enough or do we need to go to the extent of the {@link
-   * IbftPrepareMessageDecodedTest#writeToRlp()} and {@link
-   * IbftPrepareMessageDecodedTest#readFromRlp()} ()} tests in IbftPreparedMessageDecodedTest.java ?
-   */
-  @Test
-  public void testWriteToFollowedByReadFrom() {
-    final int NUM_PREPARE_MESSAGES = 10;
-    ArrayList<Address> expectedPrepareMessagesValidatorAddresses =
-        new ArrayList<>(NUM_PREPARE_MESSAGES);
-
-    IbftPrePrepareMessageDecoded expectedIbftPrePrepareMessageDecoded =
+    IbftPrePrepareMessageDecoded ibftPrePrepareMessageDecoded =
         new IbftPrePrepareMessageDecoded(ROUND_IDENTIFIER, BLOCK, VALIDATOR_KEY_PAIR);
-    List<IbftPrepareMessageDecoded> expectedIbftPrepareMessages = new ArrayList<>();
+
+    List<IbftPrepareMessageDecoded> ibftPrepareMessages = new ArrayList<>();
     for (int i = 0; i < NUM_PREPARE_MESSAGES; i++) {
       PrivateKey privateKey = PrivateKey.create(UInt256.of(i + 1).getBytes());
       KeyPair validatorKeys = KeyPair.create(privateKey);
-      Address expectedValidatorAddress = Util.publicKeyToAddress(validatorKeys.getPublicKey());
-      expectedPrepareMessagesValidatorAddresses.add(i, expectedValidatorAddress);
 
-      expectedIbftPrepareMessages.add(
+      ibftPrepareMessages.add(
           new IbftPrepareMessageDecoded(
               new ConsensusRoundIdentifier(SEQUENCE + i, ROUND + i),
               Hash.hash(BytesValue.of(i)),
               validatorKeys));
     }
-    IbftPreparedCertificate expectedIbftPreparedCertificate =
-        new IbftPreparedCertificate(
-            expectedIbftPrePrepareMessageDecoded, expectedIbftPrepareMessages);
+    PREPARED_CERTIFICATE =
+        new IbftPreparedCertificate(ibftPrePrepareMessageDecoded, ibftPrepareMessages);
+  }
+
+  /**
+   * NOTE: Are the following tests good enough or do we need to go to the extent of the {@link
+   * IbftPrepareMessageDecodedTest#writeToRlp()} and {@link
+   * IbftPrepareMessageDecodedTest#readFromRlp()} ()} tests in IbftPreparedMessageDecodedTest.java ?
+   */
+  @Test
+  public void testWriteToFollowedByReadFromWithPreparedCertificate() {
+    IbftRoundChangeMessageDecoded expectedIbftRoundChangeMessageDecoded =
+        new IbftRoundChangeMessageDecoded(
+            ROUND_IDENTIFIER, Optional.of(PREPARED_CERTIFICATE), VALIDATOR_KEY_PAIR);
 
     BytesValueRLPOutput rlpOut = new BytesValueRLPOutput();
-    expectedIbftPreparedCertificate.writeTo(rlpOut);
+    expectedIbftRoundChangeMessageDecoded.writeTo(rlpOut);
 
     RLPInput rlpInput = RLP.input(rlpOut.encoded());
 
-    IbftPreparedCertificate actualIbftPreparedCetificate;
-    actualIbftPreparedCetificate = IbftPreparedCertificate.readFrom(rlpInput);
+    IbftRoundChangeMessageDecoded actualIbftRoundChangeMessage;
+    actualIbftRoundChangeMessage = IbftRoundChangeMessageDecoded.readFrom(rlpInput);
+
+    ConsensusRoundIdentifier actualRoundIdentifier =
+        actualIbftRoundChangeMessage.getRoundChangeIdentifier();
+    Address actualSender = actualIbftRoundChangeMessage.getSender();
+    IbftPreparedCertificate actualIbftPreparedCertificate =
+        actualIbftRoundChangeMessage.getPreparedCertificate().get();
+
+    assertThat(actualRoundIdentifier).isEqualToComparingFieldByField(ROUND_IDENTIFIER);
+    assertThat(actualSender).isEqualTo(VALIDATOR_ADDRESS);
 
     IbftPrePrepareMessageDecoded actualIbftPrePrepareMessage =
-        actualIbftPreparedCetificate.getIbftPrePrepareMessage();
+        PREPARED_CERTIFICATE.getIbftPrePrepareMessage();
     Collection<IbftPrepareMessageDecoded> actuaIbftPrepareMessages =
-        actualIbftPreparedCetificate.getIbftPrepareMessages();
+        PREPARED_CERTIFICATE.getIbftPrepareMessages();
 
     assertThat(actualIbftPrePrepareMessage.getRoundIdentifier())
         .isEqualToComparingFieldByField(ROUND_IDENTIFIER);
@@ -158,7 +167,9 @@ public class IbftPreparedCertificateTest {
 
     int i = 0;
     for (IbftPrepareMessageDecoded ibftPrepareMessage : actuaIbftPrepareMessages) {
-      Address validatorAddress = expectedPrepareMessagesValidatorAddresses.get(i);
+      PrivateKey privateKey = PrivateKey.create(UInt256.of(i + 1).getBytes());
+      KeyPair validatorKeys = KeyPair.create(privateKey);
+      Address validatorAddress = Util.publicKeyToAddress(validatorKeys.getPublicKey());
 
       assertThat(ibftPrepareMessage.getRoundIdentifier())
           .isEqualToComparingFieldByField(new ConsensusRoundIdentifier(SEQUENCE + i, ROUND + i));
@@ -167,5 +178,31 @@ public class IbftPreparedCertificateTest {
 
       i++;
     }
+  }
+
+  @Test
+  public void testWriteToFollowedByReadFromWithEmptyPreparedCertificate() {
+    IbftRoundChangeMessageDecoded expectedIbftRoundChangeMessageDecoded =
+        new IbftRoundChangeMessageDecoded(ROUND_IDENTIFIER, Optional.empty(), VALIDATOR_KEY_PAIR);
+
+    BytesValueRLPOutput rlpOut = new BytesValueRLPOutput();
+    expectedIbftRoundChangeMessageDecoded.writeTo(rlpOut);
+
+    RLPInput rlpInput = RLP.input(rlpOut.encoded());
+
+    IbftRoundChangeMessageDecoded actualIbftRoundChangeMessage;
+    actualIbftRoundChangeMessage = IbftRoundChangeMessageDecoded.readFrom(rlpInput);
+
+    ConsensusRoundIdentifier actualRoundIdentifier =
+        actualIbftRoundChangeMessage.getRoundChangeIdentifier();
+    Address actualSender = actualIbftRoundChangeMessage.getSender();
+
+    assertThat(actualRoundIdentifier).isEqualToComparingFieldByField(ROUND_IDENTIFIER);
+    assertThat(actualSender).isEqualTo(VALIDATOR_ADDRESS);
+
+    Optional<IbftPreparedCertificate> actualIbftPreparedCertificate =
+        actualIbftRoundChangeMessage.getPreparedCertificate();
+
+    assertThat(actualIbftPreparedCertificate.isPresent()).isFalse();
   }
 }
