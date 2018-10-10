@@ -83,6 +83,7 @@ public class IbftRoundChangeMessageDecoded extends AbstractIbftMessageDecoded {
     ibftMessageData.enterList();
     roundIdentifier = ConsensusRoundIdentifier.readFrom(ibftMessageData);
     if (ibftMessageData.nextIsNull()) {
+      ibftMessageData.skipNext();
       preparedCertificate = Optional.empty();
     } else {
       preparedCertificate = Optional.of(IbftPreparedCertificate.readFrom(ibftMessageData));
