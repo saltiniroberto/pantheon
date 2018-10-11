@@ -2,7 +2,7 @@ package tech.pegasys.pantheon.consensus.common;
 
 import java.util.Optional;
 
-public enum VoteType {
+public enum VoteType implements  ValidatorVote{
   ADD(0xFFFFFFFFFFFFFFFFL),
   DROP(0x0L);
 
@@ -23,5 +23,15 @@ public enum VoteType {
       }
     }
     return Optional.empty();
+  }
+
+  @Override
+  public boolean isAddVote() {
+    return this.equals(ADD);
+  }
+
+  @Override
+  public boolean isDropVote() {
+    return this.equals(DROP);
   }
 }
