@@ -19,7 +19,7 @@ public enum Ibft2VoteType {
     return voteValue;
   }
 
-  public static Optional<Ibft2VoteType> readFrom(RLPInput rlpInput) {
+  public static Optional<Ibft2VoteType> readFrom(final RLPInput rlpInput) {
     if (rlpInput.nextIsNull()) {
       rlpInput.skipNext();
       return Optional.empty();
@@ -34,7 +34,7 @@ public enum Ibft2VoteType {
     return Optional.empty();
   }
 
-  public void writeTo(RLPOutput rlpOutput) {
+  public void writeTo(final RLPOutput rlpOutput) {
     rlpOutput.writeByte(voteValue);
   }
 }
