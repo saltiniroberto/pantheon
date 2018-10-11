@@ -14,6 +14,7 @@ package tech.pegasys.pantheon.consensus.ibft;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Collections.emptyList;
 
 import tech.pegasys.pantheon.crypto.SECP256K1.Signature;
 import tech.pegasys.pantheon.ethereum.core.Address;
@@ -29,7 +30,7 @@ import java.util.Optional;
  * Represents the data structure stored in the extraData field of the BlockHeader used when
  * operating under an IBFT 2.0 consensus mechanism.
  */
-public class Ibft2ExtraData {
+public class IbftExtraData {
 
   public static final int EXTRA_VANITY_LENGTH = 32;
 
@@ -39,7 +40,7 @@ public class Ibft2ExtraData {
   private final int round;
   private final List<Address> validators;
 
-  public Ibft2ExtraData(
+  public IbftExtraData(
       final BytesValue vanityData,
       final List<Signature> seals,
       final Optional<Vote> vote,
@@ -57,7 +58,7 @@ public class Ibft2ExtraData {
     this.vote = vote;
   }
 
-  public static Ibft2ExtraData decode(final BytesValue input) {
+  public static IbftExtraData decode(final BytesValue input) {
     checkArgument(
         input.size() > EXTRA_VANITY_LENGTH,
         "Invalid BytesValue supplied - too short to produce a valid IBFT Extra Data object.");
@@ -78,10 +79,27 @@ public class Ibft2ExtraData {
     final List<Signature> seals = rlpInput.readList(rlp -> Signature.decode(rlp.readBytesValue()));
     rlpInput.leaveList();
 
-    return new Ibft2ExtraData(vanityData, seals, vote, round, validators);
+    return new IbftExtraData(vanityData, seals, vote, round, validators);
   }
 
   public BytesValue encode() {
+    return encode(vanityData, validators, vote, round, seals);
+  }
+
+  public BytesValue encodeWithoutCommitSeals() {
+    return encode(vanityData, validators, vote, round, emptyList());
+  }
+
+  public BytesValue encodeWithoutCommitSealsAndWithRoundEqualToZero() {
+    return encode(vanityData, validators, vote, 0, emptyList());
+  }
+
+  private BytesValue encode(
+      final BytesValue vanityData,
+      final List<Address> validators,
+      final Optional<Vote> vote,
+      final int round,
+      final List<Signature> seals) {
     final BytesValueRLPOutput encoder = new BytesValueRLPOutput();
     encoder.startList();
     encoder.writeBytesValue(vanityData);
