@@ -6,8 +6,8 @@ import net.consensys.pantheon.ethereum.rlp.RLPOutput;
 import java.util.Optional;
 
 public enum Ibft2VoteType {
-  ADD((byte) 0x00),
-  DROP((byte) 0xFF);
+  ADD((byte) 0xFF),
+  DROP((byte) 0x00);
 
   private final byte voteValue;
 
