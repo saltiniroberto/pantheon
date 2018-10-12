@@ -130,7 +130,7 @@ public class ProposerSelector {
   }
 
   /**
-   * Determines the proposer of an existing block, based on the proposer getSignature in the extra
+   * Determines the proposer of an existing block, based on the proposer signature in the extra
    * data.
    *
    * @param blockNumber The index of the block in the chain being queried.

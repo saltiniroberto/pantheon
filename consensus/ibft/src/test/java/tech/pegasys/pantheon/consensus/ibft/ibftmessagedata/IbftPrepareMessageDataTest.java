@@ -22,7 +22,7 @@ import io.netty.buffer.ByteBuf;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.Test;
 
-public class IbftPrepareMessageTest {
+public class IbftPrepareMessageDataTest {
 
   private final String HEX_PRIVATE_KEY =
       "8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63";
@@ -39,7 +39,8 @@ public class IbftPrepareMessageTest {
       "f873ef881234567890abcdef84fedcba98a017ea9555c69c9fb4ab30d425cf5fe027a27562344ad65ca0d4ed63ceffafcb72b8419d3ed845f4e6bde242f597a0f8eebbf3038905a87e3a59b7a8ac6ff786316cf211973ec6c94fcbc43802168ad32f7019bc98da73956e261a2d9ceb845f78bc7100";
 
   // NOTE: The following tests heavily rely on the IbftPrepareMessageDecoded class. I couldn't come
-  // up with a better way to test the IbftPrepareMessage class without relying on the functionality
+  // up with a better way to test the IbftPrepareMessageData class without relying on the
+  // functionality
   // provided by the IbftPrepareMessageDecoded
   @Test
   public void messageCreationFromGenericMesssageData() {
@@ -57,7 +58,7 @@ public class IbftPrepareMessageTest {
         };
 
     Optional<AbstractIbftMessageData> ibftPrepareMessage =
-        IbftPrepareMessage.fromMessage(messageData);
+        IbftPrepareMessageData.fromMessage(messageData);
 
     assertThat(ibftPrepareMessage.isPresent()).isTrue();
     assertThat(ibftPrepareMessage.get().getCode()).isEqualTo(MESSAGE_CODE);
@@ -89,7 +90,7 @@ public class IbftPrepareMessageTest {
         };
 
     Optional<AbstractIbftMessageData> ibftPrepareMessage =
-        IbftPrepareMessage.fromMessage(messageData);
+        IbftPrepareMessageData.fromMessage(messageData);
 
     assertThat(ibftPrepareMessage.isPresent()).isFalse();
   }
@@ -102,10 +103,11 @@ public class IbftPrepareMessageTest {
     IbftPrepareMessageDecoded ibftPrepareMessageDecoded =
         new IbftPrepareMessageDecoded(roundIdentifier, DIGEST, VALIDATOR_KEY_PAIR);
 
-    IbftPrepareMessage ibftPrepareMessage = IbftPrepareMessage.create(ibftPrepareMessageDecoded);
+    IbftPrepareMessageData ibftPrepareMessageData =
+        IbftPrepareMessageData.create(ibftPrepareMessageDecoded);
 
-    final ByteBuf dataByteBuf = NetworkMemoryPool.allocate(ibftPrepareMessage.getSize());
-    ibftPrepareMessage.writeTo(dataByteBuf);
+    final ByteBuf dataByteBuf = NetworkMemoryPool.allocate(ibftPrepareMessageData.getSize());
+    ibftPrepareMessageData.writeTo(dataByteBuf);
 
     byte[] expectedEncoding = Hex.decode(HEX_ENCODED_PREPARE_MESSAGE);
 

@@ -87,8 +87,8 @@ public class IbftBlockCreator extends AbstractBlockCreator<IbftContext> {
   }
 
   /**
-   * Produces an IbftExtraData object with a populated proposerSeal. The getSignature in the block
-   * is generated from the Hash of the header (minus proposer and committer seals) and the nodeKeys.
+   * Produces an IbftExtraData object with a populated proposerSeal. The signature in the block is
+   * generated from the Hash of the header (minus proposer and committer seals) and the nodeKeys.
    *
    * @param headerToSign An almost fully populated header (proposer and committer seals are empty)
    * @return Extra data containing the same vanity data and validators as extraData, however

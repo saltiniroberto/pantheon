@@ -1,9 +1,9 @@
 package tech.pegasys.pantheon.consensus.ibft;
 
 import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.AbstractIbftMessageData;
-import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftPrePrepareMessage;
-import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftPrepareMessage;
-import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftRoundChangeMessage;
+import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftPrePrepareMessageData;
+import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftPrepareMessageData;
+import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftRoundChangeMessageData;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessagedecoded.AbstractIbftMessageDecoded;
 import tech.pegasys.pantheon.ethereum.p2p.api.Message;
 import tech.pegasys.pantheon.ethereum.p2p.api.MessageData;
@@ -19,9 +19,9 @@ public class IbftMessages {
 
     AbstractIbftMessageData ibftMessageData =
         Stream.<Function<MessageData, Optional<AbstractIbftMessageData>>>of(
-                IbftPrePrepareMessage::fromMessage,
-                IbftPrepareMessage::fromMessage,
-                IbftRoundChangeMessage::fromMessage)
+                IbftPrePrepareMessageData::fromMessage,
+                IbftPrepareMessageData::fromMessage,
+                IbftRoundChangeMessageData::fromMessage)
             .map(fromMessage -> fromMessage.apply(messageData))
             .filter(Optional::isPresent)
             .map(Optional::get)

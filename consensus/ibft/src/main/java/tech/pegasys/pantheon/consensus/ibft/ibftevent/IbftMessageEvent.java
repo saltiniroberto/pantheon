@@ -4,7 +4,7 @@ import tech.pegasys.pantheon.consensus.ibft.IbftEvent;
 import tech.pegasys.pantheon.consensus.ibft.IbftEvents.Type;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessagedecoded.AbstractIbftMessageDecoded;
 
-/** Event indicating a round timer has expired */
+/** Event indicating a new iBFT message has been received */
 public final class IbftMessageEvent implements IbftEvent {
   private final AbstractIbftMessageDecoded message;
 
