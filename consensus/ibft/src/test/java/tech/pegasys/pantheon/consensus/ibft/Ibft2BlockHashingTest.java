@@ -1,20 +1,19 @@
-package net.consensys.pantheon.consensus.ibft;
+package tech.pegasys.pantheon.consensus.ibft;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
-
-import net.consensys.pantheon.crypto.SECP256K1;
-import net.consensys.pantheon.crypto.SECP256K1.KeyPair;
-import net.consensys.pantheon.crypto.SECP256K1.PrivateKey;
-import net.consensys.pantheon.crypto.SECP256K1.Signature;
-import net.consensys.pantheon.ethereum.core.Address;
-import net.consensys.pantheon.ethereum.core.BlockHeader;
-import net.consensys.pantheon.ethereum.core.BlockHeaderBuilder;
-import net.consensys.pantheon.ethereum.core.Hash;
-import net.consensys.pantheon.ethereum.core.LogsBloomFilter;
-import net.consensys.pantheon.ethereum.core.Util;
-import net.consensys.pantheon.ethereum.rlp.BytesValueRLPOutput;
-import net.consensys.pantheon.util.bytes.BytesValue;
-import net.consensys.pantheon.util.uint.UInt256;
+import org.junit.Test;
+import tech.pegasys.pantheon.crypto.SECP256K1;
+import tech.pegasys.pantheon.crypto.SECP256K1.Signature;
+import tech.pegasys.pantheon.crypto.SECP256K1.KeyPair;
+import tech.pegasys.pantheon.crypto.SECP256K1.PrivateKey;
+import tech.pegasys.pantheon.ethereum.core.Address;
+import tech.pegasys.pantheon.ethereum.core.BlockHeader;
+import tech.pegasys.pantheon.ethereum.core.BlockHeaderBuilder;
+import tech.pegasys.pantheon.ethereum.core.Hash;
+import tech.pegasys.pantheon.ethereum.core.LogsBloomFilter;
+import tech.pegasys.pantheon.ethereum.core.Util;
+import tech.pegasys.pantheon.ethereum.rlp.BytesValueRLPOutput;
+import tech.pegasys.pantheon.util.bytes.BytesValue;
+import tech.pegasys.pantheon.util.uint.UInt256;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.junit.Test;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 public class Ibft2BlockHashingTest {
 

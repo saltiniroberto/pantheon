@@ -1,12 +1,13 @@
-package net.consensys.pantheon.consensus.ibft;
+package tech.pegasys.pantheon.consensus.ibft;
 
-import net.consensys.pantheon.ethereum.core.Address;
-import net.consensys.pantheon.ethereum.core.BlockHeader;
-import net.consensys.pantheon.ethereum.core.BlockHeaderBuilder;
-import net.consensys.pantheon.ethereum.core.Hash;
-import net.consensys.pantheon.ethereum.core.Util;
-import net.consensys.pantheon.ethereum.rlp.BytesValueRLPOutput;
-import net.consensys.pantheon.util.bytes.BytesValue;
+
+import tech.pegasys.pantheon.ethereum.core.Address;
+import tech.pegasys.pantheon.ethereum.core.BlockHeader;
+import tech.pegasys.pantheon.ethereum.core.BlockHeaderBuilder;
+import tech.pegasys.pantheon.ethereum.core.Hash;
+import tech.pegasys.pantheon.ethereum.core.Util;
+import tech.pegasys.pantheon.ethereum.rlp.BytesValueRLPOutput;
+import tech.pegasys.pantheon.util.bytes.BytesValue;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -25,7 +26,7 @@ public class Ibft2BlockHashing {
    * @return the hash of the header including the validator and proposer seal in the extra data
    */
   public static Hash calculateDataHashForCommittedSeal(
-      final BlockHeader header, final Ibft2ExtraData ibftExtraData) {
+          final BlockHeader header, final Ibft2ExtraData ibftExtraData) {
     return Hash.hash(serializeHeader(header, ibftExtraData::encodeWithoutCommitSeals));
   }
 
