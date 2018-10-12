@@ -1,8 +1,9 @@
 package net.consensys.pantheon.consensus.common;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
-
 import org.junit.Test;
+import tech.pegasys.pantheon.consensus.common.VoteType;
+
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 public class VoteTypeTest {
   @Test
