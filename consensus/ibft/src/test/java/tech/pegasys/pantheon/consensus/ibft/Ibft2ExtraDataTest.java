@@ -10,6 +10,7 @@ import tech.pegasys.pantheon.util.bytes.BytesValue;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -248,6 +249,68 @@ public class Ibft2ExtraDataTest {
         new Ibft2ExtraData(vanity_data, committerSeals, voteRecipient, vote, round, validators);
 
     Ibft2ExtraData actualExtraData = Ibft2ExtraData.decode(expectedExtraData.encode());
+
+    assertThat(actualExtraData).isEqualToComparingFieldByField(expectedExtraData);
+  }
+
+  @Test
+  public void testEncodeWithoutCommitSeals() {
+    final List<Address> validators = Arrays.asList(Address.ECREC, Address.SHA256);
+    final Address voteRecipient = Address.fromHexString("1");
+    Optional<Ibft2VoteType> vote = Optional.of(Ibft2VoteType.ADD);
+    final int round = 0x00FEDCBA;
+    final List<Signature> committerSeals =
+        Arrays.asList(
+            Signature.create(BigInteger.ONE, BigInteger.TEN, (byte) 0),
+            Signature.create(BigInteger.TEN, BigInteger.ONE, (byte) 0));
+
+    // Create a byte buffer with data
+    final byte[] vanity_bytes = new byte[32];
+    for (int i = 0; i < vanity_bytes.length; i++) {
+      vanity_bytes[i] = (byte) i;
+    }
+    final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
+
+    Ibft2ExtraData extraDataWithCommitSeals =
+        new Ibft2ExtraData(vanity_data, committerSeals, voteRecipient, vote, round, validators);
+
+    Ibft2ExtraData expectedExtraData =
+        new Ibft2ExtraData(vanity_data, new LinkedList<>(), voteRecipient, vote, round, validators);
+
+    Ibft2ExtraData actualExtraData =
+        Ibft2ExtraData.decode(extraDataWithCommitSeals.encodeWithoutCommitSeals());
+
+    assertThat(actualExtraData).isEqualToComparingFieldByField(expectedExtraData);
+  }
+
+  @Test
+  public void testEncodeWithoutCommitSealsAndWithRoundEqualZero() {
+    final List<Address> validators = Arrays.asList(Address.ECREC, Address.SHA256);
+    final Address voteRecipient = Address.fromHexString("1");
+    Optional<Ibft2VoteType> vote = Optional.of(Ibft2VoteType.ADD);
+    final int round = 0x00FEDCBA;
+    final List<Signature> committerSeals =
+        Arrays.asList(
+            Signature.create(BigInteger.ONE, BigInteger.TEN, (byte) 0),
+            Signature.create(BigInteger.TEN, BigInteger.ONE, (byte) 0));
+
+    // Create a byte buffer with data
+    final byte[] vanity_bytes = new byte[32];
+    for (int i = 0; i < vanity_bytes.length; i++) {
+      vanity_bytes[i] = (byte) i;
+    }
+    final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
+
+    Ibft2ExtraData extraDataWithCommitSealsAndWithRoundNotZero =
+        new Ibft2ExtraData(vanity_data, committerSeals, voteRecipient, vote, round, validators);
+
+    Ibft2ExtraData expectedExtraData =
+        new Ibft2ExtraData(vanity_data, new LinkedList<>(), voteRecipient, vote, 0, validators);
+
+    Ibft2ExtraData actualExtraData =
+        Ibft2ExtraData.decode(
+            extraDataWithCommitSealsAndWithRoundNotZero
+                .encodeWithoutCommitSealsAndWithRoundEqualToZero());
 
     assertThat(actualExtraData).isEqualToComparingFieldByField(expectedExtraData);
   }

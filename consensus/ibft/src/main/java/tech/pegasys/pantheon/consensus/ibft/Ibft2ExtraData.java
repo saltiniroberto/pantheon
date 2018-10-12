@@ -86,6 +86,42 @@ public class Ibft2ExtraData {
     return BytesValue.wrap(vanityData, encoder.encoded());
   }
 
+  public BytesValue encodeWithoutCommitSeals() {
+    final BytesValueRLPOutput encoder = new BytesValueRLPOutput();
+    encoder.startList();
+    encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
+    encoder.writeBytesValue(voteRecipient);
+    if (vote.isPresent()) {
+      vote.get().writeTo(encoder);
+    } else {
+      encoder.writeNull();
+    }
+    encoder.writeInt(round);
+    encoder.startList();
+    encoder.endList();
+    encoder.endList();
+
+    return BytesValue.wrap(vanityData, encoder.encoded());
+  }
+
+  public BytesValue encodeWithoutCommitSealsAndWithRoundEqualToZero() {
+    final BytesValueRLPOutput encoder = new BytesValueRLPOutput();
+    encoder.startList();
+    encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
+    encoder.writeBytesValue(voteRecipient);
+    if (vote.isPresent()) {
+      vote.get().writeTo(encoder);
+    } else {
+      encoder.writeNull();
+    }
+    encoder.writeInt(0);
+    encoder.startList();
+    encoder.endList();
+    encoder.endList();
+
+    return BytesValue.wrap(vanityData, encoder.encoded());
+  }
+
   // Accessors
   public BytesValue getVanityData() {
     return vanityData;
