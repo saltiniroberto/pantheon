@@ -1,12 +1,6 @@
-package net.consensys.pantheon.consensus.ibft;
+package tech.pegasys.pantheon.consensus.ibft;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import net.consensys.pantheon.crypto.SECP256K1.Signature;
-import net.consensys.pantheon.ethereum.core.Address;
-import net.consensys.pantheon.ethereum.rlp.BytesValueRLPOutput;
-import net.consensys.pantheon.ethereum.rlp.RLPException;
-import net.consensys.pantheon.util.bytes.BytesValue;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -15,6 +9,11 @@ import java.util.Optional;
 import java.util.Random;
 
 import com.google.common.collect.Lists;
+import net.consensys.pantheon.crypto.SECP256K1.Signature;
+import net.consensys.pantheon.ethereum.core.Address;
+import net.consensys.pantheon.ethereum.rlp.BytesValueRLPOutput;
+import net.consensys.pantheon.ethereum.rlp.RLPException;
+import net.consensys.pantheon.util.bytes.BytesValue;
 import org.junit.Test;
 
 public class Ibft2ExtraDataTest {
