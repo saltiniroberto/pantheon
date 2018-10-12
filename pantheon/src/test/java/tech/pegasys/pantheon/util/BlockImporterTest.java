@@ -52,10 +52,11 @@ public final class BlockImporterTest {
   }
 
   @Test
-  public void ibftImport() throws IOException {
+  public void ibftLegacyImport() throws IOException {
     final Path source = folder.newFile().toPath();
     final Path target = folder.newFolder().toPath();
-    final String config = Resources.toString(Resources.getResource("ibft_genesis.json"), UTF_8);
+    final String config =
+        Resources.toString(Resources.getResource("ibftlegacy_genesis.json"), UTF_8);
 
     try {
       Files.write(
@@ -79,5 +80,10 @@ public final class BlockImporterTest {
     final BlockImporter.ImportResult result = blockImporter.importBlockchain(source, controller);
 
     assertThat(result.count).isEqualTo(959);
+  }
+
+  @Test
+  public void ibftImport() throws IOException {
+    // TODO: To be added once a valid iBFT 2.0 exported blockchain is available
   }
 }

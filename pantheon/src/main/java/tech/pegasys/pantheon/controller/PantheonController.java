@@ -13,7 +13,7 @@
 package tech.pegasys.pantheon.controller;
 
 import tech.pegasys.pantheon.consensus.clique.CliqueProtocolSchedule;
-import tech.pegasys.pantheon.consensus.ibftlegacy.IbftProtocolSchedule;
+import tech.pegasys.pantheon.consensus.ibft.IbftProtocolSchedule;
 import tech.pegasys.pantheon.crypto.SECP256K1.KeyPair;
 import tech.pegasys.pantheon.ethereum.ProtocolContext;
 import tech.pegasys.pantheon.ethereum.blockcreation.AbstractBlockCreator;
@@ -66,6 +66,18 @@ public interface PantheonController<C, M extends BlockMiner<C, ? extends Abstrac
           syncConfig,
           ottomanTestnetOperation,
           configOptions.getJsonObject("ibft"),
+          networkId,
+          nodeKeys);
+    } else if (configOptions.containsKey("ibftlegacy")) {
+      return IbftPantheonController.init(
+          pantheonHome,
+          GenesisConfig.fromConfig(
+              config,
+              tech.pegasys.pantheon.consensus.ibftlegacy.IbftProtocolSchedule.create(
+                  configOptions)),
+          syncConfig,
+          ottomanTestnetOperation,
+          configOptions.getJsonObject("ibftlegacy"),
           networkId,
           nodeKeys);
     } else if (configOptions.containsKey("clique")) {

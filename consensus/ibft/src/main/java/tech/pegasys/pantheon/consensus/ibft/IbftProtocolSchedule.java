@@ -10,9 +10,8 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package tech.pegasys.pantheon.consensus.ibftlegacy;
+package tech.pegasys.pantheon.consensus.ibft;
 
-import tech.pegasys.pantheon.consensus.ibft.IbftContext;
 import tech.pegasys.pantheon.ethereum.mainnet.MutableProtocolSchedule;
 import tech.pegasys.pantheon.ethereum.mainnet.ProtocolSchedule;
 
@@ -28,7 +27,7 @@ public class IbftProtocolSchedule {
 
   public static ProtocolSchedule<IbftContext> create(final JsonObject config) {
     final long spuriousDragonBlock = config.getLong("spuriousDragonBlock", 0L);
-    final Optional<JsonObject> ibftConfig = Optional.ofNullable(config.getJsonObject("ibftlegacy"));
+    final Optional<JsonObject> ibftConfig = Optional.ofNullable(config.getJsonObject("ibft"));
     final int chainId = config.getInteger("chainId", 1);
     final long epochLength = getEpochLength(ibftConfig);
     final long blockPeriod =
