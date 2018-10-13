@@ -9,6 +9,7 @@ public class IbftEvents {
   }
 
   public enum Type {
-    ROUND_EXPIRY
+    ROUND_EXPIRY,
+    BLOCK_TIMER_EXPIRY
   }
 }
