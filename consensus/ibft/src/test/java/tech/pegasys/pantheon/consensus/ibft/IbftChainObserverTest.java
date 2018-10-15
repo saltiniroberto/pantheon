@@ -6,7 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import tech.pegasys.pantheon.consensus.ibft.ibftevent.NewChainHeadHeader;
+import tech.pegasys.pantheon.consensus.ibft.ibftevent.NewChainHead;
 import tech.pegasys.pantheon.ethereum.chain.BlockAddedEvent;
 import tech.pegasys.pantheon.ethereum.chain.Blockchain;
 import tech.pegasys.pantheon.ethereum.core.Address;
@@ -45,8 +45,8 @@ public class IbftChainObserverTest {
     ArgumentCaptor<IbftEvent> ibftEventArgumentCaptor = ArgumentCaptor.forClass(IbftEvent.class);
     verify(mockQueue).add(ibftEventArgumentCaptor.capture());
 
-    assertThat(ibftEventArgumentCaptor.getValue() instanceof NewChainHeadHeader).isTrue();
-    assertThat(((NewChainHeadHeader) ibftEventArgumentCaptor.getValue()).getNewChainHeadHeader())
+    assertThat(ibftEventArgumentCaptor.getValue() instanceof NewChainHead).isTrue();
+    assertThat(((NewChainHead) ibftEventArgumentCaptor.getValue()).getNewChainHeadHeader())
         .isEqualTo(header);
   }
 

@@ -8,16 +8,16 @@ import java.util.Objects;
 
 import com.google.common.base.MoreObjects;
 
-/** Event indicating that new chain head header has been received */
-public final class NewChainHeadHeader implements IbftEvent {
+/** Event indicating that new chain head has been received */
+public final class NewChainHead implements IbftEvent {
   private final BlockHeader newChainHeadHeader;
 
   /**
-   * Constructor for a RoundExpiry event
+   * Constructor for a NewChainHead event
    *
    * @param newChainHeadHeader The header of the current blockchain head
    */
-  public NewChainHeadHeader(final BlockHeader newChainHeadHeader) {
+  public NewChainHead(final BlockHeader newChainHeadHeader) {
     this.newChainHeadHeader = newChainHeadHeader;
   }
 
@@ -41,7 +41,7 @@ public final class NewChainHeadHeader implements IbftEvent {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    final NewChainHeadHeader that = (NewChainHeadHeader) o;
+    final NewChainHead that = (NewChainHead) o;
     return Objects.equals(newChainHeadHeader, that.newChainHeadHeader);
   }
 
