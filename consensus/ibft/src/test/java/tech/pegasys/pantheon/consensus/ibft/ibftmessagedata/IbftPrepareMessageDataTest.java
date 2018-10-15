@@ -63,8 +63,7 @@ public class IbftPrepareMessageDataTest {
     assertThat(ibftPrepareMessage.isPresent()).isTrue();
     assertThat(ibftPrepareMessage.get().getCode()).isEqualTo(MESSAGE_CODE);
 
-    IbftPrepareMessageDecoded ibftPrepareMessageDecoded =
-        (IbftPrepareMessageDecoded) ibftPrepareMessage.get().decode();
+    IbftPrepareMessageDecoded ibftPrepareMessageDecoded = ibftPrepareMessage.get().decode();
 
     ConsensusRoundIdentifier expecterRoundIdentifier =
         new ConsensusRoundIdentifier(SEQUENCE, ROUND);
