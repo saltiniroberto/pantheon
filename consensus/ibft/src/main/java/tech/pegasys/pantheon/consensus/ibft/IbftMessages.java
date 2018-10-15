@@ -14,10 +14,10 @@ import java.util.stream.Stream;
 
 public class IbftMessages {
 
-  public static AbstractIbftMessageDecoded fromMessage(final Message message) {
+  public static Optional<AbstractIbftMessageDecoded> fromMessage(final Message message) {
     final MessageData messageData = message.getData();
 
-    AbstractIbftMessageData ibftMessageData =
+    Optional<? extends AbstractIbftMessageData> optionalIbftMessageData =
         Stream.<Function<MessageData, Optional<? extends AbstractIbftMessageData>>>of(
                 IbftPrePrepareMessageData::fromMessage,
                 IbftPrepareMessageData::fromMessage,
@@ -25,9 +25,8 @@ public class IbftMessages {
             .map(fromMessage -> fromMessage.apply(messageData))
             .filter(Optional::isPresent)
             .map(Optional::get)
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Message is not a valid iBFT message"));
+            .findFirst();
 
-    return ibftMessageData.decode();
+    return optionalIbftMessageData.map(AbstractIbftMessageData::decode);
   }
 }
