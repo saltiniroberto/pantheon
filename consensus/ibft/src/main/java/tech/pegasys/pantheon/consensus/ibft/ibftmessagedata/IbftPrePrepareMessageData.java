@@ -35,9 +35,9 @@ public class IbftPrePrepareMessageData extends AbstractIbftMessageData {
     return Optional.of(new IbftPrePrepareMessageData(data));
   }
 
-  // NOTE: Alternatvie interface: IbftPrepareMessageDecoded decode(final MessageData message). This
-  // would avoid
-  // having to call the constructor and allocate memory for a ByteBuf when all that is required is
+  // NOTE: Alternative interface: IbftPrepareMessageDecoded decode(final MessageData message). This
+  // would avoid having to call the constructor and allocate memory for a ByteBuf when all that is
+  // required is
   // to decode the message into an IbftPrePrepareMessageDecoded class
   @Override
   public IbftPrePrepareMessageDecoded decode() {

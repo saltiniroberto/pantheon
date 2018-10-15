@@ -57,7 +57,7 @@ public class IbftPrepareMessageDataTest {
           }
         };
 
-    Optional<AbstractIbftMessageData> ibftPrepareMessage =
+    Optional<IbftPrepareMessageData> ibftPrepareMessage =
         IbftPrepareMessageData.fromMessage(messageData);
 
     assertThat(ibftPrepareMessage.isPresent()).isTrue();
@@ -89,7 +89,7 @@ public class IbftPrepareMessageDataTest {
           }
         };
 
-    Optional<AbstractIbftMessageData> ibftPrepareMessage =
+    Optional<IbftPrepareMessageData> ibftPrepareMessage =
         IbftPrepareMessageData.fromMessage(messageData);
 
     assertThat(ibftPrepareMessage.isPresent()).isFalse();
