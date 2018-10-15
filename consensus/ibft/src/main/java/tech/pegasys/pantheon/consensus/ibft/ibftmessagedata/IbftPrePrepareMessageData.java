@@ -16,11 +16,11 @@ public class IbftPrePrepareMessageData extends AbstractIbftMessageData {
 
   private static final int CODE = IbftSubProtocol.NotificationType.PREPREPARE.getValue();
 
-  protected IbftPrePrepareMessageData(final ByteBuf data) {
+  private IbftPrePrepareMessageData(final ByteBuf data) {
     super(data);
   }
 
-  public static Optional<AbstractIbftMessageData> fromMessage(final MessageData message) {
+  public static Optional<IbftPrePrepareMessageData> fromMessage(final MessageData message) {
     if (message instanceof IbftPrePrepareMessageData) {
       message.retain();
       return Optional.of((IbftPrePrepareMessageData) message);

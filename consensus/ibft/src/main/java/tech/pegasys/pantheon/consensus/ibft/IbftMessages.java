@@ -18,7 +18,7 @@ public class IbftMessages {
     final MessageData messageData = message.getData();
 
     AbstractIbftMessageData ibftMessageData =
-        Stream.<Function<MessageData, Optional<AbstractIbftMessageData>>>of(
+        Stream.<Function<MessageData, Optional<? extends AbstractIbftMessageData>>>of(
                 IbftPrePrepareMessageData::fromMessage,
                 IbftPrepareMessageData::fromMessage,
                 IbftRoundChangeMessageData::fromMessage)

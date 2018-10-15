@@ -21,8 +21,7 @@ public class IbftPrepareMessageDecoded extends AbstractIbftInRoundMessageDecoded
   // created in order to either compute the getSender address (if the message is read from rlp)  or
   // create the getSignature if the message is created by "us"
   // Alternative approach: decode each field on demand (e.g. when getSender() is called) and cache
-  // the
-  // value
+  // the value
   private final BytesValue cachedRlpEncodedIbftMessage;
 
   /** Constructor used when a validator wants to send a message */

@@ -23,11 +23,9 @@ public class IbftRoundChangeMessageDecoded extends AbstractIbftMessageDecoded {
   // Used to avoid running another serialisation when the message will be written out.
   // The message data (round, sequence, prepared certificate) must be serialised everytime that a
   // message is created in order to either compute the getSender address (if the message is read
-  // from
-  // rlp)  or create the getSignature if the message is created by "us"
+  // from rlp)  or create the getSignature if the message is created by "us"
   // Alternative approach: decode each field on demand (e.g. when getSender() is called) and cache
-  // the
-  // value
+  // the value
   private final BytesValue cachedRlpEncodedIbftMessage;
   private final Signature signature;
 

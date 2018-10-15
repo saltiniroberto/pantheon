@@ -44,12 +44,12 @@ public class IbftExtraDataValidationRuleTest {
     builder.extraData(initialIbftExtraData.encode());
     final BlockHeader header = builder.buildHeader();
 
-    // Hash the header (ignoring committer and proposer seals), and create getSignature
+    // Hash the header (ignoring committer and proposer seals), and create signature
     final Hash proposerSealHash =
         IbftBlockHashing.calculateDataHashForProposerSeal(header, initialIbftExtraData);
     final Signature proposerSignature = SECP256K1.sign(proposerSealHash, proposerKeyPair);
 
-    // Construct a new extraData block, containing the constructed proposer getSignature
+    // Construct a new extraData block, containing the constructed proposer signature
     final IbftExtraData proposedData =
         new IbftExtraData(
             BytesValue.wrap(new byte[IbftExtraData.EXTRA_VANITY_LENGTH]),

@@ -16,11 +16,11 @@ public class IbftRoundChangeMessageData extends AbstractIbftMessageData {
 
   private static final int CODE = IbftSubProtocol.NotificationType.ROUND_CHANGE.getValue();
 
-  protected IbftRoundChangeMessageData(final ByteBuf data) {
+  private IbftRoundChangeMessageData(final ByteBuf data) {
     super(data);
   }
 
-  public static Optional<AbstractIbftMessageData> fromMessage(final MessageData message) {
+  public static Optional<IbftRoundChangeMessageData> fromMessage(final MessageData message) {
     if (message instanceof IbftRoundChangeMessageData) {
       message.retain();
       return Optional.of((IbftRoundChangeMessageData) message);
