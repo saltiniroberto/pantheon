@@ -40,8 +40,7 @@ public class IbftPrepareMessageDataTest {
 
   // NOTE: The following tests heavily rely on the IbftPrepareMessageDecoded class. I couldn't come
   // up with a better way to test the IbftPrepareMessageData class without relying on the
-  // functionality
-  // provided by the IbftPrepareMessageDecoded
+  // functionality provided by the IbftPrepareMessageDecoded
   @Test
   public void messageCreationFromGenericMesssageData() {
     BytesValue encodedPrepareMessage = BytesValue.fromHexString(HEX_ENCODED_PREPARE_MESSAGE);

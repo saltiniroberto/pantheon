@@ -14,7 +14,7 @@ import io.netty.buffer.ByteBuf;
 
 public class IbftPrePrepareMessageData extends AbstractIbftMessageData {
 
-  private static final int CODE = IbftSubProtocol.NotificationType.PREPREPARE.getValue();
+  private static final int MESSAGE_CODE = IbftSubProtocol.NotificationType.PREPREPARE.getValue();
 
   private IbftPrePrepareMessageData(final ByteBuf data) {
     super(data);
@@ -26,7 +26,7 @@ public class IbftPrePrepareMessageData extends AbstractIbftMessageData {
       return Optional.of((IbftPrePrepareMessageData) message);
     }
     final int code = message.getCode();
-    if (code != CODE) {
+    if (code != MESSAGE_CODE) {
       return Optional.empty();
     }
 
@@ -59,6 +59,6 @@ public class IbftPrePrepareMessageData extends AbstractIbftMessageData {
 
   @Override
   public int getCode() {
-    return CODE;
+    return MESSAGE_CODE;
   }
 }
