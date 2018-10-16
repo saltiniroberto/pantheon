@@ -81,7 +81,7 @@ public class BlockTimerTest {
   }
 
   @Test
-  public void anBlockTimerExpiryEventIsAddedToTheQueueOnExpiry() {
+  public void aBlockTimerExpiryEventIsAddedToTheQueueOnExpiry() {
 
     final long MINIMAL_TIME_BETWEEN_BLOCKS_MILLIS = 1_000;
     final long NOW_MILLIS = 300_500L;
@@ -106,8 +106,8 @@ public class BlockTimerTest {
     verify(mockQueue, never()).add(any());
 
     await()
-        .atMost(EXPECTED_DELAY + 100, TimeUnit.MILLISECONDS)
-        .atLeast(EXPECTED_DELAY - 100, TimeUnit.MILLISECONDS)
+        .atMost(EXPECTED_DELAY + 200, TimeUnit.MILLISECONDS)
+        .atLeast(EXPECTED_DELAY - 200, TimeUnit.MILLISECONDS)
         .until(timer::isRunning, equalTo(false));
 
     ArgumentCaptor<IbftEvent> ibftEventCaptor = ArgumentCaptor.forClass(IbftEvent.class);
