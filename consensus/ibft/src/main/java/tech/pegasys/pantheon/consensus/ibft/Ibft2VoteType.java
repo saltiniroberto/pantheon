@@ -1,9 +1,8 @@
 package tech.pegasys.pantheon.consensus.ibft;
 
+import tech.pegasys.pantheon.ethereum.rlp.RLPException;
 import tech.pegasys.pantheon.ethereum.rlp.RLPInput;
 import tech.pegasys.pantheon.ethereum.rlp.RLPOutput;
-
-import java.util.Optional;
 
 public enum Ibft2VoteType {
   ADD((byte) 0xFF),
@@ -15,23 +14,19 @@ public enum Ibft2VoteType {
     this.voteValue = voteValue;
   }
 
-  public byte getNonceValue() {
+  public byte getVoteValue() {
     return voteValue;
   }
 
-  public static Optional<Ibft2VoteType> readFrom(final RLPInput rlpInput) {
-    if (rlpInput.nextIsNull()) {
-      rlpInput.skipNext();
-      return Optional.empty();
-    }
-
+  public static Ibft2VoteType readFrom(final RLPInput rlpInput) {
     byte encodedByteValue = rlpInput.readByte();
     for (final Ibft2VoteType voteType : values()) {
       if (voteType.voteValue == encodedByteValue) {
-        return Optional.of(voteType);
+        return voteType;
       }
     }
-    return Optional.empty();
+
+    throw new RLPException("Invalid Ibft2VoteType RLP encoding");
   }
 
   public void writeTo(final RLPOutput rlpOutput) {

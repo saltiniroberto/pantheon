@@ -11,7 +11,6 @@ import tech.pegasys.pantheon.ethereum.rlp.RLPInput;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Represents the data structure stored in the extraData field of the BlockHeader used when
@@ -23,16 +22,14 @@ public class Ibft2ExtraData {
 
   private final BytesValue vanityData;
   private final List<Signature> seals;
-  private final Address voteRecipient;
-  private final Optional<Ibft2VoteType> vote;
+  private final Vote vote;
   private final int round;
   private final List<Address> validators;
 
   public Ibft2ExtraData(
       final BytesValue vanityData,
       final List<Signature> seals,
-      final Address voteRecipient,
-      final Optional<Ibft2VoteType> vote,
+      final Vote vote,
       final int round,
       final List<Address> validators) {
 
@@ -45,7 +42,6 @@ public class Ibft2ExtraData {
     this.round = round;
     this.validators = validators;
     this.vote = vote;
-    this.voteRecipient = voteRecipient;
   }
 
   public static Ibft2ExtraData decode(final BytesValue input) {
@@ -53,37 +49,30 @@ public class Ibft2ExtraData {
         input.size() > EXTRA_VANITY_LENGTH,
         "Invalid BytesValue supplied - too short to produce a valid IBFT Extra Data object.");
 
-    final BytesValue vanityData = input.slice(0, EXTRA_VANITY_LENGTH);
-
-    final BytesValue rlpData = input.slice(EXTRA_VANITY_LENGTH);
-    final RLPInput rlpInput = new BytesValueRLPInput(rlpData, false);
+    final RLPInput rlpInput = new BytesValueRLPInput(input, false);
 
     rlpInput.enterList(); // This accounts for the "root node" which contains IBFT data items.
+    final BytesValue vanityData = rlpInput.readBytesValue();
     final List<Address> validators = rlpInput.readList(Address::readFrom);
-    final Address voteRecipient = Address.readFrom(rlpInput);
-    final Optional<Ibft2VoteType> vote = Ibft2VoteType.readFrom(rlpInput);
+    final Vote vote = Vote.readFrom(rlpInput);
     final int round = rlpInput.readInt();
     final List<Signature> seals = rlpInput.readList(rlp -> Signature.decode(rlp.readBytesValue()));
     rlpInput.leaveList();
 
-    return new Ibft2ExtraData(vanityData, seals, voteRecipient, vote, round, validators);
+    return new Ibft2ExtraData(vanityData, seals, vote, round, validators);
   }
 
   public BytesValue encode() {
     final BytesValueRLPOutput encoder = new BytesValueRLPOutput();
     encoder.startList();
+    encoder.writeBytesValue(vanityData);
     encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
-    encoder.writeBytesValue(voteRecipient);
-    if (vote.isPresent()) {
-      vote.get().writeTo(encoder);
-    } else {
-      encoder.writeNull();
-    }
+    vote.writTo(encoder);
     encoder.writeInt(round);
     encoder.writeList(seals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));
     encoder.endList();
 
-    return BytesValue.wrap(vanityData, encoder.encoded());
+    return encoder.encoded();
   }
 
   // Accessors
@@ -99,11 +88,7 @@ public class Ibft2ExtraData {
     return validators;
   }
 
-  public Address getVoteRecipient() {
-    return voteRecipient;
-  }
-
-  public Optional<Ibft2VoteType> getVote() {
+  public Vote getVote() {
     return vote;
   }
 
