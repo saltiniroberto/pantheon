@@ -60,14 +60,14 @@ public class Vote {
     return vote;
   }
 
-  public void writTo(RLPOutput rlpOutput) {
+  public void writTo(final RLPOutput rlpOutput) {
     rlpOutput.writeBytesValue(recipient);
     vote.writeTo(rlpOutput);
   }
 
-  public static Vote readFrom(RLPInput rlpInput) {
-    Address recipient = Address.readFrom(rlpInput);
-    Ibft2VoteType vote = Ibft2VoteType.readFrom(rlpInput);
+  public static Vote readFrom(final RLPInput rlpInput) {
+    final Address recipient = Address.readFrom(rlpInput);
+    final Ibft2VoteType vote = Ibft2VoteType.readFrom(rlpInput);
 
     return new Vote(recipient, vote);
   }
