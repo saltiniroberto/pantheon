@@ -40,7 +40,6 @@ public class IbftPreparedCertificate {
   }
 
   public IbftPrePrepareMessageDecoded getIbftPrePrepareMessage() {
-
     return ibftPrePrepareMessage;
   }
 }

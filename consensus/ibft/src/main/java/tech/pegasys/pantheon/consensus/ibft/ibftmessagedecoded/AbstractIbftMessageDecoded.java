@@ -61,11 +61,11 @@ public abstract class AbstractIbftMessageDecoded {
     return signedMessage.readAsRlp();
   }
 
-  protected static Signature readIbftMessageSignature(final RLPInput signedMessage) {
+  protected static Signature readSignature(final RLPInput signedMessage) {
     return signedMessage.readBytesValue(Signature::decode);
   }
 
-  protected static Hash readIbftMessageDigest(final RLPInput ibftMessageData) {
+  protected static Hash readDigest(final RLPInput ibftMessageData) {
     return Hash.wrap(ibftMessageData.readBytes32());
   }
 }

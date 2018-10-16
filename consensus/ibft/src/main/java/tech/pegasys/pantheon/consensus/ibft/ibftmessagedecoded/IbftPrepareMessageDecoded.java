@@ -59,14 +59,14 @@ public class IbftPrepareMessageDecoded extends AbstractIbftInRoundMessageDecoded
 
     rlpInput.enterList();
     RLPInput ibftMessageData = readIbftMessageData(rlpInput);
-    Signature signature = readIbftMessageSignature(rlpInput);
+    Signature signature = readSignature(rlpInput);
     rlpInput.leaveList();
 
     sender = recoverSender(TYPE, ibftMessageData, signature);
 
     ibftMessageData.enterList();
     roundIdentifier = ConsensusRoundIdentifier.readFrom(ibftMessageData);
-    digest = readIbftMessageDigest(ibftMessageData);
+    digest = readDigest(ibftMessageData);
     ibftMessageData.leaveList();
 
     return new IbftPrepareMessageDecoded(
