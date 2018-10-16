@@ -62,8 +62,13 @@ public class Ibft2ExtraDataTest {
     final byte[] roundAsByteArray = new byte[] {(byte) 0xFE, (byte) 0xDC, (byte) 0xBA};
     final List<Signature> committerSeals = Lists.newArrayList();
 
+    // Create a byte buffer with no data.
+    final byte[] vanity_bytes = new byte[32];
+    final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
+
     final BytesValueRLPOutput encoder = new BytesValueRLPOutput();
     encoder.startList();
+    encoder.writeBytesValue(vanity_data);
     encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
     // This is to verify that the decoding throws an exception when the round number is not encoded
     // in 4 byte format
@@ -74,10 +79,7 @@ public class Ibft2ExtraDataTest {
         committerSeals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));
     encoder.endList();
 
-    // Create a byte buffer with no data.
-    final byte[] vanity_bytes = new byte[32];
-    final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
-    final BytesValue bufferToInject = BytesValue.wrap(vanity_data, encoder.encoded());
+    final BytesValue bufferToInject = encoder.encoded();
 
     final Ibft2ExtraData extraData = Ibft2ExtraData.decode(bufferToInject);
   }
@@ -89,8 +91,13 @@ public class Ibft2ExtraDataTest {
     final int round = 0x00FEDCBA;
     final List<Signature> committerSeals = Lists.newArrayList();
 
+    // Create a byte buffer with no data.
+    final byte[] vanity_bytes = new byte[32];
+    final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
+
     final BytesValueRLPOutput encoder = new BytesValueRLPOutput();
     encoder.startList();
+    encoder.writeBytesValue(vanity_data);
     encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
     encoder.writeBytesValue(vote.getRecipient());
     vote.getVote().writeTo(encoder);
@@ -99,10 +106,7 @@ public class Ibft2ExtraDataTest {
         committerSeals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));
     encoder.endList();
 
-    // Create a byte buffer with no data.
-    final byte[] vanity_bytes = new byte[32];
-    final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
-    final BytesValue bufferToInject = BytesValue.wrap(vanity_data, encoder.encoded());
+    final BytesValue bufferToInject = encoder.encoded();
 
     final Ibft2ExtraData extraData = Ibft2ExtraData.decode(bufferToInject);
 
@@ -142,8 +146,14 @@ public class Ibft2ExtraDataTest {
             Signature.create(BigInteger.ONE, BigInteger.TEN, (byte) 0),
             Signature.create(BigInteger.TEN, BigInteger.ONE, (byte) 0));
 
+    // Create randomised vanity data.
+    final byte[] vanity_bytes = new byte[32];
+    new Random().nextBytes(vanity_bytes);
+    final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
+
     final BytesValueRLPOutput encoder = new BytesValueRLPOutput();
     encoder.startList(); // This is required to create a "root node" for all RLP'd data
+    encoder.writeBytesValue(vanity_data);
     encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
     encoder.writeBytesValue(vote.getRecipient());
     vote.getVote().writeTo(encoder);
@@ -152,11 +162,7 @@ public class Ibft2ExtraDataTest {
         committerSeals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));
     encoder.endList();
 
-    // Create randomised vanity data.
-    final byte[] vanity_bytes = new byte[32];
-    new Random().nextBytes(vanity_bytes);
-    final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
-    final BytesValue bufferToInject = BytesValue.wrap(vanity_data, encoder.encoded());
+    final BytesValue bufferToInject = encoder.encoded();
 
     final Ibft2ExtraData extraData = Ibft2ExtraData.decode(bufferToInject);
 
@@ -197,8 +203,13 @@ public class Ibft2ExtraDataTest {
     final int round = 0x00FEDCBA;
     final List<Signature> committerSeals = Lists.newArrayList();
 
+    // Create a byte buffer with no data.
+    final byte[] vanity_bytes = new byte[32];
+    final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
+
     final BytesValueRLPOutput encoder = new BytesValueRLPOutput();
     encoder.startList();
+    encoder.writeBytesValue(vanity_data);
     encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
     encoder.writeBytesValue(voteRecipient);
     voteType.writeTo(encoder);
@@ -208,8 +219,7 @@ public class Ibft2ExtraDataTest {
     encoder.writeLong(1);
     encoder.endList();
 
-    final BytesValue bufferToInject =
-        BytesValue.wrap(BytesValue.wrap(new byte[32]), encoder.encoded());
+    final BytesValue bufferToInject = encoder.encoded();
 
     Ibft2ExtraData.decode(bufferToInject);
   }
@@ -225,8 +235,13 @@ public class Ibft2ExtraDataTest {
             Signature.create(BigInteger.ONE, BigInteger.TEN, (byte) 0),
             Signature.create(BigInteger.TEN, BigInteger.ONE, (byte) 0));
 
+    // Create a byte buffer with no data.
+    final byte[] vanity_bytes = new byte[32];
+    final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
+
     final BytesValueRLPOutput encoder = new BytesValueRLPOutput();
     encoder.startList();
+    encoder.writeBytesValue(vanity_data);
     encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
     encoder.writeBytesValue(voteRecipient);
     encoder.writeByte(voteType);
@@ -235,8 +250,7 @@ public class Ibft2ExtraDataTest {
         committerSeals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));
     encoder.endList();
 
-    final BytesValue bufferToInject =
-        BytesValue.wrap(BytesValue.wrap(new byte[32]), encoder.encoded());
+    final BytesValue bufferToInject = encoder.encoded();
 
     Ibft2ExtraData.decode(bufferToInject);
   }
