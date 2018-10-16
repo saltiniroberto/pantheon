@@ -20,7 +20,7 @@ public class BlockTimer {
   /**
    * Construct a BlockTimer with primed executor service ready to start timers
    *
-   * @param queue The queue in which to put round expiry events
+   * @param queue The queue in which to put block expiry events
    * @param minimumTimeBetweenBlocksMillis Minimum timestamp difference between blocks
    * @param timerExecutor Executor service that timers can be scheduled with
    * @param clock System clock
