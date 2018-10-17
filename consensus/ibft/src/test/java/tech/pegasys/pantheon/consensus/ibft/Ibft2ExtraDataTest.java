@@ -12,8 +12,9 @@
  */
 package tech.pegasys.pantheon.consensus.ibft;
 
-import com.google.common.collect.Lists;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import tech.pegasys.pantheon.crypto.SECP256K1.Signature;
 import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.rlp.BytesValueRLPOutput;
@@ -26,8 +27,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import com.google.common.collect.Lists;
+import org.junit.Test;
 
 public class Ibft2ExtraDataTest {
 
@@ -219,7 +220,8 @@ public class Ibft2ExtraDataTest {
 
   @Test
   public void fullyPopulatedDataProducesCorrectlyFormedExtraDataObject() {
-    final List<Address> validators = Arrays.asList(Address.ECREC, Address.SHA256);
+    final List<Address> validators =
+        Arrays.asList(Address.fromHexString("1"), Address.fromHexString("2"));
     final Optional<Vote> vote = Optional.of(Vote.authVote(Address.fromHexString("1")));
     final int round = 0x00FEDCBA;
     final List<Signature> committerSeals =
@@ -261,7 +263,8 @@ public class Ibft2ExtraDataTest {
 
   @Test
   public void fullyPopulatedDataIsEncodedCorrectly() {
-    final List<Address> validators = Arrays.asList(Address.ECREC, Address.SHA256);
+    final List<Address> validators =
+        Arrays.asList(Address.fromHexString("1"), Address.fromHexString("2"));
     final Optional<Vote> vote = Optional.of(Vote.authVote(Address.fromHexString("1")));
     final int round = 0x00FEDCBA;
     final List<Signature> committerSeals =
@@ -317,7 +320,8 @@ public class Ibft2ExtraDataTest {
 
   @Test
   public void incorrectVoteTypeThrowsException() {
-    final List<Address> validators = Arrays.asList(Address.ECREC, Address.SHA256);
+    final List<Address> validators =
+        Arrays.asList(Address.fromHexString("1"), Address.fromHexString("2"));
     final Address voteRecipient = Address.fromHexString("1");
     final byte voteType = (byte) 0xAA;
     final int round = 0x00FEDCBA;
