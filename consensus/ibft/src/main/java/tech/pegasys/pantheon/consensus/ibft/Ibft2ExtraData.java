@@ -67,7 +67,13 @@ public class Ibft2ExtraData {
     rlpInput.enterList(); // This accounts for the "root node" which contains IBFT data items.
     final BytesValue vanityData = rlpInput.readBytesValue();
     final List<Address> validators = rlpInput.readList(Address::readFrom);
-    final Optional<Vote> vote = Vote.readFrom(rlpInput);
+    final Optional<Vote> vote;
+    if (rlpInput.nextIsNull()) {
+      vote = Optional.empty();
+      rlpInput.skipNext();
+    } else {
+      vote = Optional.of(Vote.readFrom(rlpInput));
+    }
     final int round = rlpInput.readInt();
     final List<Signature> seals = rlpInput.readList(rlp -> Signature.decode(rlp.readBytesValue()));
     rlpInput.leaveList();
@@ -80,7 +86,11 @@ public class Ibft2ExtraData {
     encoder.startList();
     encoder.writeBytesValue(vanityData);
     encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
-    Vote.writeTo(vote, encoder);
+    if (vote.isPresent()) {
+      vote.get().writeTo(encoder);
+    } else {
+      encoder.writeNull();
+    }
     encoder.writeInt(round);
     encoder.writeList(seals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));
     encoder.endList();

@@ -16,8 +16,6 @@ import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.rlp.RLPInput;
 import tech.pegasys.pantheon.ethereum.rlp.RLPOutput;
 
-import java.util.Optional;
-
 import com.google.common.base.Objects;
 
 public class Vote {
@@ -70,28 +68,20 @@ public class Vote {
     return voteType;
   }
 
-  public static void writeTo(final Optional<Vote> optionalVote, final RLPOutput rlpOutput) {
-    if (optionalVote.isPresent()) {
-      rlpOutput.startList();
-      rlpOutput.writeBytesValue(optionalVote.get().recipient);
-      optionalVote.get().voteType.writeTo(rlpOutput);
-      rlpOutput.endList();
-    } else {
-      rlpOutput.writeNull();
-    }
+  public void writeTo(final RLPOutput rlpOutput) {
+    rlpOutput.startList();
+    rlpOutput.writeBytesValue(recipient);
+    voteType.writeTo(rlpOutput);
+    rlpOutput.endList();
   }
 
-  public static Optional<Vote> readFrom(final RLPInput rlpInput) {
-    if (rlpInput.nextIsNull()) {
-      rlpInput.skipNext();
-      return Optional.empty();
-    }
+  public static Vote readFrom(final RLPInput rlpInput) {
 
     rlpInput.enterList();
     final Address recipient = Address.readFrom(rlpInput);
     final Ibft2VoteType vote = Ibft2VoteType.readFrom(rlpInput);
     rlpInput.leaveList();
 
-    return Optional.of(new Vote(recipient, vote));
+    return new Vote(recipient, vote);
   }
 }
