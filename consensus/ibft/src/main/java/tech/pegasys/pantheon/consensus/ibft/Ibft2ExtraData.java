@@ -80,7 +80,7 @@ public class Ibft2ExtraData {
     encoder.startList();
     encoder.writeBytesValue(vanityData);
     encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
-    Vote.writTo(vote, encoder);
+    Vote.writeTo(vote, encoder);
     encoder.writeInt(round);
     encoder.writeList(seals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));
     encoder.endList();

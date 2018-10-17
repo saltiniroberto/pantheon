@@ -70,7 +70,7 @@ public class Vote {
     return voteType;
   }
 
-  public static void writTo(final Optional<Vote> optionalVote, final RLPOutput rlpOutput) {
+  public static void writeTo(final Optional<Vote> optionalVote, final RLPOutput rlpOutput) {
     if (optionalVote.isPresent()) {
       rlpOutput.startList();
       rlpOutput.writeBytesValue(optionalVote.get().recipient);
@@ -82,16 +82,16 @@ public class Vote {
   }
 
   public static Optional<Vote> readFrom(final RLPInput rlpInput) {
-    if (!rlpInput.nextIsNull()) {
-      rlpInput.enterList();
-      final Address recipient = Address.readFrom(rlpInput);
-      final Ibft2VoteType vote = Ibft2VoteType.readFrom(rlpInput);
-      rlpInput.leaveList();
-
-      return Optional.of(new Vote(recipient, vote));
-    } else {
+    if (rlpInput.nextIsNull()) {
       rlpInput.skipNext();
       return Optional.empty();
     }
+
+    rlpInput.enterList();
+    final Address recipient = Address.readFrom(rlpInput);
+    final Ibft2VoteType vote = Ibft2VoteType.readFrom(rlpInput);
+    rlpInput.leaveList();
+
+    return Optional.of(new Vote(recipient, vote));
   }
 }
