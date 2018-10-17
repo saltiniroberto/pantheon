@@ -51,36 +51,36 @@ public class IbftSignedMessageData<M extends AbstractIbftUnsignedMessageData> {
     output.endList();
   }
 
-  public static IbftSignedMessageData<IbftPrePrepareUnsignedMessageData>
+  public static IbftSignedMessageData<IbftUnsignedPrePrepareMessageData>
       readIbftSignedPrePrepareMessageDataFrom(final RLPInput rlpInput) {
 
     rlpInput.enterList();
-    final IbftPrePrepareUnsignedMessageData unsignedMessageData =
-        IbftPrePrepareUnsignedMessageData.readFrom(rlpInput);
+    final IbftUnsignedPrePrepareMessageData unsignedMessageData =
+        IbftUnsignedPrePrepareMessageData.readFrom(rlpInput);
     final Signature signature = readSignature(rlpInput);
     rlpInput.leaveList();
 
     return from(unsignedMessageData, signature);
   }
 
-  public static IbftSignedMessageData<IbftPrepareUnsignedMessageData>
+  public static IbftSignedMessageData<IbftUnsignedPrepareMessageData>
       readIbftSignedPrepareMessageDataFrom(final RLPInput rlpInput) {
 
     rlpInput.enterList();
-    final IbftPrepareUnsignedMessageData unsignedMessageData =
-        IbftPrepareUnsignedMessageData.readFrom(rlpInput);
+    final IbftUnsignedPrepareMessageData unsignedMessageData =
+        IbftUnsignedPrepareMessageData.readFrom(rlpInput);
     final Signature signature = readSignature(rlpInput);
     rlpInput.leaveList();
 
     return from(unsignedMessageData, signature);
   }
 
-  public static IbftSignedMessageData<IbftRoundChangeUnsignedMessageData>
+  public static IbftSignedMessageData<IbftUnsignedRoundChangeMessageData>
       readIbftSignedRoundChangeMessageDataFrom(final RLPInput rlpInput) {
 
     rlpInput.enterList();
-    final IbftRoundChangeUnsignedMessageData unsignedMessageData =
-        IbftRoundChangeUnsignedMessageData.readFrom(rlpInput);
+    final IbftUnsignedRoundChangeMessageData unsignedMessageData =
+        IbftUnsignedRoundChangeMessageData.readFrom(rlpInput);
     final Signature signature = readSignature(rlpInput);
     rlpInput.leaveList();
 

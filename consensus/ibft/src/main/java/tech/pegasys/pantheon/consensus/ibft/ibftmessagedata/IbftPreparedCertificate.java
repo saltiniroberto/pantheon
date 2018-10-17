@@ -19,20 +19,20 @@ import java.util.Collection;
 
 public class IbftPreparedCertificate {
 
-  private final IbftSignedMessageData<IbftPrePrepareUnsignedMessageData> ibftPrePrepareMessage;
-  private final Collection<IbftSignedMessageData<IbftPrepareUnsignedMessageData>>
+  private final IbftSignedMessageData<IbftUnsignedPrePrepareMessageData> ibftPrePrepareMessage;
+  private final Collection<IbftSignedMessageData<IbftUnsignedPrepareMessageData>>
       ibftPrepareMessages;
 
   public IbftPreparedCertificate(
-      IbftSignedMessageData<IbftPrePrepareUnsignedMessageData> ibftPrePrepareMessage,
-      Collection<IbftSignedMessageData<IbftPrepareUnsignedMessageData>> ibftPrepareMessages) {
+      IbftSignedMessageData<IbftUnsignedPrePrepareMessageData> ibftPrePrepareMessage,
+      Collection<IbftSignedMessageData<IbftUnsignedPrepareMessageData>> ibftPrepareMessages) {
     this.ibftPrePrepareMessage = ibftPrePrepareMessage;
     this.ibftPrepareMessages = ibftPrepareMessages;
   }
 
   public static IbftPreparedCertificate readFrom(final RLPInput rlpInput) {
-    final IbftSignedMessageData<IbftPrePrepareUnsignedMessageData> ibftPrePreparedMessage;
-    final Collection<IbftSignedMessageData<IbftPrepareUnsignedMessageData>> ibftPrepareMessages;
+    final IbftSignedMessageData<IbftUnsignedPrePrepareMessageData> ibftPrePreparedMessage;
+    final Collection<IbftSignedMessageData<IbftUnsignedPrepareMessageData>> ibftPrepareMessages;
 
     rlpInput.enterList();
     ibftPrePreparedMessage =

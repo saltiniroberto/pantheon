@@ -19,9 +19,9 @@ import tech.pegasys.pantheon.ethereum.rlp.RLPOutput;
 
 // NOTE: Implementation of all methods of this class is still pending. This class was added to show
 // how a PreparedCertificate is encoded and decoded inside a RoundChange message
-public class IbftPrePrepareUnsignedMessageData extends AbstractIbftInRoundUnsignedMessageData {
+public class IbftUnsignedPrePrepareMessageData extends AbstractIbftUnsignedInRoundMessageData {
 
-  public IbftPrePrepareUnsignedMessageData(
+  public IbftUnsignedPrePrepareMessageData(
       final ConsensusRoundIdentifier roundIdentifier, final Block block) {
     super(roundIdentifier);
   }
@@ -38,7 +38,7 @@ public class IbftPrePrepareUnsignedMessageData extends AbstractIbftInRoundUnsign
     return 0;
   }
 
-  public static IbftPrePrepareUnsignedMessageData readFrom(final RLPInput rlpInput) {
+  public static IbftUnsignedPrePrepareMessageData readFrom(final RLPInput rlpInput) {
     return null;
   }
 }

@@ -29,22 +29,22 @@ public class IbftMessageFactory {
     this.validatorKayPair = validatorKayPair;
   }
 
-  public IbftSignedMessageData<IbftPrepareUnsignedMessageData> createIbftSignedPrepareMessageData(
+  public IbftSignedMessageData<IbftUnsignedPrepareMessageData> createIbftSignedPrepareMessageData(
       ConsensusRoundIdentifier roundIdentifier, Hash digest) {
 
-    IbftPrepareUnsignedMessageData prepareUnsignedMessageData =
-        new IbftPrepareUnsignedMessageData(roundIdentifier, digest);
+    IbftUnsignedPrepareMessageData prepareUnsignedMessageData =
+        new IbftUnsignedPrepareMessageData(roundIdentifier, digest);
 
     return createSignedMessage(prepareUnsignedMessageData);
   }
 
-  public IbftSignedMessageData<IbftRoundChangeUnsignedMessageData>
+  public IbftSignedMessageData<IbftUnsignedRoundChangeMessageData>
       createIbftSignedRoundChangeMessageData(
           ConsensusRoundIdentifier roundIdentifier,
           Optional<IbftPreparedCertificate> preparedCertificate) {
 
-    IbftRoundChangeUnsignedMessageData prepareUnsignedMessageData =
-        new IbftRoundChangeUnsignedMessageData(roundIdentifier, preparedCertificate);
+    IbftUnsignedRoundChangeMessageData prepareUnsignedMessageData =
+        new IbftUnsignedRoundChangeMessageData(roundIdentifier, preparedCertificate);
 
     return createSignedMessage(prepareUnsignedMessageData);
   }

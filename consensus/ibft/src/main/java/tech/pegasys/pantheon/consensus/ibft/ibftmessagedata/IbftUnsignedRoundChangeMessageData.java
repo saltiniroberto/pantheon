@@ -20,7 +20,7 @@ import tech.pegasys.pantheon.ethereum.rlp.RLPOutput;
 
 import java.util.Optional;
 
-public class IbftRoundChangeUnsignedMessageData extends AbstractIbftUnsignedMessageData {
+public class IbftUnsignedRoundChangeMessageData extends AbstractIbftUnsignedMessageData {
 
   private static final int TYPE = IbftV2.PREPARE.getValue();
 
@@ -30,7 +30,7 @@ public class IbftRoundChangeUnsignedMessageData extends AbstractIbftUnsignedMess
   private final Optional<IbftPreparedCertificate> preparedCertificate;
 
   /** Constructor used only by the {@link #readFrom(RLPInput)} method */
-  public IbftRoundChangeUnsignedMessageData(
+  public IbftUnsignedRoundChangeMessageData(
       final ConsensusRoundIdentifier roundIdentifier,
       final Optional<IbftPreparedCertificate> preparedCertificate) {
     this.roundChangeIdentifier = roundIdentifier;
@@ -60,7 +60,7 @@ public class IbftRoundChangeUnsignedMessageData extends AbstractIbftUnsignedMess
     ibftMessage.endList();
   }
 
-  public static IbftRoundChangeUnsignedMessageData readFrom(final RLPInput rlpInput) {
+  public static IbftUnsignedRoundChangeMessageData readFrom(final RLPInput rlpInput) {
     rlpInput.enterList();
     final ConsensusRoundIdentifier roundIdentifier = ConsensusRoundIdentifier.readFrom(rlpInput);
 
@@ -74,7 +74,7 @@ public class IbftRoundChangeUnsignedMessageData extends AbstractIbftUnsignedMess
     }
     rlpInput.leaveList();
 
-    return new IbftRoundChangeUnsignedMessageData(roundIdentifier, preparedCertificate);
+    return new IbftUnsignedRoundChangeMessageData(roundIdentifier, preparedCertificate);
   }
 
   @Override

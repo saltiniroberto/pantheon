@@ -12,8 +12,8 @@
  */
 package tech.pegasys.pantheon.consensus.ibft.ibftmessage;
 
-import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftRoundChangeUnsignedMessageData;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftSignedMessageData;
+import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftUnsignedRoundChangeMessageData;
 import tech.pegasys.pantheon.ethereum.p2p.NetworkMemoryPool;
 import tech.pegasys.pantheon.ethereum.p2p.api.MessageData;
 import tech.pegasys.pantheon.ethereum.rlp.RLP;
@@ -46,13 +46,13 @@ public class IbftRoundChangeMessage extends AbstractIbftMessage {
   }
 
   @Override
-  public IbftSignedMessageData<IbftRoundChangeUnsignedMessageData> decode() {
+  public IbftSignedMessageData<IbftUnsignedRoundChangeMessageData> decode() {
     return IbftSignedMessageData.readIbftSignedRoundChangeMessageDataFrom(
         RLP.input(BytesValue.wrapBuffer(data)));
   }
 
   public static IbftRoundChangeMessage create(
-      final IbftSignedMessageData<IbftRoundChangeUnsignedMessageData> ibftPrepareMessageDecoded) {
+      final IbftSignedMessageData<IbftUnsignedRoundChangeMessageData> ibftPrepareMessageDecoded) {
 
     return new IbftRoundChangeMessage(writeMessageToByteBuf(ibftPrepareMessageDecoded));
   }

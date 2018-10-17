@@ -12,8 +12,8 @@
  */
 package tech.pegasys.pantheon.consensus.ibft.ibftmessage;
 
-import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftPrePrepareUnsignedMessageData;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftSignedMessageData;
+import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftUnsignedPrePrepareMessageData;
 import tech.pegasys.pantheon.ethereum.p2p.NetworkMemoryPool;
 import tech.pegasys.pantheon.ethereum.p2p.api.MessageData;
 import tech.pegasys.pantheon.ethereum.rlp.RLP;
@@ -46,13 +46,13 @@ public class IbftPrePrepareMessage extends AbstractIbftMessage {
   }
 
   @Override
-  public IbftSignedMessageData<IbftPrePrepareUnsignedMessageData> decode() {
+  public IbftSignedMessageData<IbftUnsignedPrePrepareMessageData> decode() {
     return IbftSignedMessageData.readIbftSignedPrePrepareMessageDataFrom(
         RLP.input(BytesValue.wrapBuffer(data)));
   }
 
   public static IbftPrePrepareMessage create(
-      final IbftSignedMessageData<IbftPrePrepareUnsignedMessageData> ibftPrepareMessageDecoded) {
+      final IbftSignedMessageData<IbftUnsignedPrePrepareMessageData> ibftPrepareMessageDecoded) {
 
     return new IbftPrePrepareMessage(writeMessageToByteBuf(ibftPrepareMessageDecoded));
   }
