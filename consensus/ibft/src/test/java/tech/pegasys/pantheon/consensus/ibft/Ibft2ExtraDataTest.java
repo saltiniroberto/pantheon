@@ -13,6 +13,7 @@
 package tech.pegasys.pantheon.consensus.ibft;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import tech.pegasys.pantheon.crypto.SECP256K1.Signature;
 import tech.pegasys.pantheon.ethereum.core.Address;
@@ -71,7 +72,7 @@ public class Ibft2ExtraDataTest {
     assertThat(extraData.getValidators()).isEqualTo(validators);
   }
 
-  @Test(expected = RLPException.class)
+  @Test
   public void incorrectlyEncodedRound() {
     final List<Address> validators = Lists.newArrayList();
     final Optional<Vote> vote = Optional.of(Vote.authVote(Address.fromHexString("1")));
@@ -103,7 +104,8 @@ public class Ibft2ExtraDataTest {
 
     final BytesValue bufferToInject = encoder.encoded();
 
-    final Ibft2ExtraData extraData = Ibft2ExtraData.decode(bufferToInject);
+    assertThatThrownBy(() -> Ibft2ExtraData.decode(bufferToInject))
+        .isInstanceOf(RLPException.class);
   }
 
   @Test
@@ -280,7 +282,7 @@ public class Ibft2ExtraDataTest {
     assertThat(actualExtraData).isEqualToComparingFieldByField(expectedExtraData);
   }
 
-  @Test(expected = RLPException.class)
+  @Test
   public void incorrectlyStructuredRlpThrowsException() {
     final List<Address> validators = Lists.newArrayList();
     final Optional<Vote> vote = Optional.of(Vote.authVote(Address.fromHexString("1")));
@@ -310,10 +312,11 @@ public class Ibft2ExtraDataTest {
 
     final BytesValue bufferToInject = encoder.encoded();
 
-    Ibft2ExtraData.decode(bufferToInject);
+    assertThatThrownBy(() -> Ibft2ExtraData.decode(bufferToInject))
+        .isInstanceOf(RLPException.class);
   }
 
-  @Test(expected = RLPException.class)
+  @Test
   public void incorrectVoteTypeThrowsException() {
     final List<Address> validators = Arrays.asList(Address.ECREC, Address.SHA256);
     final Address voteRecipient = Address.fromHexString("1");
@@ -346,6 +349,7 @@ public class Ibft2ExtraDataTest {
 
     final BytesValue bufferToInject = encoder.encoded();
 
-    Ibft2ExtraData.decode(bufferToInject);
+    assertThatThrownBy(() -> Ibft2ExtraData.decode(bufferToInject))
+        .isInstanceOf(RLPException.class);
   }
 }
