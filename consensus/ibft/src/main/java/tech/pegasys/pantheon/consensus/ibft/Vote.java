@@ -36,7 +36,11 @@ public class Vote {
   }
 
   public boolean isDrop() {
-    return vote.equals(Ibft2VoteType.DROP);
+    return vote.equals(Ibft2VoteType.DROP) && !recipient.equals(Address.fromHexString("0"));
+  }
+
+  public boolean isNoVote() {
+    return vote.equals(Ibft2VoteType.DROP) && recipient.equals(Address.fromHexString("0"));
   }
 
   @Override
