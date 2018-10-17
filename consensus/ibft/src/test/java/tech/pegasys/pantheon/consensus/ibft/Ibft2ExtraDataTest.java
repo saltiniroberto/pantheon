@@ -11,6 +11,7 @@ import tech.pegasys.pantheon.util.bytes.BytesValue;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import com.google.common.collect.Lists;
@@ -21,7 +22,7 @@ public class Ibft2ExtraDataTest {
   @Test
   public void correctlyCodedRoundConstitutesValidContent() {
     final List<Address> validators = Lists.newArrayList();
-    final Vote vote = Vote.authVote(Address.fromHexString("1"));
+    final Optional<Vote> vote = Optional.of(Vote.authVote(Address.fromHexString("1")));
     final int round = 0x00FEDCBA;
     final byte[] roundAsByteArray = new byte[] {(byte) 0x00, (byte) 0xFE, (byte) 0xDC, (byte) 0xBA};
     final List<Signature> committerSeals = Lists.newArrayList();
@@ -34,9 +35,14 @@ public class Ibft2ExtraDataTest {
     encoder.startList();
     encoder.writeBytesValue(vanity_data);
     encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
+
+    // encoded vote
+    encoder.startList();
+    encoder.writeBytesValue(vote.get().getRecipient());
+    vote.get().getVoteType().writeTo(encoder);
+    encoder.endList();
+
     // This is to verify that the decoding works correctly when the round is encoded as 4 bytes
-    encoder.writeBytesValue(vote.getRecipient());
-    vote.getVote().writeTo(encoder);
     encoder.writeBytesValue(BytesValue.wrap(roundAsByteArray));
     encoder.writeList(
         committerSeals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));
@@ -56,8 +62,7 @@ public class Ibft2ExtraDataTest {
   @Test(expected = RLPException.class)
   public void incorrectlyEncodedRound() {
     final List<Address> validators = Lists.newArrayList();
-    final Address voteRecipient = Address.fromHexString("1");
-    Ibft2VoteType voteType = Ibft2VoteType.ADD;
+    final Optional<Vote> vote = Optional.of(Vote.authVote(Address.fromHexString("1")));
     final int round = 0x00FEDCBA;
     final byte[] roundAsByteArray = new byte[] {(byte) 0xFE, (byte) 0xDC, (byte) 0xBA};
     final List<Signature> committerSeals = Lists.newArrayList();
@@ -70,10 +75,15 @@ public class Ibft2ExtraDataTest {
     encoder.startList();
     encoder.writeBytesValue(vanity_data);
     encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
+
+    // encoded vote
+    encoder.startList();
+    encoder.writeBytesValue(vote.get().getRecipient());
+    vote.get().getVoteType().writeTo(encoder);
+    encoder.endList();
+
     // This is to verify that the decoding throws an exception when the round number is not encoded
     // in 4 byte format
-    encoder.writeBytesValue(voteRecipient);
-    voteType.writeTo(encoder);
     encoder.writeBytesValue(BytesValue.wrap(roundAsByteArray));
     encoder.writeList(
         committerSeals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));
@@ -85,9 +95,8 @@ public class Ibft2ExtraDataTest {
   }
 
   @Test
-  public void emptyListConstituteValidContent() {
+  public void nullVoteAndListConstituteValidContent() {
     final List<Address> validators = Lists.newArrayList();
-    final Vote vote = Vote.dropVote(Address.fromHexString("1"));
     final int round = 0x00FEDCBA;
     final List<Signature> committerSeals = Lists.newArrayList();
 
@@ -99,8 +108,67 @@ public class Ibft2ExtraDataTest {
     encoder.startList();
     encoder.writeBytesValue(vanity_data);
     encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
-    encoder.writeBytesValue(vote.getRecipient());
-    vote.getVote().writeTo(encoder);
+
+    // encode an empty vote
+    encoder.writeNull();
+
+    encoder.writeInt(round);
+    encoder.writeList(
+        committerSeals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));
+    encoder.endList();
+
+    final BytesValue bufferToInject = encoder.encoded();
+
+    final Ibft2ExtraData extraData = Ibft2ExtraData.decode(bufferToInject);
+
+    assertThat(extraData.getVanityData()).isEqualTo(vanity_data);
+    assertThat(extraData.getVote().isPresent()).isEqualTo(false);
+    assertThat(extraData.getRound()).isEqualTo(round);
+    assertThat(extraData.getSeals()).isEqualTo(committerSeals);
+    assertThat(extraData.getValidators()).isEqualTo(validators);
+  }
+
+  @Test
+  public void emptyVoteAndListIsEncodedCorrectly() {
+    final List<Address> validators = Lists.newArrayList();
+    Optional<Vote> vote = Optional.empty();
+    final int round = 0x00FEDCBA;
+    final List<Signature> committerSeals = Lists.newArrayList();
+
+    // Create a byte buffer with no data.
+    final byte[] vanity_bytes = new byte[32];
+    final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
+
+    Ibft2ExtraData expectedExtraData =
+        new Ibft2ExtraData(vanity_data, committerSeals, vote, round, validators);
+
+    Ibft2ExtraData actualExtraData = Ibft2ExtraData.decode(expectedExtraData.encode());
+
+    assertThat(actualExtraData).isEqualToComparingFieldByField(expectedExtraData);
+  }
+
+  @Test
+  public void emptyListConstituteValidContent() {
+    final List<Address> validators = Lists.newArrayList();
+    final Optional<Vote> vote = Optional.of(Vote.dropVote(Address.fromHexString("1")));
+    final int round = 0x00FEDCBA;
+    final List<Signature> committerSeals = Lists.newArrayList();
+
+    // Create a byte buffer with no data.
+    final byte[] vanity_bytes = new byte[32];
+    final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
+
+    final BytesValueRLPOutput encoder = new BytesValueRLPOutput();
+    encoder.startList();
+    encoder.writeBytesValue(vanity_data);
+    encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
+
+    // encoded vote
+    encoder.startList();
+    encoder.writeBytesValue(vote.get().getRecipient());
+    vote.get().getVoteType().writeTo(encoder);
+    encoder.endList();
+
     encoder.writeInt(round);
     encoder.writeList(
         committerSeals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));
@@ -120,7 +188,7 @@ public class Ibft2ExtraDataTest {
   @Test
   public void emptyListsAreEncodedCorrectly() {
     final List<Address> validators = Lists.newArrayList();
-    final Vote vote = Vote.authVote(Address.fromHexString("1"));
+    final Optional<Vote> vote = Optional.of(Vote.authVote(Address.fromHexString("1")));
     final int round = 0x00FEDCBA;
     final List<Signature> committerSeals = Lists.newArrayList();
 
@@ -139,7 +207,7 @@ public class Ibft2ExtraDataTest {
   @Test
   public void fullyPopulatedDataProducesCorrectlyFormedExtraDataObject() {
     final List<Address> validators = Arrays.asList(Address.ECREC, Address.SHA256);
-    final Vote vote = Vote.dropVote(Address.fromHexString("1"));
+    final Optional<Vote> vote = Optional.of(Vote.authVote(Address.fromHexString("1")));
     final int round = 0x00FEDCBA;
     final List<Signature> committerSeals =
         Arrays.asList(
@@ -155,8 +223,13 @@ public class Ibft2ExtraDataTest {
     encoder.startList(); // This is required to create a "root node" for all RLP'd data
     encoder.writeBytesValue(vanity_data);
     encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
-    encoder.writeBytesValue(vote.getRecipient());
-    vote.getVote().writeTo(encoder);
+
+    // encoded vote
+    encoder.startList();
+    encoder.writeBytesValue(vote.get().getRecipient());
+    vote.get().getVoteType().writeTo(encoder);
+    encoder.endList();
+
     encoder.writeInt(round);
     encoder.writeList(
         committerSeals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));
@@ -176,7 +249,7 @@ public class Ibft2ExtraDataTest {
   @Test
   public void fullyPopulatedDateIsEncodedCorrectly() {
     final List<Address> validators = Arrays.asList(Address.ECREC, Address.SHA256);
-    final Vote vote = Vote.authVote(Address.fromHexString("1"));
+    final Optional<Vote> vote = Optional.of(Vote.authVote(Address.fromHexString("1")));
     final int round = 0x00FEDCBA;
     final List<Signature> committerSeals =
         Arrays.asList(
@@ -198,8 +271,7 @@ public class Ibft2ExtraDataTest {
   @Test(expected = RLPException.class)
   public void incorrectlyStructuredRlpThrowsException() {
     final List<Address> validators = Lists.newArrayList();
-    final Address voteRecipient = Address.fromHexString("1");
-    final Ibft2VoteType voteType = Ibft2VoteType.ADD;
+    final Optional<Vote> vote = Optional.of(Vote.authVote(Address.fromHexString("1")));
     final int round = 0x00FEDCBA;
     final List<Signature> committerSeals = Lists.newArrayList();
 
@@ -211,8 +283,13 @@ public class Ibft2ExtraDataTest {
     encoder.startList();
     encoder.writeBytesValue(vanity_data);
     encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
-    encoder.writeBytesValue(voteRecipient);
-    voteType.writeTo(encoder);
+
+    // encoded vote
+    encoder.startList();
+    encoder.writeBytesValue(vote.get().getRecipient());
+    vote.get().getVoteType().writeTo(encoder);
+    encoder.endList();
+
     encoder.writeInt(round);
     encoder.writeList(
         committerSeals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));
@@ -243,8 +320,13 @@ public class Ibft2ExtraDataTest {
     encoder.startList();
     encoder.writeBytesValue(vanity_data);
     encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
+
+    // encode vote
+    encoder.startList();
     encoder.writeBytesValue(voteRecipient);
     encoder.writeByte(voteType);
+    encoder.endList();
+
     encoder.writeInt(round);
     encoder.writeList(
         committerSeals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));

@@ -4,15 +4,17 @@ import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.rlp.RLPInput;
 import tech.pegasys.pantheon.ethereum.rlp.RLPOutput;
 
+import java.util.Optional;
+
 import com.google.common.base.Objects;
 
 public class Vote {
   private final Address recipient;
-  private final Ibft2VoteType vote;
+  private final Ibft2VoteType voteType;
 
-  private Vote(final Address recipient, final Ibft2VoteType vote) {
+  private Vote(final Address recipient, final Ibft2VoteType voteType) {
     this.recipient = recipient;
-    this.vote = vote;
+    this.voteType = voteType;
   }
 
   public static Vote authVote(final Address address) {
@@ -23,24 +25,16 @@ public class Vote {
     return new Vote(address, Ibft2VoteType.DROP);
   }
 
-  public static Vote noVote() {
-    return new Vote(Address.fromHexString("0"), Ibft2VoteType.DROP);
-  }
-
   public Address getRecipient() {
     return recipient;
   }
 
   public boolean isAuth() {
-    return vote.equals(Ibft2VoteType.ADD);
+    return voteType.equals(Ibft2VoteType.ADD);
   }
 
   public boolean isDrop() {
-    return vote.equals(Ibft2VoteType.DROP) && !recipient.equals(Address.fromHexString("0"));
-  }
-
-  public boolean isNoVote() {
-    return vote.equals(Ibft2VoteType.DROP) && recipient.equals(Address.fromHexString("0"));
+    return voteType.equals(Ibft2VoteType.DROP);
   }
 
   @Override
@@ -52,27 +46,40 @@ public class Vote {
       return false;
     }
     final Vote vote1 = (Vote) o;
-    return recipient.equals(vote1.recipient) && vote.equals(vote1.vote);
+    return recipient.equals(vote1.recipient) && voteType.equals(vote1.voteType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(recipient, vote);
+    return Objects.hashCode(recipient, voteType);
   }
 
-  public Ibft2VoteType getVote() {
-    return vote;
+  public Ibft2VoteType getVoteType() {
+    return voteType;
   }
 
-  public void writTo(final RLPOutput rlpOutput) {
-    rlpOutput.writeBytesValue(recipient);
-    vote.writeTo(rlpOutput);
+  public static void writTo(final Optional<Vote> optionalVote, final RLPOutput rlpOutput) {
+    if (optionalVote.isPresent()) {
+      rlpOutput.startList();
+      rlpOutput.writeBytesValue(optionalVote.get().recipient);
+      optionalVote.get().voteType.writeTo(rlpOutput);
+      rlpOutput.endList();
+    } else {
+      rlpOutput.writeNull();
+    }
   }
 
-  public static Vote readFrom(final RLPInput rlpInput) {
-    final Address recipient = Address.readFrom(rlpInput);
-    final Ibft2VoteType vote = Ibft2VoteType.readFrom(rlpInput);
+  public static Optional<Vote> readFrom(final RLPInput rlpInput) {
+    if (!rlpInput.nextIsNull()) {
+      rlpInput.enterList();
+      final Address recipient = Address.readFrom(rlpInput);
+      final Ibft2VoteType vote = Ibft2VoteType.readFrom(rlpInput);
+      rlpInput.leaveList();
 
-    return new Vote(recipient, vote);
+      return Optional.of(new Vote(recipient, vote));
+    } else {
+      rlpInput.skipNext();
+      return Optional.empty();
+    }
   }
 }

@@ -11,6 +11,7 @@ import tech.pegasys.pantheon.ethereum.rlp.RLPInput;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents the data structure stored in the extraData field of the BlockHeader used when
@@ -22,14 +23,14 @@ public class Ibft2ExtraData {
 
   private final BytesValue vanityData;
   private final List<Signature> seals;
-  private final Vote vote;
+  private final Optional<Vote> vote;
   private final int round;
   private final List<Address> validators;
 
   public Ibft2ExtraData(
       final BytesValue vanityData,
       final List<Signature> seals,
-      final Vote vote,
+      final Optional<Vote> vote,
       final int round,
       final List<Address> validators) {
 
@@ -54,7 +55,7 @@ public class Ibft2ExtraData {
     rlpInput.enterList(); // This accounts for the "root node" which contains IBFT data items.
     final BytesValue vanityData = rlpInput.readBytesValue();
     final List<Address> validators = rlpInput.readList(Address::readFrom);
-    final Vote vote = Vote.readFrom(rlpInput);
+    final Optional<Vote> vote = Vote.readFrom(rlpInput);
     final int round = rlpInput.readInt();
     final List<Signature> seals = rlpInput.readList(rlp -> Signature.decode(rlp.readBytesValue()));
     rlpInput.leaveList();
@@ -67,7 +68,7 @@ public class Ibft2ExtraData {
     encoder.startList();
     encoder.writeBytesValue(vanityData);
     encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
-    vote.writTo(encoder);
+    Vote.writTo(vote, encoder);
     encoder.writeInt(round);
     encoder.writeList(seals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));
     encoder.endList();
@@ -88,7 +89,7 @@ public class Ibft2ExtraData {
     return validators;
   }
 
-  public Vote getVote() {
+  public Optional<Vote> getVote() {
     return vote;
   }
 
