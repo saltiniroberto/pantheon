@@ -1,6 +1,19 @@
+/*
+ * Copyright 2018 ConsenSys AG.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
 package tech.pegasys.pantheon.ethereum.jsonrpc.websocket.subscription;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.both;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -13,6 +26,7 @@ import tech.pegasys.pantheon.ethereum.jsonrpc.websocket.subscription.request.Uns
 import tech.pegasys.pantheon.ethereum.jsonrpc.websocket.subscription.syncing.SyncingSubscription;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,8 +47,7 @@ public class SubscriptionManagerTest {
 
   @Test
   public void subscribeShouldCreateSubscription() {
-    final SubscribeRequest subscribeRequest =
-        new SubscribeRequest(SubscriptionType.SYNCING, null, null, CONNECTION_ID);
+    final SubscribeRequest subscribeRequest = subscribeRequest(CONNECTION_ID);
 
     final Long subscriptionId = subscriptionManager.subscribe(subscribeRequest);
 
@@ -49,8 +62,7 @@ public class SubscriptionManagerTest {
 
   @Test
   public void unsubscribeExistingSubscriptionShouldDestroySubscription() {
-    final SubscribeRequest subscribeRequest =
-        new SubscribeRequest(SubscriptionType.SYNCING, null, null, CONNECTION_ID);
+    final SubscribeRequest subscribeRequest = subscribeRequest(CONNECTION_ID);
     final Long subscriptionId = subscriptionManager.subscribe(subscribeRequest);
 
     assertThat(subscriptionManager.subscriptions().get(subscriptionId)).isNotNull();
@@ -76,8 +88,7 @@ public class SubscriptionManagerTest {
 
   @Test
   public void shouldAddSubscriptionToNewConnection() {
-    final SubscribeRequest subscribeRequest =
-        new SubscribeRequest(SubscriptionType.SYNCING, null, null, CONNECTION_ID);
+    final SubscribeRequest subscribeRequest = subscribeRequest(CONNECTION_ID);
 
     subscriptionManager.subscribe(subscribeRequest);
 
@@ -90,8 +101,7 @@ public class SubscriptionManagerTest {
 
   @Test
   public void shouldAddSubscriptionToExistingConnection() {
-    final SubscribeRequest subscribeRequest =
-        new SubscribeRequest(SubscriptionType.SYNCING, null, null, CONNECTION_ID);
+    final SubscribeRequest subscribeRequest = subscribeRequest(CONNECTION_ID);
 
     subscriptionManager.subscribe(subscribeRequest);
 
@@ -110,8 +120,7 @@ public class SubscriptionManagerTest {
 
   @Test
   public void shouldRemoveSubscriptionFromExistingConnection() {
-    final SubscribeRequest subscribeRequest =
-        new SubscribeRequest(SubscriptionType.SYNCING, null, null, CONNECTION_ID);
+    final SubscribeRequest subscribeRequest = subscribeRequest(CONNECTION_ID);
 
     final Long subscriptionId1 = subscriptionManager.subscribe(subscribeRequest);
 
@@ -140,8 +149,7 @@ public class SubscriptionManagerTest {
 
   @Test
   public void shouldRemoveConnectionWithSingleSubscriptions() {
-    final SubscribeRequest subscribeRequest =
-        new SubscribeRequest(SubscriptionType.SYNCING, null, null, CONNECTION_ID);
+    final SubscribeRequest subscribeRequest = subscribeRequest(CONNECTION_ID);
 
     final Long subscriptionId1 = subscriptionManager.subscribe(subscribeRequest);
 
@@ -188,17 +196,37 @@ public class SubscriptionManagerTest {
   }
 
   @Test
-  public void unsubscribeWithUnknownConnectionId() {
-    final SubscribeRequest subscribeRequestOne =
-        new SubscribeRequest(SubscriptionType.NEW_BLOCK_HEADERS, null, true, CONNECTION_ID);
-    final long subscriptionId = subscriptionManager.subscribe(subscribeRequestOne);
+  public void unsubscribeOthersSubscriptionsNotHavingOwnSubscriptionShouldReturnNotFound() {
+    SubscribeRequest subscribeRequest = subscribeRequest(CONNECTION_ID);
+    Long subscriptionId = subscriptionManager.subscribe(subscribeRequest);
 
-    final boolean success =
-        subscriptionManager.unsubscribe(
-            new UnsubscribeRequest(subscriptionId, "unknown-connection-id"));
+    UnsubscribeRequest unsubscribeRequest =
+        new UnsubscribeRequest(subscriptionId, UUID.randomUUID().toString());
 
-    assertThat(success).isTrue();
+    final Throwable thrown =
+        catchThrowable(() -> subscriptionManager.unsubscribe(unsubscribeRequest));
+    assertThat(thrown).isInstanceOf(SubscriptionNotFoundException.class);
   }
 
-  // TODO vertx event bus testing for response
+  @Test
+  public void unsubscribeOthersSubscriptionsHavingOwnSubscriptionShouldReturnNotFound() {
+    String ownConnectionId = UUID.randomUUID().toString();
+    SubscribeRequest ownSubscribeRequest = subscribeRequest(ownConnectionId);
+    subscriptionManager.subscribe(ownSubscribeRequest);
+
+    String otherConnectionId = UUID.randomUUID().toString();
+    SubscribeRequest otherSubscribeRequest = subscribeRequest(otherConnectionId);
+    Long otherSubscriptionId = subscriptionManager.subscribe(otherSubscribeRequest);
+
+    UnsubscribeRequest unsubscribeRequest =
+        new UnsubscribeRequest(otherSubscriptionId, ownConnectionId);
+
+    final Throwable thrown =
+        catchThrowable(() -> subscriptionManager.unsubscribe(unsubscribeRequest));
+    assertThat(thrown).isInstanceOf(SubscriptionNotFoundException.class);
+  }
+
+  private SubscribeRequest subscribeRequest(final String connectionId) {
+    return new SubscribeRequest(SubscriptionType.SYNCING, null, null, connectionId);
+  }
 }

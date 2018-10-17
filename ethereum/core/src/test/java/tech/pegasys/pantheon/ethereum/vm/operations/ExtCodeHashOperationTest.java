@@ -1,3 +1,15 @@
+/*
+ * Copyright 2018 ConsenSys AG.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
 package tech.pegasys.pantheon.ethereum.vm.operations;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -10,14 +22,12 @@ import tech.pegasys.pantheon.ethereum.core.BlockHeader;
 import tech.pegasys.pantheon.ethereum.core.BlockHeaderTestFixture;
 import tech.pegasys.pantheon.ethereum.core.Gas;
 import tech.pegasys.pantheon.ethereum.core.Hash;
+import tech.pegasys.pantheon.ethereum.core.MessageFrameTestFixture;
 import tech.pegasys.pantheon.ethereum.core.Wei;
 import tech.pegasys.pantheon.ethereum.core.WorldUpdater;
 import tech.pegasys.pantheon.ethereum.db.WorldStateArchive;
 import tech.pegasys.pantheon.ethereum.mainnet.ConstantinopleGasCalculator;
-import tech.pegasys.pantheon.ethereum.vm.BlockHashLookup;
-import tech.pegasys.pantheon.ethereum.vm.Code;
 import tech.pegasys.pantheon.ethereum.vm.MessageFrame;
-import tech.pegasys.pantheon.ethereum.vm.MessageFrame.Type;
 import tech.pegasys.pantheon.ethereum.vm.Words;
 import tech.pegasys.pantheon.ethereum.worldstate.KeyValueStorageWorldStateStorage;
 import tech.pegasys.pantheon.services.kvstore.InMemoryKeyValueStorage;
@@ -25,13 +35,10 @@ import tech.pegasys.pantheon.util.bytes.Bytes32;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 import tech.pegasys.pantheon.util.uint.UInt256;
 
-import java.util.ArrayDeque;
-
 import org.junit.Test;
 
 public class ExtCodeHashOperationTest {
 
-  private static final Address ADDRESS1 = AddressHelpers.ofValue(11111111);
   private static final Address REQUESTED_ADDRESS = AddressHelpers.ofValue(22222222);
 
   private final Blockchain blockchain = mock(Blockchain.class);
@@ -108,26 +115,10 @@ public class ExtCodeHashOperationTest {
   private MessageFrame createMessageFrame(final Bytes32 stackItem) {
     final BlockHeader blockHeader = new BlockHeaderTestFixture().buildHeader();
     final MessageFrame frame =
-        new MessageFrame.Builder()
-            .type(Type.MESSAGE_CALL)
-            .initialGas(Gas.MAX_VALUE)
-            .inputData(BytesValue.EMPTY)
-            .depth(1)
-            .gasPrice(Wei.ZERO)
-            .contract(ADDRESS1)
-            .address(ADDRESS1)
-            .originator(ADDRESS1)
-            .sender(ADDRESS1)
+        new MessageFrameTestFixture()
             .worldState(worldStateUpdater)
-            .messageFrameStack(new ArrayDeque<>())
             .blockHeader(blockHeader)
-            .value(Wei.ZERO)
-            .apparentValue(Wei.ZERO)
-            .code(new Code(BytesValue.EMPTY))
             .blockchain(blockchain)
-            .completer(messageFrame -> {})
-            .miningBeneficiary(AddressHelpers.ofValue(0))
-            .blockHashLookup(new BlockHashLookup(blockHeader, blockchain))
             .build();
 
     frame.pushStackItem(stackItem);
