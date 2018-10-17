@@ -15,7 +15,7 @@ public abstract class AbstractIbftMessage extends AbstractMessageData {
   public abstract IbftSignedMessageData decode();
 
   protected static ByteBuf writeMessageToByteBuf(IbftSignedMessageData ibftSignedMessageData) {
-    // RLP encode the message data content (round identifier and getDigest)
+
     BytesValueRLPOutput rlpEncode = new BytesValueRLPOutput();
     ibftSignedMessageData.writeTo(rlpEncode);
 

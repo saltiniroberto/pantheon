@@ -1,6 +1,5 @@
 package tech.pegasys.pantheon.consensus.ibft.ibftmessage;
 
-import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftMessageFactory;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftRoundChangeUnsignedMessageData;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftSignedMessageData;
 import tech.pegasys.pantheon.ethereum.p2p.NetworkMemoryPool;
@@ -12,7 +11,7 @@ import io.netty.buffer.ByteBuf;
 
 public class IbftRoundChangeMessage extends AbstractIbftMessage {
 
-  private static final int MESSAGE_CODE = IbftV2.ROUND_CHANGE_MSG;
+  private static final int MESSAGE_CODE = IbftV2.ROUND_CHANGE.getValue();
 
   private IbftRoundChangeMessage(final ByteBuf data) {
     super(data);
@@ -34,13 +33,9 @@ public class IbftRoundChangeMessage extends AbstractIbftMessage {
     return new IbftRoundChangeMessage(data);
   }
 
-  // NOTE: Alternative interface: IbftPrepareSignedMessageData decode(final MessageData message).
-  // This
-  // would avoid having to call the constructor and allocate memory for a ByteBuf when all that is
-  // required is to decode the message into an IbftPrepareSignedMessageData class
   @Override
   public IbftSignedMessageData<IbftRoundChangeUnsignedMessageData> decode() {
-    return IbftMessageFactory.readSignedIbftRoundChangeMessageFrom(
+    return IbftSignedMessageData.readIbftSignedRoundChangeMessageDataFrom(
         RLP.input(BytesValue.wrapBuffer(data)));
   }
 

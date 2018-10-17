@@ -16,25 +16,25 @@ public class IbftMessages {
   public static Optional<IbftSignedMessageData> fromMessage(final Message message) {
     final MessageData messageData = message.getData();
 
-    final AbstractIbftMessage ibftMessage;
+    Optional<IbftV2> messageCode = IbftV2.fromValue(messageData.getCode());
 
-    switch (messageData.getCode()) {
-      case IbftV2.PRE_PREPARE_MGS:
-        ibftMessage = IbftPrePrepareMessage.fromMessage(messageData);
-        break;
+    Optional<? extends AbstractIbftMessage> optionalIbftMessage =
+        messageCode.map(
+            code -> {
+              switch (code) {
+                case PRE_PREPARE:
+                  return IbftPrePrepareMessage.fromMessage(messageData);
 
-      case IbftV2.PREPARE_MGS:
-        ibftMessage = IbftPrepareMessage.fromMessage(messageData);
-        break;
+                case PREPARE:
+                  return IbftPrepareMessage.fromMessage(messageData);
 
-      case IbftV2.ROUND_CHANGE_MSG:
-        ibftMessage = IbftRoundChangeMessage.fromMessage(messageData);
-        break;
+                case ROUND_CHANGE:
+                  return IbftRoundChangeMessage.fromMessage(messageData);
+              }
 
-      default:
-        return Optional.empty();
-    }
+              return null;
+            });
 
-    return Optional.of(ibftMessage.decode());
+    return optionalIbftMessage.map(AbstractIbftMessage::decode);
   }
 }

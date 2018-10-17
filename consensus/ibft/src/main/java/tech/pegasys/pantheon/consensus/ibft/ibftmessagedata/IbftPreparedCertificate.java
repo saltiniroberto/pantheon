@@ -23,8 +23,10 @@ public class IbftPreparedCertificate {
     final Collection<IbftSignedMessageData<IbftPrepareUnsignedMessageData>> ibftPrepareMessages;
 
     rlpInput.enterList();
-    ibftPrePreparedMessage = IbftMessageFactory.readSignedIbftPrePrepareMessageFrom(rlpInput);
-    ibftPrepareMessages = rlpInput.readList(IbftMessageFactory::readSignedIbftPrepareMessageFrom);
+    ibftPrePreparedMessage =
+        IbftSignedMessageData.readIbftSignedPrePrepareMessageDataFrom(rlpInput);
+    ibftPrepareMessages =
+        rlpInput.readList(IbftSignedMessageData::readIbftSignedPrepareMessageDataFrom);
     rlpInput.leaveList();
 
     return new IbftPreparedCertificate(ibftPrePreparedMessage, ibftPrepareMessages);

@@ -7,6 +7,7 @@ import tech.pegasys.pantheon.ethereum.rlp.RLPOutput;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 
 public abstract class AbstractIbftUnsignedMessageData {
+
   public abstract void writeTo(final RLPOutput rlpOutput);
 
   public BytesValue encoded() {

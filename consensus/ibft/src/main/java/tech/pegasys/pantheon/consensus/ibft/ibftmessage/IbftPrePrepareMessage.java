@@ -1,6 +1,5 @@
 package tech.pegasys.pantheon.consensus.ibft.ibftmessage;
 
-import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftMessageFactory;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftPrePrepareUnsignedMessageData;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftSignedMessageData;
 import tech.pegasys.pantheon.ethereum.p2p.NetworkMemoryPool;
@@ -12,7 +11,7 @@ import io.netty.buffer.ByteBuf;
 
 public class IbftPrePrepareMessage extends AbstractIbftMessage {
 
-  private static final int MESSAGE_CODE = IbftV2.PREPARE_MGS;
+  private static final int MESSAGE_CODE = IbftV2.PRE_PREPARE.getValue();
 
   private IbftPrePrepareMessage(final ByteBuf data) {
     super(data);
@@ -34,15 +33,9 @@ public class IbftPrePrepareMessage extends AbstractIbftMessage {
     return new IbftPrePrepareMessage(data);
   }
 
-  // NOTE: Alternative interface: IbftPrepareSignedMessageData decode(final MessageData message).
-  // This
-  // would avoid having to call the constructor and allocate memory for a ByteBuf when all that is
-  // required is
-  // to decode the message into an IbftPrePrepareSignedMessageData class
-
   @Override
   public IbftSignedMessageData<IbftPrePrepareUnsignedMessageData> decode() {
-    return IbftMessageFactory.readSignedIbftPrePrepareMessageFrom(
+    return IbftSignedMessageData.readIbftSignedPrePrepareMessageDataFrom(
         RLP.input(BytesValue.wrapBuffer(data)));
   }
 
