@@ -31,7 +31,7 @@ public class IbftUnsignedPrePrepareMessageData extends AbstractIbftUnsignedInRou
   }
 
   @Override
-  public void writeTo(RLPOutput rlpOutput) {}
+  public void writeTo(final RLPOutput rlpOutput) {}
 
   @Override
   public int getMessageType() {

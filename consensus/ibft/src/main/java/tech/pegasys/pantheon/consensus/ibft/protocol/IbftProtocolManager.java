@@ -77,7 +77,7 @@ public class IbftProtocolManager implements ProtocolManager {
   @Override
   public void processMessage(final Capability cap, final Message message) {
 
-    final Optional<IbftSignedMessageData> optionalIbftSignedMessageData =
+    final Optional<IbftSignedMessageData<?>> optionalIbftSignedMessageData =
         IbftMessages.fromMessage(message);
 
     optionalIbftSignedMessageData.ifPresent(

@@ -18,7 +18,7 @@ import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftSignedMessageDat
 /** Static helper functions for producing and working with IbftEvent objects */
 public class IbftEvents {
 
-  public static IbftEvent fromMessage(final IbftSignedMessageData ibftMessageDecoded) {
+  public static IbftEvent fromMessage(final IbftSignedMessageData<?> ibftMessageDecoded) {
     return new IbftMessageEvent(ibftMessageDecoded);
   }
 

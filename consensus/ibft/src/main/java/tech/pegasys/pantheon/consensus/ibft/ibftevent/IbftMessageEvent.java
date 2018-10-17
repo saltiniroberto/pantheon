@@ -18,9 +18,9 @@ import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftSignedMessageDat
 
 /** Event indicating a new iBFT message has been received */
 public final class IbftMessageEvent implements IbftEvent {
-  private final IbftSignedMessageData message;
+  private final IbftSignedMessageData<?> message;
 
-  public IbftMessageEvent(final IbftSignedMessageData message) {
+  public IbftMessageEvent(final IbftSignedMessageData<?> message) {
     this.message = message;
   }
 
@@ -29,7 +29,7 @@ public final class IbftMessageEvent implements IbftEvent {
     return Type.IBFT_MESSAGE;
   }
 
-  public IbftSignedMessageData ibftMessage() {
+  public IbftSignedMessageData<?> ibftMessage() {
     return message;
   }
 }

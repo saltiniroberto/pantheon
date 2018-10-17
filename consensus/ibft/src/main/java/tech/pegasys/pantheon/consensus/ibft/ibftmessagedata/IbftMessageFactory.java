@@ -25,12 +25,12 @@ import java.util.Optional;
 public class IbftMessageFactory {
   private final KeyPair validatorKayPair;
 
-  public IbftMessageFactory(KeyPair validatorKayPair) {
+  public IbftMessageFactory(final KeyPair validatorKayPair) {
     this.validatorKayPair = validatorKayPair;
   }
 
   public IbftSignedMessageData<IbftUnsignedPrepareMessageData> createIbftSignedPrepareMessageData(
-      ConsensusRoundIdentifier roundIdentifier, Hash digest) {
+      final ConsensusRoundIdentifier roundIdentifier, final Hash digest) {
 
     IbftUnsignedPrepareMessageData prepareUnsignedMessageData =
         new IbftUnsignedPrepareMessageData(roundIdentifier, digest);
@@ -40,8 +40,8 @@ public class IbftMessageFactory {
 
   public IbftSignedMessageData<IbftUnsignedRoundChangeMessageData>
       createIbftSignedRoundChangeMessageData(
-          ConsensusRoundIdentifier roundIdentifier,
-          Optional<IbftPreparedCertificate> preparedCertificate) {
+          final ConsensusRoundIdentifier roundIdentifier,
+          final Optional<IbftPreparedCertificate> preparedCertificate) {
 
     IbftUnsignedRoundChangeMessageData prepareUnsignedMessageData =
         new IbftUnsignedRoundChangeMessageData(roundIdentifier, preparedCertificate);
@@ -50,14 +50,15 @@ public class IbftMessageFactory {
   }
 
   private <M extends AbstractIbftUnsignedMessageData> IbftSignedMessageData<M> createSignedMessage(
-      M ibftUnsignedMessage) {
+      final M ibftUnsignedMessage) {
     final Signature signature = sign(ibftUnsignedMessage, validatorKayPair);
 
     return new IbftSignedMessageData<>(
         ibftUnsignedMessage, Util.publicKeyToAddress(validatorKayPair.getPublicKey()), signature);
   }
 
-  protected static Hash hashForSignature(AbstractIbftUnsignedMessageData unsignedMessageData) {
+  protected static Hash hashForSignature(
+      final AbstractIbftUnsignedMessageData unsignedMessageData) {
     return Hash.hash(
         BytesValues.concatenate(
             BytesValues.ofUnsignedByte(unsignedMessageData.getMessageType()),

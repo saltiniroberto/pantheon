@@ -25,26 +25,29 @@ import java.util.Optional;
 
 public class IbftMessages {
 
-  public static Optional<IbftSignedMessageData> fromMessage(final Message message) {
+  public static Optional<IbftSignedMessageData<?>> fromMessage(final Message message) {
     final MessageData messageData = message.getData();
 
     Optional<IbftV2> messageCode = IbftV2.fromValue(messageData.getCode());
 
     Optional<? extends AbstractIbftMessage> optionalIbftMessage =
-        messageCode.map(
+        messageCode.flatMap(
             code -> {
               switch (code) {
                 case PRE_PREPARE:
-                  return IbftPrePrepareMessage.fromMessage(messageData);
+                  return Optional.of(IbftPrePrepareMessage.fromMessage(messageData));
 
                 case PREPARE:
-                  return IbftPrepareMessage.fromMessage(messageData);
+                  return Optional.of(IbftPrepareMessage.fromMessage(messageData));
 
                 case ROUND_CHANGE:
-                  return IbftRoundChangeMessage.fromMessage(messageData);
+                  return Optional.of(IbftRoundChangeMessage.fromMessage(messageData));
+
+                case COMMIT:
+                  return Optional.empty();
               }
 
-              return null;
+              return Optional.empty();
             });
 
     return optionalIbftMessage.map(AbstractIbftMessage::decode);

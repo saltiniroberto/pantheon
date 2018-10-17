@@ -24,8 +24,8 @@ public class IbftPreparedCertificate {
       ibftPrepareMessages;
 
   public IbftPreparedCertificate(
-      IbftSignedMessageData<IbftUnsignedPrePrepareMessageData> ibftPrePrepareMessage,
-      Collection<IbftSignedMessageData<IbftUnsignedPrepareMessageData>> ibftPrepareMessages) {
+      final IbftSignedMessageData<IbftUnsignedPrePrepareMessageData> ibftPrePrepareMessage,
+      final Collection<IbftSignedMessageData<IbftUnsignedPrepareMessageData>> ibftPrepareMessages) {
     this.ibftPrePrepareMessage = ibftPrePrepareMessage;
     this.ibftPrepareMessages = ibftPrepareMessages;
   }

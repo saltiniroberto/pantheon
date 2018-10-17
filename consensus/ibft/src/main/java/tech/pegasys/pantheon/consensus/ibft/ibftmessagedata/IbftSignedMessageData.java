@@ -88,7 +88,7 @@ public class IbftSignedMessageData<M extends AbstractIbftUnsignedMessageData> {
   }
 
   protected static <M extends AbstractIbftUnsignedMessageData> IbftSignedMessageData<M> from(
-      M unsignedMessageData, Signature signature) {
+      final M unsignedMessageData, final Signature signature) {
 
     final Address sender = recoverSender(unsignedMessageData, signature);
 
