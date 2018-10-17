@@ -8,13 +8,15 @@ import java.util.Collection;
 public class IbftPreparedCertificate {
 
   private final IbftSignedMessageData<IbftPrePrepareUnsignedMessageData> ibftPrePrepareMessage;
-  private final Collection<IbftSignedMessageData<IbftPrepareUnsignedMessageData>> ibftPrepareMessages;
+  private final Collection<IbftSignedMessageData<IbftPrepareUnsignedMessageData>>
+      ibftPrepareMessages;
 
-  public IbftPreparedCertificate(IbftSignedMessageData<IbftPrePrepareUnsignedMessageData> ibftPrePrepareMessage, Collection<IbftSignedMessageData<IbftPrepareUnsignedMessageData>> ibftPrepareMessages) {
+  public IbftPreparedCertificate(
+      IbftSignedMessageData<IbftPrePrepareUnsignedMessageData> ibftPrePrepareMessage,
+      Collection<IbftSignedMessageData<IbftPrepareUnsignedMessageData>> ibftPrepareMessages) {
     this.ibftPrePrepareMessage = ibftPrePrepareMessage;
     this.ibftPrepareMessages = ibftPrepareMessages;
   }
-
 
   public static IbftPreparedCertificate readFrom(final RLPInput rlpInput) {
     final IbftSignedMessageData<IbftPrePrepareUnsignedMessageData> ibftPrePreparedMessage;

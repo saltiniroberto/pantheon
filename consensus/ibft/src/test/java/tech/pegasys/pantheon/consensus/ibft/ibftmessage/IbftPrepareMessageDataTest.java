@@ -30,82 +30,82 @@ public class IbftPrepareMessageDataTest {
   // come
   // up with a better way to test the IbftPrepareMessage class without relying on the
   // functionality provided by the IbftPrepareSignedMessageData
-//  @Test
-//  public void messageCreationFromGenericMesssageData() {
-//    BytesValue encodedPrepareMessage = BytesValue.fromHexString(HEX_ENCODED_PREPARE_MESSAGE);
-//
-//    final ByteBuf dataByteBuf = NetworkMemoryPool.allocate(encodedPrepareMessage.size());
-//    dataByteBuf.writeBytes(Hex.decode(HEX_ENCODED_PREPARE_MESSAGE));
-//
-//    MessageData messageData =
-//        new AbstractMessageData(dataByteBuf) {
-//          @Override
-//          public int getCode() {
-//            return MESSAGE_CODE;
-//          }
-//        };
-//
-//    Optional<IbftPrepareMessage> ibftPrepareMessage =
-//        IbftPrepareMessage.fromMessage(messageData);
-//
-//    assertThat(ibftPrepareMessage.isPresent()).isTrue();
-//    assertThat(ibftPrepareMessage.get().getCode()).isEqualTo(MESSAGE_CODE);
-//
-//    IbftPrepareSignedMessageData ibftPrepareMessageDecoded = ibftPrepareMessage.get().decode();
-//
-//    ConsensusRoundIdentifier expecterRoundIdentifier =
-//        new ConsensusRoundIdentifier(SEQUENCE, ROUND);
-//    assertThat(ibftPrepareMessageDecoded.getRoundIdentifier())
-//        .isEqualByComparingTo(expecterRoundIdentifier);
-//    assertThat(ibftPrepareMessageDecoded.getDigest()).isEqualByComparingTo(DIGEST);
-//    assertThat(ibftPrepareMessageDecoded.getSender()).isEqualTo(VALIDATOR_ADDRESS);
-//  }
-//
-//  @Test
-//  public void emptyOptionalIsReturnedOnCreationIfCodeIsNotCorrect() {
-//    BytesValue encodedPrepareMessage = BytesValue.fromHexString(HEX_ENCODED_PREPARE_MESSAGE);
-//
-//    final ByteBuf dataByteBuf = NetworkMemoryPool.allocate(encodedPrepareMessage.size());
-//    dataByteBuf.writeBytes(Hex.decode(HEX_ENCODED_PREPARE_MESSAGE));
-//
-//    MessageData messageData =
-//        new AbstractMessageData(dataByteBuf) {
-//          @Override
-//          public int getCode() {
-//            return MESSAGE_CODE + 1;
-//          }
-//        };
-//
-//    Optional<IbftPrepareMessage> ibftPrepareMessage =
-//        IbftPrepareMessage.fromMessage(messageData);
-//
-//    assertThat(ibftPrepareMessage.isPresent()).isFalse();
-//  }
-//
-//  @Test
-//  public void writeToByteBuf() {
-//
-//    ConsensusRoundIdentifier roundIdentifier = new ConsensusRoundIdentifier(SEQUENCE, ROUND);
-//
-//    IbftPrepareSignedMessageData ibftPrepareMessageDecoded =
-//        new IbftPrepareSignedMessageData(roundIdentifier, DIGEST, VALIDATOR_KEY_PAIR);
-//
-//    IbftPrepareMessage ibftPrepareMessageData =
-//        IbftPrepareMessage.create(ibftPrepareMessageDecoded);
-//
-//    final ByteBuf dataByteBuf = NetworkMemoryPool.allocate(ibftPrepareMessageData.getSize());
-//    ibftPrepareMessageData.writeTo(dataByteBuf);
-//
-//    byte[] expectedEncoding = Hex.decode(HEX_ENCODED_PREPARE_MESSAGE);
-//
-//    assertThat(byteBufToByteArray(dataByteBuf)).isEqualTo(expectedEncoding);
-//  }
-//
-//  private byte[] byteBufToByteArray(final ByteBuf dataByteBuf) {
-//    byte[] bytes = new byte[dataByteBuf.readableBytes()];
-//    int readerIndex = dataByteBuf.readerIndex();
-//    dataByteBuf.getBytes(readerIndex, bytes);
-//
-//    return bytes;
-//  }
+  //  @Test
+  //  public void messageCreationFromGenericMesssageData() {
+  //    BytesValue encodedPrepareMessage = BytesValue.fromHexString(HEX_ENCODED_PREPARE_MESSAGE);
+  //
+  //    final ByteBuf dataByteBuf = NetworkMemoryPool.allocate(encodedPrepareMessage.size());
+  //    dataByteBuf.writeBytes(Hex.decode(HEX_ENCODED_PREPARE_MESSAGE));
+  //
+  //    MessageData messageData =
+  //        new AbstractMessageData(dataByteBuf) {
+  //          @Override
+  //          public int getCode() {
+  //            return MESSAGE_CODE;
+  //          }
+  //        };
+  //
+  //    Optional<IbftPrepareMessage> ibftPrepareMessage =
+  //        IbftPrepareMessage.fromMessage(messageData);
+  //
+  //    assertThat(ibftPrepareMessage.isPresent()).isTrue();
+  //    assertThat(ibftPrepareMessage.get().getCode()).isEqualTo(MESSAGE_CODE);
+  //
+  //    IbftPrepareSignedMessageData ibftPrepareMessageDecoded = ibftPrepareMessage.get().decode();
+  //
+  //    ConsensusRoundIdentifier expecterRoundIdentifier =
+  //        new ConsensusRoundIdentifier(SEQUENCE, ROUND);
+  //    assertThat(ibftPrepareMessageDecoded.getRoundIdentifier())
+  //        .isEqualByComparingTo(expecterRoundIdentifier);
+  //    assertThat(ibftPrepareMessageDecoded.getDigest()).isEqualByComparingTo(DIGEST);
+  //    assertThat(ibftPrepareMessageDecoded.getSender()).isEqualTo(VALIDATOR_ADDRESS);
+  //  }
+  //
+  //  @Test
+  //  public void emptyOptionalIsReturnedOnCreationIfCodeIsNotCorrect() {
+  //    BytesValue encodedPrepareMessage = BytesValue.fromHexString(HEX_ENCODED_PREPARE_MESSAGE);
+  //
+  //    final ByteBuf dataByteBuf = NetworkMemoryPool.allocate(encodedPrepareMessage.size());
+  //    dataByteBuf.writeBytes(Hex.decode(HEX_ENCODED_PREPARE_MESSAGE));
+  //
+  //    MessageData messageData =
+  //        new AbstractMessageData(dataByteBuf) {
+  //          @Override
+  //          public int getCode() {
+  //            return MESSAGE_CODE + 1;
+  //          }
+  //        };
+  //
+  //    Optional<IbftPrepareMessage> ibftPrepareMessage =
+  //        IbftPrepareMessage.fromMessage(messageData);
+  //
+  //    assertThat(ibftPrepareMessage.isPresent()).isFalse();
+  //  }
+  //
+  //  @Test
+  //  public void writeToByteBuf() {
+  //
+  //    ConsensusRoundIdentifier roundIdentifier = new ConsensusRoundIdentifier(SEQUENCE, ROUND);
+  //
+  //    IbftPrepareSignedMessageData ibftPrepareMessageDecoded =
+  //        new IbftPrepareSignedMessageData(roundIdentifier, DIGEST, VALIDATOR_KEY_PAIR);
+  //
+  //    IbftPrepareMessage ibftPrepareMessageData =
+  //        IbftPrepareMessage.create(ibftPrepareMessageDecoded);
+  //
+  //    final ByteBuf dataByteBuf = NetworkMemoryPool.allocate(ibftPrepareMessageData.getSize());
+  //    ibftPrepareMessageData.writeTo(dataByteBuf);
+  //
+  //    byte[] expectedEncoding = Hex.decode(HEX_ENCODED_PREPARE_MESSAGE);
+  //
+  //    assertThat(byteBufToByteArray(dataByteBuf)).isEqualTo(expectedEncoding);
+  //  }
+  //
+  //  private byte[] byteBufToByteArray(final ByteBuf dataByteBuf) {
+  //    byte[] bytes = new byte[dataByteBuf.readableBytes()];
+  //    int readerIndex = dataByteBuf.readerIndex();
+  //    dataByteBuf.getBytes(readerIndex, bytes);
+  //
+  //    return bytes;
+  //  }
 }

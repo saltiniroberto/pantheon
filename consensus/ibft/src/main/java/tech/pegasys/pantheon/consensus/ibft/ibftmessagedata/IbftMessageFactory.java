@@ -20,7 +20,7 @@ public class IbftMessageFactory {
   }
 
   public IbftSignedMessageData<IbftPrepareUnsignedMessageData> createIbftPrepareMessageData(
-          ConsensusRoundIdentifier roundIdentifier, Hash digest) {
+      ConsensusRoundIdentifier roundIdentifier, Hash digest) {
 
     IbftPrepareUnsignedMessageData prepareUnsignedMessageData =
         new IbftPrepareUnsignedMessageData(roundIdentifier, digest);
@@ -63,11 +63,11 @@ public class IbftMessageFactory {
   }
 
   public static IbftSignedMessageData<IbftPrePrepareUnsignedMessageData>
-  readSignedIbftPrePrepareMessageFrom(final RLPInput rlpInput) {
+      readSignedIbftPrePrepareMessageFrom(final RLPInput rlpInput) {
 
     rlpInput.enterList();
     final IbftPrePrepareUnsignedMessageData unsignedMessageData =
-            IbftPrePrepareUnsignedMessageData.readFrom(rlpInput);
+        IbftPrePrepareUnsignedMessageData.readFrom(rlpInput);
     final Signature signature = readSignature(rlpInput);
     rlpInput.leaveList();
 
@@ -77,11 +77,11 @@ public class IbftMessageFactory {
   }
 
   public static IbftSignedMessageData<IbftRoundChangeUnsignedMessageData>
-  readSignedIbftRoundChangeMessageFrom(final RLPInput rlpInput) {
+      readSignedIbftRoundChangeMessageFrom(final RLPInput rlpInput) {
 
     rlpInput.enterList();
     final IbftRoundChangeUnsignedMessageData unsignedMessageData =
-            IbftRoundChangeUnsignedMessageData.readFrom(rlpInput);
+        IbftRoundChangeUnsignedMessageData.readFrom(rlpInput);
     final Signature signature = readSignature(rlpInput);
     rlpInput.leaveList();
 

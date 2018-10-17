@@ -26,8 +26,7 @@ public class IbftPrePrepareUnsignedMessageData extends AbstractIbftInRoundUnsign
     return 0;
   }
 
-  public static  IbftPrePrepareUnsignedMessageData readFrom(final RLPInput rlpInput)
-  {
+  public static IbftPrePrepareUnsignedMessageData readFrom(final RLPInput rlpInput) {
     return null;
   }
 }

@@ -1,9 +1,11 @@
 package tech.pegasys.pantheon.consensus.ibft.protocol;
 
-import tech.pegasys.pantheon.consensus.ibft.IbftEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tech.pegasys.pantheon.consensus.ibft.IbftEventQueue;
-import tech.pegasys.pantheon.consensus.ibft.IbftEvents;
 import tech.pegasys.pantheon.consensus.ibft.IbftMessages;
+import tech.pegasys.pantheon.consensus.ibft.ibftevent.IbftMessageEvent;
+import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftSignedMessageData;
 import tech.pegasys.pantheon.ethereum.p2p.api.Message;
 import tech.pegasys.pantheon.ethereum.p2p.api.PeerConnection;
 import tech.pegasys.pantheon.ethereum.p2p.api.ProtocolManager;
@@ -13,9 +15,6 @@ import tech.pegasys.pantheon.ethereum.p2p.wire.messages.DisconnectMessage.Discon
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class IbftProtocolManager implements ProtocolManager {
   private final IbftEventQueue ibftEventQueue;
@@ -64,10 +63,12 @@ public class IbftProtocolManager implements ProtocolManager {
    */
   @Override
   public void processMessage(final Capability cap, final Message message) {
-    final Optional<IbftEvent> optionalIbftEvent =
-        IbftMessages.fromMessage(message).map(IbftEvents::fromMessage);
 
-    optionalIbftEvent.ifPresent(ibftEventQueue::add);
+    final Optional<IbftSignedMessageData> optionalIbftSignedMessageData =
+        IbftMessages.fromMessage(message);
+
+    optionalIbftSignedMessageData.ifPresent(
+        ibftSignedMessageData -> ibftEventQueue.add(new IbftMessageEvent(ibftSignedMessageData)));
   }
 
   @Override
