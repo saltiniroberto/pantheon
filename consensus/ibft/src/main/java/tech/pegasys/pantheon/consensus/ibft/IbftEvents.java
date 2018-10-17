@@ -1,12 +1,12 @@
 package tech.pegasys.pantheon.consensus.ibft;
 
 import tech.pegasys.pantheon.consensus.ibft.ibftevent.IbftMessageEvent;
-import tech.pegasys.pantheon.consensus.ibft.ibftmessagedecoded.AbstractIbftMessageDecoded;
+import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftSignedMessageData;
 
 /** Static helper functions for producing and working with IbftEvent objects */
 public class IbftEvents {
 
-  public static IbftEvent fromMessage(final AbstractIbftMessageDecoded ibftMessageDecoded) {
+  public static IbftEvent fromMessage(final IbftSignedMessageData ibftMessageDecoded) {
     return new IbftMessageEvent(ibftMessageDecoded);
   }
 
