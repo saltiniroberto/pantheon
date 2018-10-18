@@ -12,20 +12,19 @@
  */
 package tech.pegasys.pantheon.consensus.ibft;
 
-import tech.pegasys.pantheon.consensus.ibft.ibftevent.IbftMessageEvent;
-import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftSignedMessageData;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
-/** Static helper functions for producing and working with IbftEvent objects */
-public class IbftEvents {
+import tech.pegasys.pantheon.ethereum.core.Address;
 
-  public static IbftEvent fromMessage(final IbftSignedMessageData<?> ibftMessageDecoded) {
-    return new IbftMessageEvent(ibftMessageDecoded);
-  }
+import org.junit.Test;
 
-  public enum Type {
-    ROUND_EXPIRY,
-    NEW_CHAIN_HEAD_HEADER,
-    BLOCK_TIMER_EXPIRY,
-    IBFT_MESSAGE
+public class VoteTest {
+  @Test
+  public void testStaticVoteCreationMethods() {
+    assertThat(Vote.authVote(Address.fromHexString("1")).isAuth()).isEqualTo(true);
+    assertThat(Vote.authVote(Address.fromHexString("1")).isDrop()).isEqualTo(false);
+
+    assertThat(Vote.dropVote(Address.fromHexString("1")).isAuth()).isEqualTo(false);
+    assertThat(Vote.dropVote(Address.fromHexString("1")).isDrop()).isEqualTo(true);
   }
 }
