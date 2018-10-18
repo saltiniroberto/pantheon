@@ -10,16 +10,16 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package tech.pegasys.pantheon.consensus.ibft.headervalidationrules;
+package tech.pegasys.pantheon.consensus.ibftlegacy.headervalidationrules;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import tech.pegasys.pantheon.consensus.common.VoteTally;
-import tech.pegasys.pantheon.consensus.ibft.IbftBlockHashing;
 import tech.pegasys.pantheon.consensus.ibft.IbftContext;
-import tech.pegasys.pantheon.consensus.ibft.IbftExtraData;
+import tech.pegasys.pantheon.consensus.ibftlegacy.IbftBlockHashing;
+import tech.pegasys.pantheon.consensus.ibftlegacy.IbftExtraData;
 import tech.pegasys.pantheon.crypto.SECP256K1;
 import tech.pegasys.pantheon.crypto.SECP256K1.KeyPair;
 import tech.pegasys.pantheon.crypto.SECP256K1.Signature;
@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 public class IbftExtraDataValidationRuleTest {
@@ -141,7 +142,7 @@ public class IbftExtraDataValidationRuleTest {
 
     // Note that no committer seals are in the header's IBFT extra data.
     final IbftExtraData headerExtraData = IbftExtraData.decode(header.getExtraData());
-    assertThat(headerExtraData.getSeals().size()).isEqualTo(0);
+    Assertions.assertThat(headerExtraData.getSeals().size()).isEqualTo(0);
 
     assertThat(extraDataValidationRule.validate(header, null, context)).isFalse();
   }

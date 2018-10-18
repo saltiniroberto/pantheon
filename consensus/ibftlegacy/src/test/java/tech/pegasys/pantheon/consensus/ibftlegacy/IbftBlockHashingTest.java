@@ -10,7 +10,7 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package tech.pegasys.pantheon.consensus.ibft;
+package tech.pegasys.pantheon.consensus.ibftlegacy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,6 +25,7 @@ import tech.pegasys.pantheon.util.uint.UInt256;
 import java.util.Arrays;
 import java.util.List;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 public class IbftBlockHashingTest {
@@ -58,7 +59,7 @@ public class IbftBlockHashingTest {
   @Test
   public void readValidatorListFromExtraData() {
     final IbftExtraData ibftExtraData = IbftExtraData.decode(header.getExtraData());
-    assertThat(ibftExtraData.getValidators()).isEqualTo(VALIDATORS_IN_HEADER);
+    Assertions.assertThat(ibftExtraData.getValidators()).isEqualTo(VALIDATORS_IN_HEADER);
   }
 
   @Test

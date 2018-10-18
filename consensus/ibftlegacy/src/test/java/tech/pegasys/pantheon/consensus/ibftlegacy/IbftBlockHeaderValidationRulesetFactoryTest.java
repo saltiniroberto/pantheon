@@ -10,14 +10,14 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package tech.pegasys.pantheon.consensus.ibft;
+package tech.pegasys.pantheon.consensus.ibftlegacy;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static tech.pegasys.pantheon.consensus.ibft.IbftProtocolContextFixture.protocolContext;
 
 import tech.pegasys.pantheon.consensus.common.VoteType;
+import tech.pegasys.pantheon.consensus.ibft.IbftContext;
 import tech.pegasys.pantheon.crypto.SECP256K1;
 import tech.pegasys.pantheon.crypto.SECP256K1.KeyPair;
 import tech.pegasys.pantheon.crypto.SECP256K1.Signature;
@@ -53,7 +53,10 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
 
     assertThat(
             validator.validateHeader(
-                blockHeader, parentHeader, protocolContext(validators), HeaderValidationMode.FULL))
+                blockHeader,
+                parentHeader,
+                IbftProtocolContextFixture.protocolContext(validators),
+                HeaderValidationMode.FULL))
         .isTrue();
   }
 
@@ -73,7 +76,10 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
 
     assertThat(
             validator.validateHeader(
-                blockHeader, parentHeader, protocolContext(validators), HeaderValidationMode.FULL))
+                blockHeader,
+                parentHeader,
+                IbftProtocolContextFixture.protocolContext(validators),
+                HeaderValidationMode.FULL))
         .isFalse();
   }
 
@@ -99,7 +105,8 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
     // Construct an extraData block
     final IbftExtraData initialIbftExtraData =
         new IbftExtraData(
-            BytesValue.wrap(new byte[IbftExtraData.EXTRA_VANITY_LENGTH]),
+            BytesValue.wrap(
+                new byte[tech.pegasys.pantheon.consensus.ibft.IbftExtraData.EXTRA_VANITY_LENGTH]),
             emptyList(),
             Signature.create(BigInteger.ONE, BigInteger.ONE, (byte) 0),
             validators);
@@ -113,7 +120,8 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
 
     final IbftExtraData proposedData =
         new IbftExtraData(
-            BytesValue.wrap(new byte[IbftExtraData.EXTRA_VANITY_LENGTH]),
+            BytesValue.wrap(
+                new byte[tech.pegasys.pantheon.consensus.ibft.IbftExtraData.EXTRA_VANITY_LENGTH]),
             singletonList(proposerSignature),
             proposerSignature,
             validators);

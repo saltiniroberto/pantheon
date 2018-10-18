@@ -10,11 +10,11 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package tech.pegasys.pantheon.consensus.ibft;
-
-import static tech.pegasys.pantheon.consensus.ibft.IbftBlockHeaderValidationRulesetFactory.ibftBlockHeaderValidator;
+package tech.pegasys.pantheon.consensus.ibftlegacy;
 
 import tech.pegasys.pantheon.consensus.common.EpochManager;
+import tech.pegasys.pantheon.consensus.ibft.IbftBlockImporter;
+import tech.pegasys.pantheon.consensus.ibft.IbftContext;
 import tech.pegasys.pantheon.ethereum.core.Wei;
 import tech.pegasys.pantheon.ethereum.mainnet.MainnetBlockBodyValidator;
 import tech.pegasys.pantheon.ethereum.mainnet.MainnetBlockImporter;
@@ -44,13 +44,15 @@ public class IbftProtocolSpecs {
     final EpochManager epochManager = new EpochManager(epochLength);
     return MainnetProtocolSpecs.spuriousDragonDefinition(chainId)
         .<IbftContext>changeConsensusContextType(
-            difficultyCalculator -> ibftBlockHeaderValidator(secondsBetweenBlocks),
+            difficultyCalculator ->
+                IbftBlockHeaderValidationRulesetFactory.ibftBlockHeaderValidator(
+                    secondsBetweenBlocks),
             MainnetBlockBodyValidator::new,
             (blockHeaderValidator, blockBodyValidator, blockProcessor) ->
                 new IbftBlockImporter(
                     new MainnetBlockImporter<>(
                         blockHeaderValidator, blockBodyValidator, blockProcessor),
-                    new VoteTallyUpdater(epochManager)),
+                    new IbftVoteTallyUpdater(epochManager)),
             (time, parent, protocolContext) -> BigInteger.ONE)
         .blockReward(Wei.ZERO)
         .blockHashFunction(IbftBlockHashing::calculateHashOfIbftBlockOnChain)

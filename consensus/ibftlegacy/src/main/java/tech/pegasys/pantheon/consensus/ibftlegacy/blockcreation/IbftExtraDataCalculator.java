@@ -10,10 +10,10 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package tech.pegasys.pantheon.consensus.ibft.blockcreation;
+package tech.pegasys.pantheon.consensus.ibftlegacy.blockcreation;
 
 import tech.pegasys.pantheon.consensus.common.ValidatorProvider;
-import tech.pegasys.pantheon.consensus.ibft.IbftExtraData;
+import tech.pegasys.pantheon.consensus.ibftlegacy.IbftExtraData;
 import tech.pegasys.pantheon.ethereum.blockcreation.AbstractBlockCreator.ExtraDataCalculator;
 import tech.pegasys.pantheon.ethereum.core.BlockHeader;
 import tech.pegasys.pantheon.util.bytes.BytesValue;

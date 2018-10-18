@@ -10,7 +10,7 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package tech.pegasys.pantheon.consensus.ibft;
+package tech.pegasys.pantheon.consensus.ibftlegacy;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -41,7 +41,7 @@ import java.util.Optional;
 
 import org.junit.Test;
 
-public class VoteTallyUpdaterTest {
+public class IbftVoteTallyUpdaterTest {
 
   private static final long EPOCH_LENGTH = 30_000;
   public static final Signature INVALID_SEAL =
@@ -55,7 +55,8 @@ public class VoteTallyUpdaterTest {
   private final Address validator1 =
       Address.fromHexString("00dae27b350bae20c5652124af5d8b5cba001ec1");
 
-  private final VoteTallyUpdater updater = new VoteTallyUpdater(new EpochManager(EPOCH_LENGTH));
+  private final IbftVoteTallyUpdater updater =
+      new IbftVoteTallyUpdater(new EpochManager(EPOCH_LENGTH));
 
   @Test
   public void voteTallyUpdatedWithVoteFromBlock() {

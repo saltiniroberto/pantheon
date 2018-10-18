@@ -10,7 +10,7 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package tech.pegasys.pantheon.consensus.ibft.blockcreation;
+package tech.pegasys.pantheon.consensus.ibftlegacy.blockcreation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,10 +20,10 @@ import static tech.pegasys.pantheon.ethereum.core.InMemoryWorldState.createInMem
 
 import tech.pegasys.pantheon.consensus.common.VoteProposer;
 import tech.pegasys.pantheon.consensus.common.VoteTally;
-import tech.pegasys.pantheon.consensus.ibft.IbftBlockHeaderValidationRulesetFactory;
 import tech.pegasys.pantheon.consensus.ibft.IbftContext;
-import tech.pegasys.pantheon.consensus.ibft.IbftExtraData;
-import tech.pegasys.pantheon.consensus.ibft.IbftProtocolSchedule;
+import tech.pegasys.pantheon.consensus.ibftlegacy.IbftBlockHeaderValidationRulesetFactory;
+import tech.pegasys.pantheon.consensus.ibftlegacy.IbftExtraData;
+import tech.pegasys.pantheon.consensus.ibftlegacy.IbftProtocolSchedule;
 import tech.pegasys.pantheon.crypto.SECP256K1.KeyPair;
 import tech.pegasys.pantheon.ethereum.ProtocolContext;
 import tech.pegasys.pantheon.ethereum.chain.MutableBlockchain;
