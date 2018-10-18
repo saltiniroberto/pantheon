@@ -39,17 +39,18 @@ public class Ibft2ExtraDataTest {
           + "0000000000000000000000000000000000a00b84100000000000000000000000000000000000000000000000000000000000000"
           + "0a000000000000000000000000000000000000000000000000000000000000000100";
 
-  private final Ibft2ExtraData DECODED_EXTRA_DATA_FOR_RAW_HEX_ENCODING_STRING = getDecodedExtraDataForRawHexEncodingString();
+  private final Ibft2ExtraData DECODED_EXTRA_DATA_FOR_RAW_HEX_ENCODING_STRING =
+      getDecodedExtraDataForRawHexEncodingString();
 
   private static Ibft2ExtraData getDecodedExtraDataForRawHexEncodingString() {
     final List<Address> validators =
-            Arrays.asList(Address.fromHexString("1"), Address.fromHexString("2"));
+        Arrays.asList(Address.fromHexString("1"), Address.fromHexString("2"));
     final Optional<Vote> vote = Optional.of(Vote.authVote(Address.fromHexString("1")));
     final int round = 0x00FEDCBA;
     final List<Signature> committerSeals =
-            Arrays.asList(
-                    Signature.create(BigInteger.ONE, BigInteger.TEN, (byte) 0),
-                    Signature.create(BigInteger.TEN, BigInteger.ONE, (byte) 0));
+        Arrays.asList(
+            Signature.create(BigInteger.ONE, BigInteger.TEN, (byte) 0),
+            Signature.create(BigInteger.TEN, BigInteger.ONE, (byte) 0));
 
     // Create a byte buffer with no data.
     final byte[] vanity_bytes = createNonEmptyVanityData();
@@ -316,7 +317,8 @@ public class Ibft2ExtraDataTest {
   @Test
   public void encodingMatchesKnownRawHexString() {
     BytesValue expectedRawDecoding = BytesValue.fromHexString(RAW_HEX_ENCODING_STRING);
-    assertThat(DECODED_EXTRA_DATA_FOR_RAW_HEX_ENCODING_STRING.encode()).isEqualTo(expectedRawDecoding);
+    assertThat(DECODED_EXTRA_DATA_FOR_RAW_HEX_ENCODING_STRING.encode())
+        .isEqualTo(expectedRawDecoding);
   }
 
   @Test
@@ -327,13 +329,8 @@ public class Ibft2ExtraDataTest {
     BytesValue rawDecoding = BytesValue.fromHexString(RAW_HEX_ENCODING_STRING);
     Ibft2ExtraData actualExtraData = Ibft2ExtraData.decode(rawDecoding);
 
-    assertThat(actualExtraData.getVanityData()).isEqualTo(expectedExtraData.getVanityData());
-    assertThat(actualExtraData.getVote()).isEqualTo(expectedExtraData.getVote());
-    assertThat(actualExtraData.getRound()).isEqualTo(expectedExtraData.getRound());
-    assertThat(actualExtraData.getSeals()).isEqualTo(expectedExtraData.getSeals());
-    assertThat(actualExtraData.getValidators()).isEqualTo(expectedExtraData.getValidators());
+    assertThat(actualExtraData).isEqualToComparingFieldByField(expectedExtraData);
   }
-
 
   @Test
   public void incorrectlyStructuredRlpThrowsException() {
