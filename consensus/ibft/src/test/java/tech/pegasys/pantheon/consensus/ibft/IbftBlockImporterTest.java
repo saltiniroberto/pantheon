@@ -12,7 +12,12 @@
  */
 package tech.pegasys.pantheon.consensus.ibft;
 
-import org.junit.Test;
+import static java.util.Collections.emptyList;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
 import tech.pegasys.pantheon.consensus.common.VoteProposer;
 import tech.pegasys.pantheon.consensus.common.VoteTally;
 import tech.pegasys.pantheon.ethereum.ProtocolContext;
@@ -24,94 +29,78 @@ import tech.pegasys.pantheon.ethereum.core.BlockImporter;
 import tech.pegasys.pantheon.ethereum.db.WorldStateArchive;
 import tech.pegasys.pantheon.ethereum.mainnet.HeaderValidationMode;
 
-import java.util.Collections;
-
-import static java.util.Collections.emptyList;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import org.junit.Test;
 
 public class IbftBlockImporterTest {
 
-    private final VoteTallyUpdater voteTallyUpdater = mock(VoteTallyUpdater.class);
-    private final VoteTally voteTally = mock(VoteTally.class);
-    private final VoteProposer voteProposer = mock(VoteProposer.class);
+  private final VoteTallyUpdater voteTallyUpdater = mock(VoteTallyUpdater.class);
+  private final VoteTally voteTally = mock(VoteTally.class);
+  private final VoteProposer voteProposer = mock(VoteProposer.class);
 
-    @SuppressWarnings("unchecked")
-    private final BlockImporter<IbftContext> delegate = mock(BlockImporter.class);
+  @SuppressWarnings("unchecked")
+  private final BlockImporter<IbftContext> delegate = mock(BlockImporter.class);
 
-    private final MutableBlockchain blockchain = mock(MutableBlockchain.class);
-    private final WorldStateArchive worldStateArchive = mock(WorldStateArchive.class);
-    private final ProtocolContext<IbftContext> context =
-        new ProtocolContext<>(
-            blockchain, worldStateArchive, new IbftContext(voteTally, voteProposer));
+  private final MutableBlockchain blockchain = mock(MutableBlockchain.class);
+  private final WorldStateArchive worldStateArchive = mock(WorldStateArchive.class);
+  private final ProtocolContext<IbftContext> context =
+      new ProtocolContext<>(
+          blockchain, worldStateArchive, new IbftContext(voteTally, voteProposer));
 
-    private final IbftBlockImporter importer = new IbftBlockImporter(delegate, voteTallyUpdater);
+  private final IbftBlockImporter importer = new IbftBlockImporter(delegate, voteTallyUpdater);
 
-    @Test
-    public void voteTallyNotUpdatedWhenBlockImportFails() {
-      final BlockHeaderTestFixture headerBuilder = new BlockHeaderTestFixture();
-      final Block block =
-          new Block(
-              headerBuilder.buildHeader(),
-              new BlockBody(emptyList(), emptyList()));
+  @Test
+  public void voteTallyNotUpdatedWhenBlockImportFails() {
+    final BlockHeaderTestFixture headerBuilder = new BlockHeaderTestFixture();
+    final Block block =
+        new Block(headerBuilder.buildHeader(), new BlockBody(emptyList(), emptyList()));
 
-      when(delegate.importBlock(context, block, HeaderValidationMode.FULL,
-   HeaderValidationMode.FULL))
-          .thenReturn(false);
+    when(delegate.importBlock(context, block, HeaderValidationMode.FULL, HeaderValidationMode.FULL))
+        .thenReturn(false);
 
-      importer.importBlock(context, block, HeaderValidationMode.FULL);
+    importer.importBlock(context, block, HeaderValidationMode.FULL);
 
-      verifyZeroInteractions(voteTallyUpdater);
-    }
+    verifyZeroInteractions(voteTallyUpdater);
+  }
 
-    @Test
-    public void voteTallyNotUpdatedWhenFastBlockImportFails() {
-      final BlockHeaderTestFixture headerBuilder = new BlockHeaderTestFixture();
-      final Block block =
-          new Block(
-              headerBuilder.buildHeader(),
-              new BlockBody(emptyList(), emptyList()));
+  @Test
+  public void voteTallyNotUpdatedWhenFastBlockImportFails() {
+    final BlockHeaderTestFixture headerBuilder = new BlockHeaderTestFixture();
+    final Block block =
+        new Block(headerBuilder.buildHeader(), new BlockBody(emptyList(), emptyList()));
 
-      when(delegate.fastImportBlock(context, block, emptyList(), HeaderValidationMode.LIGHT))
-          .thenReturn(false);
+    when(delegate.fastImportBlock(context, block, emptyList(), HeaderValidationMode.LIGHT))
+        .thenReturn(false);
 
-      importer.fastImportBlock(context, block, emptyList(),
-   HeaderValidationMode.LIGHT);
+    importer.fastImportBlock(context, block, emptyList(), HeaderValidationMode.LIGHT);
 
-      verifyZeroInteractions(voteTallyUpdater);
-    }
+    verifyZeroInteractions(voteTallyUpdater);
+  }
 
-    @Test
-    public void voteTallyUpdatedWhenBlockImportSucceeds() {
-      final Block block =
-          new Block(
-              new BlockHeaderTestFixture().buildHeader(),
-              new BlockBody(emptyList(), emptyList()));
+  @Test
+  public void voteTallyUpdatedWhenBlockImportSucceeds() {
+    final Block block =
+        new Block(
+            new BlockHeaderTestFixture().buildHeader(), new BlockBody(emptyList(), emptyList()));
 
-      when(delegate.importBlock(context, block, HeaderValidationMode.FULL,
-   HeaderValidationMode.FULL))
-          .thenReturn(true);
+    when(delegate.importBlock(context, block, HeaderValidationMode.FULL, HeaderValidationMode.FULL))
+        .thenReturn(true);
 
-      importer.importBlock(context, block, HeaderValidationMode.FULL);
+    importer.importBlock(context, block, HeaderValidationMode.FULL);
 
-      verify(voteTallyUpdater).updateForBlock(block.getHeader(), voteTally);
-    }
+    verify(voteTallyUpdater).updateForBlock(block.getHeader(), voteTally);
+  }
 
-    @Test
-    public void voteTallyUpdatedWhenFastBlockImportSucceeds() {
-      final Block block =
-          new Block(
-              new BlockHeaderTestFixture().buildHeader(),
-              new BlockBody(emptyList(), emptyList()));
+  @Test
+  public void voteTallyUpdatedWhenFastBlockImportSucceeds() {
+    final Block block =
+        new Block(
+            new BlockHeaderTestFixture().buildHeader(), new BlockBody(emptyList(), emptyList()));
 
-      when(delegate.fastImportBlock(context, block, emptyList(), HeaderValidationMode.LIGHT))
-          .thenReturn(true);
+    when(delegate.fastImportBlock(context, block, emptyList(), HeaderValidationMode.LIGHT))
+        .thenReturn(true);
 
-      importer.fastImportBlock(context, block, emptyList(),
-   HeaderValidationMode.LIGHT);
+    importer.fastImportBlock(context, block, emptyList(), HeaderValidationMode.LIGHT);
 
-      verify(voteTallyUpdater).updateForBlock(block.getHeader(), voteTally);
-    }
+    verify(voteTallyUpdater).updateForBlock(block.getHeader(), voteTally);
+  }
 }

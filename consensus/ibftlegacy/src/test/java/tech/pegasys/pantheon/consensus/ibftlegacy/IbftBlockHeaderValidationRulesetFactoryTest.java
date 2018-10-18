@@ -106,8 +106,7 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
     // Construct an extraData block
     final IbftExtraData initialIbftExtraData =
         new IbftExtraData(
-            BytesValue.wrap(
-                new byte[IbftExtraData.EXTRA_VANITY_LENGTH]),
+            BytesValue.wrap(new byte[IbftExtraData.EXTRA_VANITY_LENGTH]),
             emptyList(),
             Signature.create(BigInteger.ONE, BigInteger.ONE, (byte) 0),
             validators);
@@ -121,8 +120,7 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
 
     final IbftExtraData proposedData =
         new IbftExtraData(
-            BytesValue.wrap(
-                new byte[IbftExtraData.EXTRA_VANITY_LENGTH]),
+            BytesValue.wrap(new byte[IbftExtraData.EXTRA_VANITY_LENGTH]),
             singletonList(proposerSignature),
             proposerSignature,
             validators);

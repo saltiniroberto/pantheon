@@ -134,7 +134,8 @@ public class Ibft2ExtraDataTest {
 
     final BytesValue bufferToInject = encoder.encoded();
 
-    assertThatThrownBy(() -> Ibft2ExtraData.decode(bufferToInject)).isInstanceOf(RLPException.class);
+    assertThatThrownBy(() -> Ibft2ExtraData.decode(bufferToInject))
+        .isInstanceOf(RLPException.class);
   }
 
   @Test
@@ -361,7 +362,8 @@ public class Ibft2ExtraDataTest {
 
     final BytesValue bufferToInject = encoder.encoded();
 
-    assertThatThrownBy(() -> Ibft2ExtraData.decode(bufferToInject)).isInstanceOf(RLPException.class);
+    assertThatThrownBy(() -> Ibft2ExtraData.decode(bufferToInject))
+        .isInstanceOf(RLPException.class);
   }
 
   @Test
@@ -398,7 +400,8 @@ public class Ibft2ExtraDataTest {
 
     final BytesValue bufferToInject = encoder.encoded();
 
-    assertThatThrownBy(() -> Ibft2ExtraData.decode(bufferToInject)).isInstanceOf(RLPException.class);
+    assertThatThrownBy(() -> Ibft2ExtraData.decode(bufferToInject))
+        .isInstanceOf(RLPException.class);
   }
 
   private static byte[] createNonEmptyVanityData() {

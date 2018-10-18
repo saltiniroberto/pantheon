@@ -15,7 +15,6 @@ package tech.pegasys.pantheon.util;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.io.Resources;
 import tech.pegasys.pantheon.controller.MainnetPantheonController;
 import tech.pegasys.pantheon.controller.PantheonController;
 import tech.pegasys.pantheon.crypto.SECP256K1.KeyPair;
@@ -29,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
+import com.google.common.io.Resources;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -53,33 +53,31 @@ public final class BlockImporterTest {
 
   @Test
   public void ibftImport() throws IOException {
-        final Path source = folder.newFile().toPath();
-        final Path target = folder.newFolder().toPath();
-        final String config = Resources.toString(Resources.getResource("ibft_genesis.json"),
-     UTF_8);
+    final Path source = folder.newFile().toPath();
+    final Path target = folder.newFolder().toPath();
+    final String config = Resources.toString(Resources.getResource("ibft_genesis.json"), UTF_8);
 
-        try {
-          Files.write(
-              source,
-              Resources.toByteArray(Resources.getResource("ibft.blocks")),
-              StandardOpenOption.CREATE,
-              StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (final IOException ex) {
-          throw new IllegalStateException(ex);
-        }
+    try {
+      Files.write(
+          source,
+          Resources.toByteArray(Resources.getResource("ibft.blocks")),
+          StandardOpenOption.CREATE,
+          StandardOpenOption.TRUNCATE_EXISTING);
+    } catch (final IOException ex) {
+      throw new IllegalStateException(ex);
+    }
 
-        final PantheonController<?, ?> controller =
-            PantheonController.fromConfig(
-                SynchronizerConfiguration.builder().build(),
-                config,
-                target,
-                false,
-                10,
-                new MiningParametersTestBuilder().enabled(false).build(),
-                KeyPair.generate());
-        final BlockImporter.ImportResult result = blockImporter.importBlockchain(source,
-     controller);
+    final PantheonController<?, ?> controller =
+        PantheonController.fromConfig(
+            SynchronizerConfiguration.builder().build(),
+            config,
+            target,
+            false,
+            10,
+            new MiningParametersTestBuilder().enabled(false).build(),
+            KeyPair.generate());
+    final BlockImporter.ImportResult result = blockImporter.importBlockchain(source, controller);
 
-        assertThat(result.count).isEqualTo(959);
+    assertThat(result.count).isEqualTo(959);
   }
 }
