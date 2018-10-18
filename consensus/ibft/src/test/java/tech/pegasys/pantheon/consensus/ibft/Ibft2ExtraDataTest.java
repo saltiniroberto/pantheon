@@ -19,6 +19,7 @@ import tech.pegasys.pantheon.crypto.SECP256K1.Signature;
 import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.rlp.BytesValueRLPOutput;
 import tech.pegasys.pantheon.ethereum.rlp.RLPException;
+import tech.pegasys.pantheon.ethereum.rlp.RLPInput;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 
 import java.math.BigInteger;
@@ -28,6 +29,7 @@ import java.util.Optional;
 import java.util.Random;
 
 import com.google.common.collect.Lists;
+import org.bouncycastle.util.encoders.Hex;
 import org.junit.Test;
 
 public class Ibft2ExtraDataTest {
@@ -72,11 +74,14 @@ public class Ibft2ExtraDataTest {
     assertThat(extraData.getValidators()).isEqualTo(validators);
   }
 
+  /**
+   * This test specifically verifies that {@link Ibft2ExtraData#decode(BytesValue)} uses {@link
+   * RLPInput#readInt()} rather than {@link RLPInput#readIntScalar()} to decode the round number
+   */
   @Test
-  public void incorrectlyEncodedRound() {
+  public void incorrectlyEncodedRoundThrowsRlpException() {
     final List<Address> validators = Lists.newArrayList();
     final Optional<Vote> vote = Optional.of(Vote.authVote(Address.fromHexString("1")));
-    final int round = 0x00FEDCBA;
     final byte[] roundAsByteArray = new byte[] {(byte) 0xFE, (byte) 0xDC, (byte) 0xBA};
     final List<Signature> committerSeals = Lists.newArrayList();
 
@@ -200,7 +205,7 @@ public class Ibft2ExtraDataTest {
   }
 
   @Test
-  public void emptyListsAreEncodedCorrectly() {
+  public void emptyListsAreEncodedAndDecodedCorrectly() {
     final List<Address> validators = Lists.newArrayList();
     final Optional<Vote> vote = Optional.of(Vote.authVote(Address.fromHexString("1")));
     final int round = 0x00FEDCBA;
@@ -230,7 +235,7 @@ public class Ibft2ExtraDataTest {
             Signature.create(BigInteger.TEN, BigInteger.ONE, (byte) 0));
 
     // Create randomised vanity data.
-    final byte[] vanity_bytes = new byte[32];
+    final byte[] vanity_bytes = createNonEmptyVanityData();
     new Random().nextBytes(vanity_bytes);
     final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
 
@@ -262,7 +267,7 @@ public class Ibft2ExtraDataTest {
   }
 
   @Test
-  public void fullyPopulatedDataIsEncodedCorrectly() {
+  public void fullyPopulatedDataIsEncodedAndDecodedCorrectly() {
     final List<Address> validators =
         Arrays.asList(Address.fromHexString("1"), Address.fromHexString("2"));
     final Optional<Vote> vote = Optional.of(Vote.authVote(Address.fromHexString("1")));
@@ -273,7 +278,7 @@ public class Ibft2ExtraDataTest {
             Signature.create(BigInteger.TEN, BigInteger.ONE, (byte) 0));
 
     // Create a byte buffer with no data.
-    final byte[] vanity_bytes = new byte[32];
+    final byte[] vanity_bytes = createNonEmptyVanityData();
     final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
 
     Ibft2ExtraData expectedExtraData =
@@ -282,6 +287,67 @@ public class Ibft2ExtraDataTest {
     Ibft2ExtraData actualExtraData = Ibft2ExtraData.decode(expectedExtraData.encode());
 
     assertThat(actualExtraData).isEqualToComparingFieldByField(expectedExtraData);
+  }
+
+  @Test
+  public void encodingMatchesKnownRawHexString() {
+    final String EXPECTED_HEX_RAW_ENCODING =
+        "f8f1a00102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20ea9400000000000000000000000000000000000"
+            + "00001940000000000000000000000000000000000000002d794000000000000000000000000000000000000000181ff8400fedc"
+            + "baf886b841000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000"
+            + "0000000000000000000000000000000000a00b84100000000000000000000000000000000000000000000000000000000000000"
+            + "0a000000000000000000000000000000000000000000000000000000000000000100";
+
+    final List<Address> validators =
+        Arrays.asList(Address.fromHexString("1"), Address.fromHexString("2"));
+    final Optional<Vote> vote = Optional.of(Vote.authVote(Address.fromHexString("1")));
+    final int round = 0x00FEDCBA;
+    final List<Signature> committerSeals =
+        Arrays.asList(
+            Signature.create(BigInteger.ONE, BigInteger.TEN, (byte) 0),
+            Signature.create(BigInteger.TEN, BigInteger.ONE, (byte) 0));
+
+    // Create a byte buffer with no data.
+    final byte[] vanity_bytes = createNonEmptyVanityData();
+    final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
+
+    Ibft2ExtraData actualExtraData =
+        new Ibft2ExtraData(vanity_data, committerSeals, vote, round, validators);
+
+    BytesValue expectedRawDecoding = BytesValue.wrap(Hex.decode(EXPECTED_HEX_RAW_ENCODING));
+    assertThat(actualExtraData.encode()).isEqualTo(expectedRawDecoding);
+  }
+
+  @Test
+  public void decodingOfKnownRawHexStringMatchesKnowExtraDataObject() {
+    final String RAW_HEX_ENCODING =
+        "f8f1a00102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20ea9400000000000000000000000000000000000"
+            + "00001940000000000000000000000000000000000000002d794000000000000000000000000000000000000000181ff8400fedc"
+            + "baf886b841000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000"
+            + "0000000000000000000000000000000000a00b84100000000000000000000000000000000000000000000000000000000000000"
+            + "0a000000000000000000000000000000000000000000000000000000000000000100";
+
+    final List<Address> expectedValidators =
+        Arrays.asList(Address.fromHexString("1"), Address.fromHexString("2"));
+    final Optional<Vote> expectedVote = Optional.of(Vote.authVote(Address.fromHexString("1")));
+    final int expectedRound = 0x00FEDCBA;
+    final List<Signature> expectedCommitterSeals =
+        Arrays.asList(
+            Signature.create(BigInteger.ONE, BigInteger.TEN, (byte) 0),
+            Signature.create(BigInteger.TEN, BigInteger.ONE, (byte) 0));
+
+    // Create a byte buffer with no data.
+    final byte[] vanity_bytes = createNonEmptyVanityData();
+    final BytesValue expectedVanityData = BytesValue.wrap(vanity_bytes);
+
+    BytesValue rawDecoding = BytesValue.wrap(Hex.decode(RAW_HEX_ENCODING));
+    Ibft2ExtraData actualExtraData = Ibft2ExtraData.decode(rawDecoding);
+
+    assertThat(actualExtraData.getVanityData()).isEqualTo(expectedVanityData);
+    assertThat(actualExtraData.getVote()).isEqualTo(expectedVote);
+    assertThat(actualExtraData.getRound()).isEqualTo(expectedRound);
+    assertThat(actualExtraData.getSeals()).isEqualTo(expectedCommitterSeals);
+    assertThat(actualExtraData.getValidators()).isEqualTo(expectedValidators);
   }
 
   @Test
@@ -354,5 +420,14 @@ public class Ibft2ExtraDataTest {
 
     assertThatThrownBy(() -> Ibft2ExtraData.decode(bufferToInject))
         .isInstanceOf(RLPException.class);
+  }
+
+  private static byte[] createNonEmptyVanityData() {
+    final byte[] vanity_bytes = new byte[32];
+    for (int i = 0; i < vanity_bytes.length; i++) {
+      vanity_bytes[i] = (byte) (i + 1);
+    }
+
+    return vanity_bytes;
   }
 }
