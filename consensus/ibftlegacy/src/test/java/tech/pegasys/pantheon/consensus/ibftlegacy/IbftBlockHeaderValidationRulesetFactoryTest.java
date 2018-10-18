@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import tech.pegasys.pantheon.consensus.common.VoteType;
 import tech.pegasys.pantheon.consensus.ibft.IbftContext;
+import tech.pegasys.pantheon.consensus.ibft.IbftProtocolContextFixture;
 import tech.pegasys.pantheon.crypto.SECP256K1;
 import tech.pegasys.pantheon.crypto.SECP256K1.KeyPair;
 import tech.pegasys.pantheon.crypto.SECP256K1.Signature;

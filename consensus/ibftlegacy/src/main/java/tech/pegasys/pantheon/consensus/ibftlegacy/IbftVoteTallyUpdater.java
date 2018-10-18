@@ -54,7 +54,7 @@ public class IbftVoteTallyUpdater implements VoteTallyUpdater {
     LOG.info("Loading validator voting state starting from block {}", epochBlockNumber);
     final BlockHeader epochBlock = blockchain.getBlockHeader(epochBlockNumber).get();
     final List<Address> initialValidators =
-        tech.pegasys.pantheon.consensus.ibft.IbftExtraData.decode(epochBlock.getExtraData())
+        IbftExtraData.decode(epochBlock.getExtraData())
             .getValidators();
     final VoteTally voteTally = new VoteTally(initialValidators);
     for (long blockNumber = epochBlockNumber + 1;

@@ -31,3 +31,6 @@ dependencies {
   testImplementation "org.assertj:assertj-core:3.10.0"
   testImplementation 'org.mockito:mockito-core'
 }
+
+
+artifacts { testSupportArtifacts testSupportJar }
