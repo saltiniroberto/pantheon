@@ -12,7 +12,6 @@
  */
 package tech.pegasys.pantheon.consensus.ibft;
 
-import tech.pegasys.pantheon.consensus.ibft.ibftmessage.AbstractIbftMessage;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessage.IbftPrePrepareMessage;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessage.IbftPrepareMessage;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessage.IbftRoundChangeMessage;
@@ -21,35 +20,24 @@ import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftSignedMessageDat
 import tech.pegasys.pantheon.ethereum.p2p.api.Message;
 import tech.pegasys.pantheon.ethereum.p2p.api.MessageData;
 
-import java.util.Optional;
-
 public class IbftMessages {
 
-  public static Optional<IbftSignedMessageData<?>> fromMessage(final Message message) {
+  public static IbftSignedMessageData<?> fromMessage(final Message message) {
     final MessageData messageData = message.getData();
 
-    Optional<IbftV2> messageCode = IbftV2.fromValue(messageData.getCode());
+    switch (messageData.getCode()) {
+      case IbftV2.PRE_PREPARE:
+        return IbftPrePrepareMessage.fromMessage(messageData).decode();
 
-    Optional<? extends AbstractIbftMessage> optionalIbftMessage =
-        messageCode.flatMap(
-            code -> {
-              switch (code) {
-                case PRE_PREPARE:
-                  return Optional.of(IbftPrePrepareMessage.fromMessage(messageData));
+      case IbftV2.PREPARE:
+        return IbftPrepareMessage.fromMessage(messageData).decode();
 
-                case PREPARE:
-                  return Optional.of(IbftPrepareMessage.fromMessage(messageData));
+      case IbftV2.ROUND_CHANGE:
+        return IbftRoundChangeMessage.fromMessage(messageData).decode();
 
-                case ROUND_CHANGE:
-                  return Optional.of(IbftRoundChangeMessage.fromMessage(messageData));
-
-                case COMMIT:
-                  return Optional.empty();
-              }
-
-              return Optional.empty();
-            });
-
-    return optionalIbftMessage.map(AbstractIbftMessage::decode);
+      default:
+        throw new IllegalArgumentException(
+            "Received message does not conform to any recognised IBFT message structure.");
+    }
   }
 }

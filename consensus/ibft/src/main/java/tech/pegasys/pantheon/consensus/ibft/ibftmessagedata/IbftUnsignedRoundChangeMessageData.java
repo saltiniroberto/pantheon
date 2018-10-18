@@ -22,7 +22,7 @@ import java.util.Optional;
 
 public class IbftUnsignedRoundChangeMessageData extends AbstractIbftUnsignedMessageData {
 
-  private static final int TYPE = IbftV2.PREPARE.getValue();
+  private static final int TYPE = IbftV2.PREPARE;
 
   private final ConsensusRoundIdentifier roundChangeIdentifier;
 

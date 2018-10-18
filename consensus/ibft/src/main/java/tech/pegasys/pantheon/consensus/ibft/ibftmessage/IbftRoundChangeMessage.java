@@ -23,7 +23,7 @@ import io.netty.buffer.ByteBuf;
 
 public class IbftRoundChangeMessage extends AbstractIbftMessage {
 
-  private static final int MESSAGE_CODE = IbftV2.ROUND_CHANGE.getValue();
+  private static final int MESSAGE_CODE = IbftV2.ROUND_CHANGE;
 
   private IbftRoundChangeMessage(final ByteBuf data) {
     super(data);

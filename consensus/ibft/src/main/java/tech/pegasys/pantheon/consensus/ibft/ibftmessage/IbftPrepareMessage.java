@@ -23,7 +23,7 @@ import io.netty.buffer.ByteBuf;
 
 public class IbftPrepareMessage extends AbstractIbftMessage {
 
-  private static final int MESSAGE_CODE = IbftV2.PREPARE.getValue();
+  private static final int MESSAGE_CODE = IbftV2.PREPARE;
 
   private IbftPrepareMessage(final ByteBuf data) {
     super(data);

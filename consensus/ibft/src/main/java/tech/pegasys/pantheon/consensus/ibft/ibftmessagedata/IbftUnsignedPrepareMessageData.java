@@ -19,7 +19,7 @@ import tech.pegasys.pantheon.ethereum.rlp.RLPInput;
 import tech.pegasys.pantheon.ethereum.rlp.RLPOutput;
 
 public class IbftUnsignedPrepareMessageData extends AbstractIbftUnsignedInRoundMessageData {
-  private static final int TYPE = IbftV2.PREPARE.getValue();
+  private static final int TYPE = IbftV2.PREPARE;
   private final Hash digest;
 
   /** Constructor used when a validator wants to send a message */

@@ -34,11 +34,20 @@ public class IbftSubProtocol implements SubProtocol {
 
   @Override
   public int messageSpace(final int protocolVersion) {
-    return IbftV2.getMax() + 1;
+    return IbftV2.MESSAGE_SPACE;
   }
 
   @Override
   public boolean isValidMessageCode(final int protocolVersion, final int code) {
-    return IbftV2.fromValue(code).isPresent();
+    switch (code) {
+      case IbftV2.PRE_PREPARE:
+      case IbftV2.PREPARE:
+      case IbftV2.COMMIT:
+      case IbftV2.ROUND_CHANGE:
+        return true;
+
+      default:
+        return false;
+    }
   }
 }

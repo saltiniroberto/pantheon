@@ -24,7 +24,6 @@ import tech.pegasys.pantheon.ethereum.p2p.wire.messages.DisconnectMessage.Discon
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -77,11 +76,9 @@ public class IbftProtocolManager implements ProtocolManager {
   @Override
   public void processMessage(final Capability cap, final Message message) {
 
-    final Optional<IbftSignedMessageData<?>> optionalIbftSignedMessageData =
-        IbftMessages.fromMessage(message);
+    final IbftSignedMessageData<?> ibftSignedMessageData = IbftMessages.fromMessage(message);
 
-    optionalIbftSignedMessageData.ifPresent(
-        ibftSignedMessageData -> ibftEventQueue.add(new IbftMessageEvent(ibftSignedMessageData)));
+    ibftEventQueue.add(new IbftMessageEvent(ibftSignedMessageData));
   }
 
   @Override
