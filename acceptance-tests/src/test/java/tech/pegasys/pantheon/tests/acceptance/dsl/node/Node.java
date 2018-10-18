@@ -10,19 +10,16 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package tech.pegasys.pantheon.consensus.ibft;
+package tech.pegasys.pantheon.tests.acceptance.dsl.node;
 
-import tech.pegasys.pantheon.ethereum.p2p.api.Message;
+import tech.pegasys.pantheon.tests.acceptance.dsl.account.Account;
+import tech.pegasys.pantheon.tests.acceptance.dsl.transaction.Transaction;
 
-/** Static helper functions for producing and working with IbftEvent objects */
-public class IbftEvents {
-  public static IbftEvent fromMessage(final Message message) {
-    throw new IllegalStateException("No IbftEvents are implemented yet");
-  }
+import java.math.BigInteger;
 
-  public enum Type {
-    ROUND_EXPIRY,
-    NEW_CHAIN_HEAD_HEADER,
-    BLOCK_TIMER_EXPIRY
-  }
+public interface Node {
+
+  <T> T execute(Transaction<T> transaction);
+
+  BigInteger getAccountBalance(Account account);
 }
