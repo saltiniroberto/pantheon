@@ -107,7 +107,7 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
     final IbftExtraData initialIbftExtraData =
         new IbftExtraData(
             BytesValue.wrap(
-                new byte[tech.pegasys.pantheon.consensus.ibft.IbftExtraData.EXTRA_VANITY_LENGTH]),
+                new byte[IbftExtraData.EXTRA_VANITY_LENGTH]),
             emptyList(),
             Signature.create(BigInteger.ONE, BigInteger.ONE, (byte) 0),
             validators);
@@ -122,7 +122,7 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
     final IbftExtraData proposedData =
         new IbftExtraData(
             BytesValue.wrap(
-                new byte[tech.pegasys.pantheon.consensus.ibft.IbftExtraData.EXTRA_VANITY_LENGTH]),
+                new byte[IbftExtraData.EXTRA_VANITY_LENGTH]),
             singletonList(proposerSignature),
             proposerSignature,
             validators);
