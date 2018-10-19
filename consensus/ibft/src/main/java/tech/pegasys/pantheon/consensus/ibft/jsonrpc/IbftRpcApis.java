@@ -10,26 +10,24 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-pragma solidity ^0.4.24;
+package tech.pegasys.pantheon.consensus.ibft.jsonrpc;
 
-contract Migrations {
-  address public owner;
-  uint public last_completed_migration;
+import tech.pegasys.pantheon.ethereum.jsonrpc.RpcApi;
 
-  modifier restricted() {
-    if (msg.sender == owner) _;
+import java.util.Optional;
+
+public class IbftRpcApis {
+  public static final RpcApi IBFT = new RpcApi("IBFT");
+
+  public static final Optional<RpcApi> valueOf(final String name) {
+    if (name.equals(IBFT.getCliValue())) {
+      return Optional.of(IBFT);
+    } else {
+      return Optional.empty();
+    }
   }
 
-  constructor() public {
-    owner = msg.sender;
-  }
-
-  function setCompleted(uint completed) public restricted {
-    last_completed_migration = completed;
-  }
-
-  function upgrade(address new_address) public restricted {
-    Migrations upgraded = Migrations(new_address);
-    upgraded.setCompleted(last_completed_migration);
+  public static final String getName(final RpcApi rpcapi) {
+    return rpcapi.getCliValue();
   }
 }

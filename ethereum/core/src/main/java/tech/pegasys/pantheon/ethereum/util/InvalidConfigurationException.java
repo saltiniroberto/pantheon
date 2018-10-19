@@ -10,26 +10,10 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-pragma solidity ^0.4.24;
+package tech.pegasys.pantheon.ethereum.util;
 
-contract Migrations {
-  address public owner;
-  uint public last_completed_migration;
-
-  modifier restricted() {
-    if (msg.sender == owner) _;
-  }
-
-  constructor() public {
-    owner = msg.sender;
-  }
-
-  function setCompleted(uint completed) public restricted {
-    last_completed_migration = completed;
-  }
-
-  function upgrade(address new_address) public restricted {
-    Migrations upgraded = Migrations(new_address);
-    upgraded.setCompleted(last_completed_migration);
+public class InvalidConfigurationException extends IllegalArgumentException {
+  public InvalidConfigurationException(final String message) {
+    super(message);
   }
 }
