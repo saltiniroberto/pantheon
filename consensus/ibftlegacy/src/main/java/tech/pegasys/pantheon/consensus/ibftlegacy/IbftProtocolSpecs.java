@@ -12,6 +12,8 @@
  */
 package tech.pegasys.pantheon.consensus.ibftlegacy;
 
+import static tech.pegasys.pantheon.consensus.ibftlegacy.IbftBlockHeaderValidationRulesetFactory.ibftBlockHeaderValidator;
+
 import tech.pegasys.pantheon.consensus.common.EpochManager;
 import tech.pegasys.pantheon.consensus.ibft.IbftBlockImporter;
 import tech.pegasys.pantheon.consensus.ibft.IbftContext;
@@ -44,9 +46,8 @@ public class IbftProtocolSpecs {
     final EpochManager epochManager = new EpochManager(epochLength);
     return MainnetProtocolSpecs.spuriousDragonDefinition(chainId)
         .<IbftContext>changeConsensusContextType(
-            difficultyCalculator ->
-                IbftBlockHeaderValidationRulesetFactory.ibftBlockHeaderValidator(
-                    secondsBetweenBlocks),
+            difficultyCalculator -> ibftBlockHeaderValidator(secondsBetweenBlocks),
+            difficultyCalculator -> ibftBlockHeaderValidator(secondsBetweenBlocks),
             MainnetBlockBodyValidator::new,
             (blockHeaderValidator, blockBodyValidator, blockProcessor) ->
                 new IbftBlockImporter(
