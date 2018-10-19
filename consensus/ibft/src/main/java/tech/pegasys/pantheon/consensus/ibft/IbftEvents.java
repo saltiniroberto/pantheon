@@ -12,20 +12,17 @@
  */
 package tech.pegasys.pantheon.consensus.ibft;
 
-import tech.pegasys.pantheon.consensus.ibft.ibftevent.IbftMessageEvent;
-import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftSignedMessageData;
+import tech.pegasys.pantheon.ethereum.p2p.api.Message;
 
 /** Static helper functions for producing and working with IbftEvent objects */
 public class IbftEvents {
-
-  public static IbftEvent fromMessage(final IbftSignedMessageData<?> ibftMessageDecoded) {
-    return new IbftMessageEvent(ibftMessageDecoded);
+  public static IbftEvent fromMessage(final Message message) {
+    throw new IllegalStateException("No IbftEvents are implemented yet");
   }
 
   public enum Type {
     ROUND_EXPIRY,
     NEW_CHAIN_HEAD_HEADER,
-    BLOCK_TIMER_EXPIRY,
-    IBFT_MESSAGE
+    BLOCK_TIMER_EXPIRY
   }
 }
