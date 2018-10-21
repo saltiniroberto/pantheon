@@ -23,10 +23,10 @@ import tech.pegasys.pantheon.util.bytes.BytesValues;
 import java.util.Optional;
 
 public class IbftMessageFactory {
-  private final KeyPair validatorKayPair;
+  private final KeyPair validatorKeyPair;
 
-  public IbftMessageFactory(final KeyPair validatorKayPair) {
-    this.validatorKayPair = validatorKayPair;
+  public IbftMessageFactory(final KeyPair validatorKeyPair) {
+    this.validatorKeyPair = validatorKeyPair;
   }
 
   public IbftSignedMessageData<IbftUnsignedPrepareMessageData> createIbftSignedPrepareMessageData(
@@ -51,21 +51,20 @@ public class IbftMessageFactory {
 
   private <M extends AbstractIbftUnsignedMessageData> IbftSignedMessageData<M> createSignedMessage(
       final M ibftUnsignedMessage) {
-    final Signature signature = sign(ibftUnsignedMessage, validatorKayPair);
+    final Signature signature = sign(ibftUnsignedMessage, validatorKeyPair);
 
     return new IbftSignedMessageData<>(
-        ibftUnsignedMessage, Util.publicKeyToAddress(validatorKayPair.getPublicKey()), signature);
+        ibftUnsignedMessage, Util.publicKeyToAddress(validatorKeyPair.getPublicKey()), signature);
   }
 
-  protected static Hash hashForSignature(
-      final AbstractIbftUnsignedMessageData unsignedMessageData) {
+  static Hash hashForSignature(final AbstractIbftUnsignedMessageData unsignedMessageData) {
     return Hash.hash(
         BytesValues.concatenate(
             BytesValues.ofUnsignedByte(unsignedMessageData.getMessageType()),
             unsignedMessageData.encoded()));
   }
 
-  protected static Signature sign(
+  private static Signature sign(
       final AbstractIbftUnsignedMessageData unsignedMessageData, final KeyPair nodeKeys) {
 
     return SECP256K1.sign(hashForSignature(unsignedMessageData), nodeKeys);
