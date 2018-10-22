@@ -48,7 +48,7 @@ public class IbftExtraDataValidationRuleTest {
       final KeyPair proposerKeyPair,
       final List<Address> validators,
       final List<KeyPair> committerKeyPairs,
-      boolean useDifferentRoundNumbersForCommittedSeals) {
+      final boolean useDifferentRoundNumbersForCommittedSeals) {
     final int BASE_ROUND_NUMBER = 5;
     final BlockHeaderTestFixture builder = new BlockHeaderTestFixture();
     builder.number(1); // must NOT be block 0, as that should not contain seals at all
@@ -283,7 +283,7 @@ public class IbftExtraDataValidationRuleTest {
   private boolean subExecution(
       final int validatorCount,
       final int committerCount,
-      boolean useDifferentRoundNumbersForCommittedSeals) {
+      final boolean useDifferentRoundNumbersForCommittedSeals) {
     final KeyPair proposerKeyPair = KeyPair.generate();
 
     final Address proposerAddress =
