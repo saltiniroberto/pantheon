@@ -60,7 +60,7 @@ public class CliqueProposalsTest {
     JsonRpcResponse expectedResponse =
         new JsonRpcSuccessResponse(
             request.getId(),
-            ImmutableMap.of(Address.fromHexString("1"), true, Address.fromHexString("2"), true));
+            ImmutableMap.of(Address.fromHexString("1"), true, Address.fromHexString("2"), false));
 
     JsonRpcResponse response = method.response(request);
 
