@@ -33,7 +33,6 @@ import tech.pegasys.pantheon.ethereum.core.TransactionPool;
 import tech.pegasys.pantheon.ethereum.db.DefaultMutableBlockchain;
 import tech.pegasys.pantheon.ethereum.db.WorldStateArchive;
 import tech.pegasys.pantheon.ethereum.eth.EthProtocol;
-import tech.pegasys.pantheon.ethereum.jsonrpc.JsonRpcConfiguration.RpcApis;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.filter.FilterIdGenerator;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.filter.FilterManager;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.filter.FilterRepository;
@@ -69,8 +68,11 @@ import okhttp3.OkHttpClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
 
 public abstract class AbstractEthJsonRpcHttpServiceTest {
+  @Rule public final TemporaryFolder folder = new TemporaryFolder();
 
   protected static ProtocolSchedule<Void> PROTOCOL_SCHEDULE;
 
@@ -94,7 +96,7 @@ public abstract class AbstractEthJsonRpcHttpServiceTest {
 
   protected final String NET_VERSION = "6986785976597";
 
-  protected static final Collection<RpcApis> JSON_RPC_APIS =
+  protected static final Collection<RpcApi> JSON_RPC_APIS =
       Arrays.asList(RpcApis.ETH, RpcApis.NET, RpcApis.WEB3);
 
   protected MutableBlockchain blockchain;
@@ -139,7 +141,7 @@ public abstract class AbstractEthJsonRpcHttpServiceTest {
   }
 
   @Before
-  public void setupTest() {
+  public void setupTest() throws Exception {
     final Synchronizer synchronizerMock = mock(Synchronizer.class);
     final P2PNetwork peerDiscoveryMock = mock(P2PNetwork.class);
     final TransactionPool transactionPoolMock = mock(TransactionPool.class);
@@ -185,7 +187,7 @@ public abstract class AbstractEthJsonRpcHttpServiceTest {
                 JSON_RPC_APIS);
     final JsonRpcConfiguration config = JsonRpcConfiguration.createDefault();
     config.setPort(0);
-    service = new JsonRpcHttpService(vertx, config, methods);
+    service = new JsonRpcHttpService(vertx, folder.newFolder().toPath(), config, methods);
     service.start().join();
 
     client = new OkHttpClient();

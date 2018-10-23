@@ -78,11 +78,6 @@ public abstract class AbstractWorldUpdater<W extends WorldView, A extends Accoun
   }
 
   @Override
-  public Account getOriginalAccount(final Address address) {
-    return world.getOriginalAccount(address);
-  }
-
-  @Override
   public MutableAccount getMutable(final Address address) {
     // We may have updated it already, so check that first.
     final MutableAccount existing = updatedAccounts.get(address);
@@ -172,9 +167,10 @@ public abstract class AbstractWorldUpdater<W extends WorldView, A extends Accoun
     @Nullable private BytesValue updatedCode; // Null if the underlying code has not been updated.
     @Nullable private Hash updatedCodeHash;
 
-    // Only contains update storage entries, but may contains entry with a value of 0 to signify
+    // Only contains updated storage entries, but may contains entry with a value of 0 to signify
     // deletion.
     private final SortedMap<UInt256, UInt256> updatedStorage;
+    private boolean storageWasCleared = false;
 
     UpdateTrackingAccount(final Address address) {
       checkNotNull(address);
@@ -293,10 +289,20 @@ public abstract class AbstractWorldUpdater<W extends WorldView, A extends Accoun
       if (value != null) {
         return value;
       }
+      if (storageWasCleared) {
+        return UInt256.ZERO;
+      }
 
       // We haven't updated the key-value yet, so either it's a new account and it doesn't have the
       // key, or we should query the underlying storage for its existing value (which might be 0).
       return account == null ? UInt256.ZERO : account.getStorageValue(key);
+    }
+
+    @Override
+    public UInt256 getOriginalStorageValue(final UInt256 key) {
+      return storageWasCleared || account == null
+          ? UInt256.ZERO
+          : account.getOriginalStorageValue(key);
     }
 
     @Override
@@ -328,14 +334,24 @@ public abstract class AbstractWorldUpdater<W extends WorldView, A extends Accoun
     }
 
     @Override
+    public void clearStorage() {
+      storageWasCleared = true;
+      updatedStorage.clear();
+    }
+
+    public boolean getStorageWasCleared() {
+      return storageWasCleared;
+    }
+
+    @Override
     public String toString() {
+      String storage = updatedStorage.isEmpty() ? "[not updated]" : updatedStorage.toString();
+      if (updatedStorage.isEmpty() && storageWasCleared) {
+        storage = "[cleared]";
+      }
       return String.format(
           "%s -> {nonce: %s, balance:%s, code:%s, storage:%s }",
-          address,
-          nonce,
-          balance,
-          updatedCode == null ? "[not updated]" : updatedCode,
-          updatedStorage.isEmpty() ? "[not updated]" : updatedStorage);
+          address, nonce, balance, updatedCode == null ? "[not updated]" : updatedCode, storage);
     }
   }
 
@@ -403,6 +419,9 @@ public abstract class AbstractWorldUpdater<W extends WorldView, A extends Accoun
         existing.setBalance(update.getBalance());
         if (update.codeWasUpdated()) {
           existing.setCode(update.getCode());
+        }
+        if (update.getStorageWasCleared()) {
+          existing.clearStorage();
         }
         update.getUpdatedStorage().forEach(existing::setStorageValue);
       }

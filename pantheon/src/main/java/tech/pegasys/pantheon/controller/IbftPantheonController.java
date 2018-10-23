@@ -21,14 +21,15 @@ import tech.pegasys.pantheon.consensus.ibft.IbftChainObserver;
 import tech.pegasys.pantheon.consensus.ibft.IbftContext;
 import tech.pegasys.pantheon.consensus.ibft.IbftEventQueue;
 import tech.pegasys.pantheon.consensus.ibft.IbftProcessor;
-import tech.pegasys.pantheon.consensus.ibft.IbftProtocolSchedule;
 import tech.pegasys.pantheon.consensus.ibft.IbftStateMachine;
-import tech.pegasys.pantheon.consensus.ibft.VoteTallyUpdater;
 import tech.pegasys.pantheon.consensus.ibft.blockcreation.IbftBlockMiner;
+import tech.pegasys.pantheon.consensus.ibft.network.IbftNetworkPeers;
 import tech.pegasys.pantheon.consensus.ibft.protocol.IbftProtocolManager;
 import tech.pegasys.pantheon.consensus.ibft.protocol.IbftSubProtocol;
-import tech.pegasys.pantheon.consensus.ibft.protocol.Istanbul64Protocol;
-import tech.pegasys.pantheon.consensus.ibft.protocol.Istanbul64ProtocolManager;
+import tech.pegasys.pantheon.consensus.ibftlegacy.IbftProtocolSchedule;
+import tech.pegasys.pantheon.consensus.ibftlegacy.IbftVoteTallyUpdater;
+import tech.pegasys.pantheon.consensus.ibftlegacy.protocol.Istanbul64Protocol;
+import tech.pegasys.pantheon.consensus.ibftlegacy.protocol.Istanbul64ProtocolManager;
 import tech.pegasys.pantheon.crypto.SECP256K1.KeyPair;
 import tech.pegasys.pantheon.ethereum.ProtocolContext;
 import tech.pegasys.pantheon.ethereum.blockcreation.AbstractMiningCoordinator;
@@ -129,7 +130,7 @@ public class IbftPantheonController implements PantheonController<IbftContext, I
         new EpochManager(IbftProtocolSchedule.getEpochLength(Optional.of(ibftConfig)));
 
     final VoteTally voteTally =
-        new VoteTallyUpdater(epochManager).buildVoteTallyFromBlockchain(blockchain);
+        new IbftVoteTallyUpdater(epochManager).buildVoteTallyFromBlockchain(blockchain);
 
     final VoteProposer voteProposer = new VoteProposer();
 
@@ -185,12 +186,15 @@ public class IbftPantheonController implements PantheonController<IbftContext, I
         TransactionPoolFactory.createTransactionPool(
             protocolSchedule, protocolContext, ethProtocolManager.ethContext());
 
+    final IbftNetworkPeers peers =
+        new IbftNetworkPeers(protocolContext.getConsensusState().getVoteTally());
+
     return new IbftPantheonController(
         genesisConfig,
         protocolContext,
         ethSubProtocol,
         ethProtocolManager,
-        new IbftProtocolManager(ibftEventQueue),
+        new IbftProtocolManager(ibftEventQueue, peers),
         synchronizer,
         nodeKeys,
         transactionPool,
