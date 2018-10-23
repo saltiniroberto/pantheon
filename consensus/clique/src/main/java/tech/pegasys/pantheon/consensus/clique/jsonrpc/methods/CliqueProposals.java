@@ -14,7 +14,6 @@ package tech.pegasys.pantheon.consensus.clique.jsonrpc.methods;
 
 import tech.pegasys.pantheon.consensus.common.VoteProposer;
 import tech.pegasys.pantheon.consensus.common.VoteType;
-import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.JsonRpcRequest;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.JsonRpcMethod;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.response.JsonRpcResponse;
@@ -38,14 +37,15 @@ public class CliqueProposals implements JsonRpcMethod {
 
   @Override
   public JsonRpcResponse response(final JsonRpcRequest request) {
-    Map<Address, Boolean> proposals =
+    Map<String, Boolean> proposals =
         voteProposer
             .getProposals()
             .entrySet()
             .stream()
             .collect(
                 Collectors.toMap(
-                    Map.Entry::getKey, proposal -> proposal.getValue() == VoteType.ADD));
+                    proposal -> proposal.getKey().toString(),
+                    proposal -> proposal.getValue() == VoteType.ADD));
 
     return new JsonRpcSuccessResponse(request.getId(), proposals);
   }
