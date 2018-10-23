@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CliqueProposals implements JsonRpcMethod {
-  public static final String CLIQUE_GET_PROPOSALS = "clique_proposals";
+  public static final String CLIQUE_PROPOSALS = "clique_proposals";
   private final VoteProposer voteProposer;
 
   public CliqueProposals(final VoteProposer voteProposer) {
@@ -33,7 +33,7 @@ public class CliqueProposals implements JsonRpcMethod {
 
   @Override
   public String getName() {
-    return CLIQUE_GET_PROPOSALS;
+    return CLIQUE_PROPOSALS;
   }
 
   @Override
