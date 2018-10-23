@@ -63,7 +63,7 @@ public class CliqueProposalsTest {
             ImmutableMap.of(
                 "0x0000000000000000000000000000000000000001",
                 true,
-                Address.fromHexString("0x0000000000000000000000000000000000000002").toString(),
+                "0x0000000000000000000000000000000000000002",
                 false));
 
     JsonRpcResponse response = method.response(request);
