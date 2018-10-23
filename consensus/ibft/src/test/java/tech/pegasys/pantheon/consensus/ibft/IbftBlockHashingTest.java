@@ -40,17 +40,18 @@ import org.junit.Test;
 public class IbftBlockHashingTest {
 
   private static final List<KeyPair> COMMITTERS_KEY_PAIRS = committersKeyPairs();
-  private static final List<Address> VALIDATORS = Arrays.asList(Address.ECREC, Address.SHA256);
-  private static final Optional<Vote> VOTE = Optional.of(Vote.authVote(Address.fromHexString("1")));
+  private static final List<Address> VALIDATORS =
+      Arrays.asList(Address.fromHexString("1"), Address.fromHexString("2"));
+  private static final Optional<Vote> VOTE = Optional.of(Vote.authVote(Address.fromHexString("3")));
   private static final int ROUND = 0x00FEDCBA;
-  private static final BytesValue VANITY_DATA = vainityBytes();
+  private static final BytesValue VANITY_DATA = vanityBytes();
 
   private static final BlockHeader HEADER_TO_BE_HASHED = headerToBeHashed();
-  private static final Hash EXPECTED_HEADER_HASH = expecedHeaderHash();
+  private static final Hash EXPECTED_HEADER_HASH = expectedHeaderHash();
 
   @Test
   public void testCalculateHashOfIbft2BlockOnChain() {
-    Hash actualHeaderHash = IbftBlockHashing.calculateHashOfIbft2BlockOnChain(HEADER_TO_BE_HASHED);
+    Hash actualHeaderHash = IbftBlockHashing.calculateHashOfIbftBlockOnChain(HEADER_TO_BE_HASHED);
     assertThat(actualHeaderHash).isEqualTo(EXPECTED_HEADER_HASH);
   }
 
@@ -127,11 +128,11 @@ public class IbftBlockHashingTest {
     builder.mixHash(
         Hash.fromHexString("0x63746963616c2062797a616e74696e65206661756c7420746f6c6572616e6365"));
     builder.nonce(0);
-    builder.blockHashFunction(IbftBlockHashing::calculateHashOfIbft2BlockOnChain);
+    builder.blockHashFunction(IbftBlockHashing::calculateHashOfIbftBlockOnChain);
     return builder;
   }
 
-  private static BytesValue vainityBytes() {
+  private static BytesValue vanityBytes() {
     final byte[] vanity_bytes = new byte[32];
     for (int i = 0; i < vanity_bytes.length; i++) {
       vanity_bytes[i] = (byte) i;
@@ -165,7 +166,7 @@ public class IbftBlockHashingTest {
     return builder.buildBlockHeader();
   }
 
-  private static Hash expecedHeaderHash() {
+  private static Hash expectedHeaderHash() {
     BlockHeaderBuilder builder = setHeaderFieldsExceptForExtraData();
 
     IbftExtraData extraDataForBlockHashCalculation =

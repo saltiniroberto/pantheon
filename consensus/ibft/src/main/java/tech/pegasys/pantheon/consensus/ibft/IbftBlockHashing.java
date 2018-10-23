@@ -48,7 +48,7 @@ public class IbftBlockHashing {
    * @param header The header for which a block hash is to be calculated
    * @return the hash of the header to be used when referencing the header on the blockchain
    */
-  public static Hash calculateHashOfIbft2BlockOnChain(final BlockHeader header) {
+  public static Hash calculateHashOfIbftBlockOnChain(final BlockHeader header) {
     final IbftExtraData ibftExtraData = IbftExtraData.decode(header.getExtraData());
     return Hash.hash(
         serializeHeader(header, ibftExtraData::encodeWithoutCommitSealsAndWithRoundEqualToZero));
@@ -79,9 +79,9 @@ public class IbftBlockHashing {
     // create a block header which is a copy of the header supplied as parameter except of the
     // extraData field
     BlockHeaderBuilder builder = BlockHeaderBuilder.fromHeader(header);
-    builder.blockHashFunction(IbftBlockHashing::calculateHashOfIbft2BlockOnChain);
+    builder.blockHashFunction(IbftBlockHashing::calculateHashOfIbftBlockOnChain);
 
-    // set the extraData field using the supplied extraDataSerializer if the header heigh is not 0
+    // set the extraData field using the supplied extraDataSerializer if the block height is not 0
     if (header.getNumber() == 0) {
       builder.extraData(header.getExtraData());
     } else {

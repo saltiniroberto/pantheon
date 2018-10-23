@@ -75,11 +75,6 @@ public class IbftExtraDataValidationRule implements AttachedBlockHeaderValidatio
 
       Address proposer = header.getCoinbase();
 
-      if (!ibftExtraData.getVote().isPresent()) {
-        LOGGER.trace("Vote value is different from either AUTH or DROP");
-        return false;
-      }
-
       final Collection<Address> storedValidators = validatorProvider.getCurrentValidators();
 
       if (!storedValidators.contains(proposer)) {
