@@ -16,13 +16,12 @@ import tech.pegasys.pantheon.ethereum.core.Address;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import com.google.common.collect.ImmutableMap;
 
 /** Container for pending votes and selecting a vote for new blocks */
 public class VoteProposer {
@@ -62,8 +61,8 @@ public class VoteProposer {
     proposals.clear();
   }
 
-  public ImmutableMap<Address, VoteType> getProposals() {
-    return ImmutableMap.copyOf(proposals);
+  public Map<Address, VoteType> getProposals() {
+    return Collections.unmodifiableMap(proposals);
   }
 
   public Optional<VoteType> get(final Address address) {
