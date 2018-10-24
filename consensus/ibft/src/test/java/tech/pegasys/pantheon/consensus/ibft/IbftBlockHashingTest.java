@@ -12,6 +12,7 @@
  */
 package tech.pegasys.pantheon.consensus.ibft;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 import tech.pegasys.pantheon.crypto.SECP256K1;
@@ -28,7 +29,6 @@ import tech.pegasys.pantheon.ethereum.rlp.BytesValueRLPOutput;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 import tech.pegasys.pantheon.util.uint.UInt256;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -143,10 +143,9 @@ public class IbftBlockHashingTest {
   private static BlockHeader headerToBeHashed() {
     BlockHeaderBuilder builder = setHeaderFieldsExceptForExtraData();
 
-    IbftExtraData extraDataForCommitSealCalculation =
-        new IbftExtraData(VANITY_DATA, new ArrayList<>(), VOTE, ROUND, VALIDATORS);
-
-    builder.extraData(extraDataForCommitSealCalculation.encode());
+    builder.extraData(
+        new IbftExtraData(VANITY_DATA, emptyList(), VOTE, ROUND, VALIDATORS)
+            .encodeWithoutCommitSeals());
 
     BytesValueRLPOutput rlpForHeaderFroCommittersSigning = new BytesValueRLPOutput();
     builder.buildBlockHeader().writeTo(rlpForHeaderFroCommittersSigning);
@@ -169,9 +168,9 @@ public class IbftBlockHashingTest {
   private static Hash expectedHeaderHash() {
     BlockHeaderBuilder builder = setHeaderFieldsExceptForExtraData();
 
-    IbftExtraData extraDataForBlockHashCalculation =
-        new IbftExtraData(VANITY_DATA, new ArrayList<>(), VOTE, 0, VALIDATORS);
-    builder.extraData(extraDataForBlockHashCalculation.encode());
+    builder.extraData(
+        new IbftExtraData(VANITY_DATA, emptyList(), VOTE, 0, VALIDATORS)
+            .encodeWithoutCommitSealsAndRoundNumber());
 
     BytesValueRLPOutput rlpOutput = new BytesValueRLPOutput();
     builder.buildBlockHeader().writeTo(rlpOutput);

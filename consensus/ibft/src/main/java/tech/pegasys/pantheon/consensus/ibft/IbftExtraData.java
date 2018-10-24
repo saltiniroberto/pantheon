@@ -14,7 +14,6 @@ package tech.pegasys.pantheon.consensus.ibft;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.Collections.emptyList;
 
 import tech.pegasys.pantheon.crypto.SECP256K1.Signature;
 import tech.pegasys.pantheon.ethereum.core.Address;
@@ -83,23 +82,25 @@ public class IbftExtraData {
   }
 
   public BytesValue encode() {
-    return encode(vanityData, validators, vote, round, seals);
+    return encode(EncodingType.ALL);
   }
 
   public BytesValue encodeWithoutCommitSeals() {
-    return encode(vanityData, validators, vote, round, emptyList());
+    return encode(EncodingType.EXCLUDE_COMMIT_SEALS);
   }
 
-  public BytesValue encodeWithoutCommitSealsAndWithRoundEqualToZero() {
-    return encode(vanityData, validators, vote, 0, emptyList());
+  public BytesValue encodeWithoutCommitSealsAndRoundNumber() {
+    return encode(EncodingType.EXCLUDE_COMMIT_SEALS_AND_ROUND_NUMBER);
   }
 
-  private BytesValue encode(
-      final BytesValue vanityData,
-      final List<Address> validators,
-      final Optional<Vote> vote,
-      final int round,
-      final List<Signature> seals) {
+  private enum EncodingType {
+    ALL,
+    EXCLUDE_COMMIT_SEALS,
+    EXCLUDE_COMMIT_SEALS_AND_ROUND_NUMBER
+  }
+
+  private BytesValue encode(EncodingType encodingType) {
+
     final BytesValueRLPOutput encoder = new BytesValueRLPOutput();
     encoder.startList();
     encoder.writeBytesValue(vanityData);
@@ -109,8 +110,13 @@ public class IbftExtraData {
     } else {
       encoder.writeNull();
     }
-    encoder.writeInt(round);
-    encoder.writeList(seals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));
+
+    if (encodingType != EncodingType.EXCLUDE_COMMIT_SEALS_AND_ROUND_NUMBER) {
+      encoder.writeInt(round);
+      if (encodingType != EncodingType.EXCLUDE_COMMIT_SEALS) {
+        encoder.writeList(seals, (committer, rlp) -> rlp.writeBytesValue(committer.encodedBytes()));
+      }
+    }
     encoder.endList();
 
     return encoder.encoded();

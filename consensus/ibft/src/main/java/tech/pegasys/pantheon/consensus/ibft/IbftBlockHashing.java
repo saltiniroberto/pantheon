@@ -51,7 +51,7 @@ public class IbftBlockHashing {
   public static Hash calculateHashOfIbftBlockOnChain(final BlockHeader header) {
     final IbftExtraData ibftExtraData = IbftExtraData.decode(header.getExtraData());
     return Hash.hash(
-        serializeHeader(header, ibftExtraData::encodeWithoutCommitSealsAndWithRoundEqualToZero));
+        serializeHeader(header, ibftExtraData::encodeWithoutCommitSealsAndRoundNumber));
   }
 
   /**

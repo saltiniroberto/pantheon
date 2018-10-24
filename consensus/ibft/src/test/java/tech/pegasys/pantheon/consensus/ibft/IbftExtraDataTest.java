@@ -12,7 +12,6 @@
  */
 package tech.pegasys.pantheon.consensus.ibft;
 
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -347,18 +346,30 @@ public class IbftExtraDataTest {
     final byte[] vanity_bytes = createNonEmptyVanityData();
     final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
 
+    final BytesValueRLPOutput encoder = new BytesValueRLPOutput();
+    encoder.startList();
+    encoder.writeBytesValue(vanity_data);
+    encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
+
+    // encoded vote
+    encoder.startList();
+    encoder.writeBytesValue(vote.get().getRecipient());
+    vote.get().getVoteType().writeTo(encoder);
+    encoder.endList();
+    encoder.writeInt(round);
+    encoder.endList();
+
+    BytesValue expectedEncoding = encoder.encoded();
+
     BytesValue actualEncoding =
         new IbftExtraData(vanity_data, committerSeals, vote, round, validators)
             .encodeWithoutCommitSeals();
 
-    BytesValue expectedExtraData =
-        new IbftExtraData(vanity_data, emptyList(), vote, round, validators).encode();
-
-    assertThat(actualEncoding).isEqualTo(expectedExtraData);
+    assertThat(actualEncoding).isEqualTo(expectedEncoding);
   }
 
   @Test
-  public void testEncodeWithoutCommitSealsAndWithRoundEqualToZero() {
+  public void testEncodeWithoutCommitSealsAndRoundNumber() {
     final List<Address> validators =
         Arrays.asList(Address.fromHexString("1"), Address.fromHexString("2"));
     final Optional<Vote> vote = Optional.of(Vote.authVote(Address.fromHexString("1")));
@@ -372,14 +383,25 @@ public class IbftExtraDataTest {
     final byte[] vanity_bytes = createNonEmptyVanityData();
     final BytesValue vanity_data = BytesValue.wrap(vanity_bytes);
 
+    final BytesValueRLPOutput encoder = new BytesValueRLPOutput();
+    encoder.startList();
+    encoder.writeBytesValue(vanity_data);
+    encoder.writeList(validators, (validator, rlp) -> rlp.writeBytesValue(validator));
+
+    // encoded vote
+    encoder.startList();
+    encoder.writeBytesValue(vote.get().getRecipient());
+    vote.get().getVoteType().writeTo(encoder);
+    encoder.endList();
+    encoder.endList();
+
+    BytesValue expectedEncoding = encoder.encoded();
+
     BytesValue actualEncoding =
         new IbftExtraData(vanity_data, committerSeals, vote, round, validators)
-            .encodeWithoutCommitSealsAndWithRoundEqualToZero();
+            .encodeWithoutCommitSealsAndRoundNumber();
 
-    BytesValue expectedExtraData =
-        new IbftExtraData(vanity_data, emptyList(), vote, 0, validators).encode();
-
-    assertThat(actualEncoding).isEqualTo(expectedExtraData);
+    assertThat(actualEncoding).isEqualTo(expectedEncoding);
   }
 
   @Test
