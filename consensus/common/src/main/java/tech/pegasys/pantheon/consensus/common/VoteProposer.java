@@ -22,6 +22,8 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.google.common.collect.ImmutableMap;
+
 /** Container for pending votes and selecting a vote for new blocks */
 public class VoteProposer {
 
@@ -60,8 +62,8 @@ public class VoteProposer {
     proposals.clear();
   }
 
-  public Map<Address, VoteType> getProposals() {
-    return proposals;
+  public ImmutableMap<Address, VoteType> getProposals() {
+    return ImmutableMap.copyOf(proposals);
   }
 
   public Optional<VoteType> get(final Address address) {
