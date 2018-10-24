@@ -13,6 +13,7 @@
 package tech.pegasys.pantheon.consensus.ibft;
 
 import tech.pegasys.pantheon.ethereum.core.Hash;
+import tech.pegasys.pantheon.ethereum.core.Util;
 
 public class IbftHelpers {
 
@@ -20,7 +21,6 @@ public class IbftHelpers {
       Hash.fromHexString("0x63746963616c2062797a616e74696e65206661756c7420746f6c6572616e6365");
 
   public static int calculateRequiredValidatorQuorum(final int validatorCount) {
-    // the following formula is equivalent to ceiling((2*validatorCount)/3)
-    return ((2 * validatorCount - 1) / 3) + 1;
+    return Util.fastDivCeiling(2 * validatorCount, 3);
   }
 }
