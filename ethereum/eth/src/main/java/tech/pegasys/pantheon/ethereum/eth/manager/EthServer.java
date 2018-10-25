@@ -65,7 +65,7 @@ class EthServer {
   }
 
   private void handleGetBlockHeaders(final EthMessage message) {
-    LOG.info("Responding to GET_BLOCK_HEADERS request");
+    LOG.trace("Responding to GET_BLOCK_HEADERS request");
     try {
       final MessageData response =
           constructGetHeadersResponse(blockchain, message.getData(), requestLimit);
@@ -78,7 +78,7 @@ class EthServer {
   }
 
   private void handleGetBlockBodies(final EthMessage message) {
-    LOG.info("Responding to GET_BLOCK_BODIES request");
+    LOG.trace("Responding to GET_BLOCK_BODIES request");
     try {
       final MessageData response =
           constructGetBodiesResponse(blockchain, message.getData(), requestLimit);
@@ -91,7 +91,7 @@ class EthServer {
   }
 
   private void handleGetReceipts(final EthMessage message) {
-    LOG.info("Responding to GET_RECEIPTS request");
+    LOG.trace("Responding to GET_RECEIPTS request");
     try {
       final MessageData response =
           constructGetReceiptsResponse(blockchain, message.getData(), requestLimit);
@@ -104,7 +104,7 @@ class EthServer {
   }
 
   private void handleGetNodeData(final EthMessage message) {
-    LOG.info("Responding to GET_NODE_DATA request");
+    LOG.trace("Responding to GET_NODE_DATA request");
     try {
       final MessageData response = constructGetNodeDataResponse(message.getData(), requestLimit);
       message.getPeer().send(response);
@@ -123,7 +123,7 @@ class EthServer {
       final int skip = getHeaders.skip();
       final int maxHeaders = Math.min(requestLimit, getHeaders.maxHeaders());
       final boolean reversed = getHeaders.reverse();
-      BlockHeader firstHeader;
+      final BlockHeader firstHeader;
       if (hash.isPresent()) {
         final Hash startHash = hash.get();
         firstHeader = blockchain.getBlockHeader(startHash).orElse(null);

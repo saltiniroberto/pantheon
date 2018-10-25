@@ -32,7 +32,7 @@ public enum IbftVoteType implements ValidatorVote {
   }
 
   public static IbftVoteType readFrom(final RLPInput rlpInput) {
-    byte encodedByteValue = rlpInput.readByte();
+    final byte encodedByteValue = rlpInput.readByte();
     for (final IbftVoteType voteType : values()) {
       if (voteType.voteValue == encodedByteValue) {
         return voteType;

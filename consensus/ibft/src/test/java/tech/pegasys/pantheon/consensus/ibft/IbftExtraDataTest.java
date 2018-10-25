@@ -17,14 +17,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import tech.pegasys.pantheon.crypto.SECP256K1.Signature;
 import tech.pegasys.pantheon.ethereum.core.Address;
-import tech.pegasys.pantheon.ethereum.core.Util;
 import tech.pegasys.pantheon.ethereum.rlp.BytesValueRLPOutput;
 import tech.pegasys.pantheon.ethereum.rlp.RLPException;
 import tech.pegasys.pantheon.ethereum.rlp.RLPInput;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 
 import java.math.BigInteger;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -176,7 +174,7 @@ public class IbftExtraDataTest {
   @Test
   public void emptyVoteAndListIsEncodedCorrectly() {
     final List<Address> validators = Lists.newArrayList();
-    Optional<Vote> vote = Optional.empty();
+    final Optional<Vote> vote = Optional.empty();
     final int round = 0x00FEDCBA;
     final List<Signature> committerSeals = Lists.newArrayList();
 
@@ -317,7 +315,7 @@ public class IbftExtraDataTest {
 
   @Test
   public void encodingMatchesKnownRawHexString() {
-    BytesValue expectedRawDecoding = BytesValue.fromHexString(RAW_HEX_ENCODING_STRING);
+    final BytesValue expectedRawDecoding = BytesValue.fromHexString(RAW_HEX_ENCODING_STRING);
     assertThat(DECODED_EXTRA_DATA_FOR_RAW_HEX_ENCODING_STRING.encode())
         .isEqualTo(expectedRawDecoding);
   }
@@ -484,5 +482,4 @@ public class IbftExtraDataTest {
 
     return vanity_bytes;
   }
-
 }

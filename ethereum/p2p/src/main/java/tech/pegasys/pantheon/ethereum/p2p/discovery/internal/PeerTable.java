@@ -90,8 +90,8 @@ public class PeerTable {
   }
 
   /**
-   * Attempts to add the provided peer to the peer table, and returns a struct signalling one of
-   * three outcomes.
+   * Attempts to add the provided peer to the peer table, and returns an {@link AddResult}
+   * signalling one of three outcomes.
    *
    * <h3>Possible outcomes:</h3>
    *
@@ -122,7 +122,7 @@ public class PeerTable {
     // and an eviction
     // candidate is proposed. The Bucket#add method will raise an exception if the peer already
     // existed.
-    Optional<DiscoveryPeer> res;
+    final Optional<DiscoveryPeer> res;
     try {
       res = bucket.add(peer);
     } catch (final IllegalArgumentException ex) {
@@ -235,7 +235,7 @@ public class PeerTable {
     return distance;
   }
 
-  /** A struct that encapsulates the result of a peer addition to the table. */
+  /** A class that encapsulates the result of a peer addition to the table. */
   public static class AddResult {
     /** The outcome of the operation. */
     public enum Outcome {

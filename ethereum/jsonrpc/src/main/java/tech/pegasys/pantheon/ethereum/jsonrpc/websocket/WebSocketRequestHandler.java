@@ -40,10 +40,10 @@ public class WebSocketRequestHandler {
   public void handle(final String id, final Buffer buffer) {
     vertx.executeBlocking(
         future -> {
-          WebSocketRpcRequest request;
+          final WebSocketRpcRequest request;
           try {
             request = buffer.toJsonObject().mapTo(WebSocketRpcRequest.class);
-          } catch (IllegalArgumentException | DecodeException e) {
+          } catch (final IllegalArgumentException | DecodeException e) {
             LOG.debug("Error mapping json to WebSocketRpcRequest", e);
             future.complete(JsonRpcError.INVALID_REQUEST);
             return;
@@ -56,7 +56,7 @@ public class WebSocketRequestHandler {
           }
           final JsonRpcMethod method = methods.get(request.getMethod());
           try {
-            LOG.info("WS-RPC request -> {}", request.getMethod());
+            LOG.debug("WS-RPC request -> {}", request.getMethod());
             request.setConnectionId(id);
             future.complete(method.response(request));
           } catch (final Exception e) {
