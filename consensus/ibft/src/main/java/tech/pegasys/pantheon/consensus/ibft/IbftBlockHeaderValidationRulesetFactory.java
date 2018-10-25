@@ -12,6 +12,7 @@
  */
 package tech.pegasys.pantheon.consensus.ibft;
 
+import tech.pegasys.pantheon.consensus.ibft.headervalidationrules.IbftCoinbaseValidationRule;
 import tech.pegasys.pantheon.consensus.ibft.headervalidationrules.IbftExtraDataValidationRule;
 import tech.pegasys.pantheon.ethereum.core.BlockHeader;
 import tech.pegasys.pantheon.ethereum.core.Hash;
@@ -69,6 +70,7 @@ public class IbftBlockHeaderValidationRulesetFactory {
                 "Difficulty", BlockHeader::getDifficulty, UInt256.ONE))
         .addRule(new ConstantFieldValidationRule<>("Nonce", BlockHeader::getNonce, 0L))
         .addRule(new IbftExtraDataValidationRule(validateCommitSeals))
+        .addRule(new IbftCoinbaseValidationRule())
         .build();
   }
 }

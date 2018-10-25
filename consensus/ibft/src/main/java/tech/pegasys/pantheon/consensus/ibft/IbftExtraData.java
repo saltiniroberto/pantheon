@@ -22,7 +22,6 @@ import tech.pegasys.pantheon.ethereum.rlp.BytesValueRLPOutput;
 import tech.pegasys.pantheon.ethereum.rlp.RLPInput;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -129,11 +128,11 @@ public class IbftExtraData {
   }
 
   public List<Signature> getSeals() {
-    return Collections.unmodifiableList(seals);
+    return seals;
   }
 
   public List<Address> getValidators() {
-    return Collections.unmodifiableList(validators);
+    return validators;
   }
 
   public Optional<Vote> getVote() {

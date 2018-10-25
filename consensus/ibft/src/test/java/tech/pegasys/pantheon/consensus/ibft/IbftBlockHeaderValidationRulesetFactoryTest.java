@@ -17,9 +17,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static tech.pegasys.pantheon.consensus.ibft.IbftProtocolContextFixture.protocolContext;
 
-import tech.pegasys.pantheon.crypto.SECP256K1;
 import tech.pegasys.pantheon.crypto.SECP256K1.KeyPair;
-import tech.pegasys.pantheon.crypto.SECP256K1.Signature;
 import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.core.BlockHeader;
 import tech.pegasys.pantheon.ethereum.core.BlockHeaderTestFixture;
@@ -40,8 +38,7 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
   @Test
   public void ibftValidateHeaderPasses() {
     final KeyPair proposerKeyPair = KeyPair.generate();
-    final Address proposerAddress =
-        Address.extract(Hash.hash(proposerKeyPair.getPublicKey().getEncodedBytes()));
+    final Address proposerAddress = Util.publicKeyToAddress(proposerKeyPair.getPublicKey());
 
     final List<Address> validators = singletonList(proposerAddress);
 
@@ -62,8 +59,7 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
   @Test
   public void ibftValidateHeaderFailsOnExtraData() {
     final KeyPair proposerKeyPair = KeyPair.generate();
-    final Address proposerAddress =
-        Address.extract(Hash.hash(proposerKeyPair.getPublicKey().getEncodedBytes()));
+    final Address proposerAddress = Util.publicKeyToAddress(proposerKeyPair.getPublicKey());
 
     final List<Address> validators = singletonList(proposerAddress);
 
@@ -82,10 +78,34 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
   }
 
   @Test
+  public void ibftValidateHeaderFailsOnCoinbaseData() {
+    final KeyPair proposerKeyPair = KeyPair.generate();
+    final Address proposerAddress = Util.publicKeyToAddress(proposerKeyPair.getPublicKey());
+
+    final Address nonProposerAddress = Util.publicKeyToAddress(KeyPair.generate().getPublicKey());
+
+    final List<Address> validators = singletonList(proposerAddress);
+
+    final BlockHeader parentHeader =
+        getPresetHeaderBuilder(1, proposerKeyPair, validators, null).buildHeader();
+    final BlockHeader blockHeader =
+        getPresetHeaderBuilder(2, proposerKeyPair, validators, parentHeader)
+            .coinbase(nonProposerAddress)
+            .buildHeader();
+
+    final BlockHeaderValidator<IbftContext> validator =
+        IbftBlockHeaderValidationRulesetFactory.ibftBlockHeaderValidator(5);
+
+    assertThat(
+            validator.validateHeader(
+                blockHeader, parentHeader, protocolContext(validators), HeaderValidationMode.FULL))
+        .isFalse();
+  }
+
+  @Test
   public void ibftValidateHeaderFailsOnNonce() {
     final KeyPair proposerKeyPair = KeyPair.generate();
-    final Address proposerAddress =
-        Address.extract(Hash.hash(proposerKeyPair.getPublicKey().getEncodedBytes()));
+    final Address proposerAddress = Util.publicKeyToAddress(proposerKeyPair.getPublicKey());
 
     final List<Address> validators = singletonList(proposerAddress);
 
@@ -106,8 +126,7 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
   @Test
   public void ibftValidateHeaderFailsOnTimestamp() {
     final KeyPair proposerKeyPair = KeyPair.generate();
-    final Address proposerAddress =
-        Address.extract(Hash.hash(proposerKeyPair.getPublicKey().getEncodedBytes()));
+    final Address proposerAddress = Util.publicKeyToAddress(proposerKeyPair.getPublicKey());
 
     final List<Address> validators = singletonList(proposerAddress);
 
@@ -130,8 +149,7 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
   @Test
   public void ibftValidateHeaderFailsOnMixHash() {
     final KeyPair proposerKeyPair = KeyPair.generate();
-    final Address proposerAddress =
-        Address.extract(Hash.hash(proposerKeyPair.getPublicKey().getEncodedBytes()));
+    final Address proposerAddress = Util.publicKeyToAddress(proposerKeyPair.getPublicKey());
 
     final List<Address> validators = singletonList(proposerAddress);
 
@@ -154,8 +172,7 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
   @Test
   public void ibftValidateHeaderFailsOnOmmers() {
     final KeyPair proposerKeyPair = KeyPair.generate();
-    final Address proposerAddress =
-        Address.extract(Hash.hash(proposerKeyPair.getPublicKey().getEncodedBytes()));
+    final Address proposerAddress = Util.publicKeyToAddress(proposerKeyPair.getPublicKey());
 
     final List<Address> validators = singletonList(proposerAddress);
 
@@ -178,8 +195,7 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
   @Test
   public void ibftValidateHeaderFailsOnDifficulty() {
     final KeyPair proposerKeyPair = KeyPair.generate();
-    final Address proposerAddress =
-        Address.extract(Hash.hash(proposerKeyPair.getPublicKey().getEncodedBytes()));
+    final Address proposerAddress = Util.publicKeyToAddress(proposerKeyPair.getPublicKey());
 
     final List<Address> validators = singletonList(proposerAddress);
 
@@ -202,8 +218,7 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
   @Test
   public void ibftValidateHeaderFailsOnAncestor() {
     final KeyPair proposerKeyPair = KeyPair.generate();
-    final Address proposerAddress =
-        Address.extract(Hash.hash(proposerKeyPair.getPublicKey().getEncodedBytes()));
+    final Address proposerAddress = Util.publicKeyToAddress(proposerKeyPair.getPublicKey());
 
     final List<Address> validators = singletonList(proposerAddress);
 
@@ -224,8 +239,7 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
   @Test
   public void ibftValidateHeaderFailsOnGasUsage() {
     final KeyPair proposerKeyPair = KeyPair.generate();
-    final Address proposerAddress =
-        Address.extract(Hash.hash(proposerKeyPair.getPublicKey().getEncodedBytes()));
+    final Address proposerAddress = Util.publicKeyToAddress(proposerKeyPair.getPublicKey());
 
     final List<Address> validators = singletonList(proposerAddress);
 
@@ -249,8 +263,7 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
   @Test
   public void ibftValidateHeaderFailsOnGasLimitRange() {
     final KeyPair proposerKeyPair = KeyPair.generate();
-    final Address proposerAddress =
-        Address.extract(Hash.hash(proposerKeyPair.getPublicKey().getEncodedBytes()));
+    final Address proposerAddress = Util.publicKeyToAddress(proposerKeyPair.getPublicKey());
 
     final List<Address> validators = singletonList(proposerAddress);
 
@@ -290,31 +303,16 @@ public class IbftBlockHeaderValidationRulesetFactoryTest {
     builder.difficulty(UInt256.ONE);
     builder.coinbase(Util.publicKeyToAddress(proposerKeyPair.getPublicKey()));
 
-    // Construct an extraData block and add to a header
-    final IbftExtraData ibftExtraDataNoCommittedSeals =
-        new IbftExtraData(
+    final IbftExtraData ibftExtraData =
+        IbftExtraDataFixture.createExtraData(
+            builder.buildHeader(),
             BytesValue.wrap(new byte[IbftExtraData.EXTRA_VANITY_LENGTH]),
-            emptyList(),
-            Optional.of(Vote.authVote(Address.ECREC)),
-            0xDEADBEEF,
-            validators);
+            Optional.of(Vote.authVote(Address.fromHexString("1"))),
+            validators,
+            singletonList(proposerKeyPair),
+            0xDEADBEEF);
 
-    final Hash headerHashForCommitters =
-        IbftBlockHashing.calculateDataHashForCommittedSeal(
-            builder.buildHeader(), ibftExtraDataNoCommittedSeals);
-
-    final Signature proposerAsCommitterSignature =
-        SECP256K1.sign(headerHashForCommitters, proposerKeyPair);
-
-    IbftExtraData extraDataWithCommitSeals =
-        new IbftExtraData(
-            ibftExtraDataNoCommittedSeals.getVanityData(),
-            singletonList(proposerAsCommitterSignature),
-            ibftExtraDataNoCommittedSeals.getVote(),
-            ibftExtraDataNoCommittedSeals.getRound(),
-            ibftExtraDataNoCommittedSeals.getValidators());
-
-    builder.extraData(extraDataWithCommitSeals.encode());
+    builder.extraData(ibftExtraData.encode());
     return builder;
   }
 }

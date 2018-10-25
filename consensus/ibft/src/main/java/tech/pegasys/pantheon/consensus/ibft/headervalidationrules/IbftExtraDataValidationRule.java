@@ -73,14 +73,7 @@ public class IbftExtraDataValidationRule implements AttachedBlockHeaderValidatio
       final ValidatorProvider validatorProvider = context.getConsensusState().getVoteTally();
       final IbftExtraData ibftExtraData = IbftExtraData.decode(header.getExtraData());
 
-      Address proposer = header.getCoinbase();
-
       final Collection<Address> storedValidators = validatorProvider.getCurrentValidators();
-
-      if (!storedValidators.contains(proposer)) {
-        LOGGER.trace("Block proposer is not a member of the validators.");
-        return false;
-      }
 
       if (validateCommitSeals) {
         final List<Address> committers =
