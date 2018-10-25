@@ -100,7 +100,7 @@ public class IbftExtraData {
     EXCLUDE_COMMIT_SEALS_AND_ROUND_NUMBER
   }
 
-  private BytesValue encode(EncodingType encodingType) {
+  private BytesValue encode(final EncodingType encodingType) {
 
     final BytesValueRLPOutput encoder = new BytesValueRLPOutput();
     encoder.startList();
