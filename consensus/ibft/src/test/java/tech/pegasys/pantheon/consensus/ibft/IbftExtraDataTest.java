@@ -476,7 +476,9 @@ public class IbftExtraDataTest {
 
   private static byte[] createNonEmptyVanityData() {
     final byte[] vanity_bytes = new byte[32];
-    new Random().nextBytes(vanity_bytes);
+    for (int i = 0; i < vanity_bytes.length; i++) {
+      vanity_bytes[i] = (byte) (i + 1);
+    }
     return vanity_bytes;
   }
 }
