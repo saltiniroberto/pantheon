@@ -39,7 +39,7 @@ public class Util {
    * Implements a fast version of ceiling(numerator/denominator) that does not require using
    * floating point math
    */
-  public static int fastDivCeiling(int numerator, int denominator) {
+  public static int fastDivCeiling(final int numerator, final int denominator) {
     return ((numerator - 1) / denominator) + 1;
   }
 }
