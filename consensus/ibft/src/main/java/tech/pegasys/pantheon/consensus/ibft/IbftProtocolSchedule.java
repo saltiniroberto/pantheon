@@ -42,7 +42,7 @@ public class IbftProtocolSchedule {
     return protocolSchedule;
   }
 
-  public static long getEpochLength(final Optional<JsonObject> ibftConfig) {
+  private static long getEpochLength(final Optional<JsonObject> ibftConfig) {
     return ibftConfig.map(conf -> conf.getLong("epochLength")).orElse(DEFAULT_EPOCH_LENGTH);
   }
 }

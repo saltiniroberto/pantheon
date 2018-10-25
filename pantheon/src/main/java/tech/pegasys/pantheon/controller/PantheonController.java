@@ -64,7 +64,7 @@ public interface PantheonController<C, M extends BlockMiner<C, ? extends Abstrac
           pantheonHome,
           GenesisConfig.fromConfig(config, IbftProtocolSchedule.create(configOptions)),
           syncConfig,
-          ottomanTestnetOperation,
+          false,
           configOptions.getJsonObject("ibft"),
           networkId,
           nodeKeys);

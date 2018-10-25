@@ -82,8 +82,5 @@ public final class BlockImporterTest {
     assertThat(result.count).isEqualTo(959);
   }
 
-  @Test
-  public void ibftImport() throws IOException {
-    // TODO: To be added once a valid iBFT 2.0 exported blockchain is available
-  }
+  // TODO: Add test for iBFT 2.0 block import once a valid iBFT 2.0 exported blockchain is available
 }
