@@ -18,30 +18,27 @@ import tech.pegasys.pantheon.ethereum.rlp.BytesValueRLPOutput;
 import tech.pegasys.pantheon.ethereum.rlp.RLPInput;
 import tech.pegasys.pantheon.ethereum.rlp.RLPOutput;
 
-import java.util.Optional;
+public class IbftUnsignedNewRoundMessageData extends AbstractIbftUnsignedMessageData {
 
-public class IbftUnsignedRoundChangeMessageData extends AbstractIbftUnsignedMessageData {
-
-  private static final int TYPE = IbftV2.PREPARE;
+  private static final int TYPE = IbftV2.NEW_ROUND;
 
   private final ConsensusRoundIdentifier roundChangeIdentifier;
 
-  // The validator may not hae any prepared certificate
-  private final Optional<IbftPreparedCertificate> preparedCertificate;
+  private final IbftRoundChangeCertificate roundChangeCertificate;
 
-  public IbftUnsignedRoundChangeMessageData(
+  public IbftUnsignedNewRoundMessageData(
       final ConsensusRoundIdentifier roundIdentifier,
-      final Optional<IbftPreparedCertificate> preparedCertificate) {
+      final IbftRoundChangeCertificate roundChangeCertificate) {
     this.roundChangeIdentifier = roundIdentifier;
-    this.preparedCertificate = preparedCertificate;
+    this.roundChangeCertificate = roundChangeCertificate;
   }
 
   public ConsensusRoundIdentifier getRoundChangeIdentifier() {
     return roundChangeIdentifier;
   }
 
-  public Optional<IbftPreparedCertificate> getPreparedCertificate() {
-    return preparedCertificate;
+  public IbftRoundChangeCertificate getRoundChangeCertificate() {
+    return roundChangeCertificate;
   }
 
   @Override
@@ -50,30 +47,19 @@ public class IbftUnsignedRoundChangeMessageData extends AbstractIbftUnsignedMess
     BytesValueRLPOutput ibftMessage = new BytesValueRLPOutput();
     ibftMessage.startList();
     roundChangeIdentifier.writeTo(ibftMessage);
-
-    if (preparedCertificate.isPresent()) {
-      preparedCertificate.get().writeTo(ibftMessage);
-    } else {
-      ibftMessage.writeNull();
-    }
+    roundChangeCertificate.writeTo(ibftMessage);
     ibftMessage.endList();
   }
 
-  public static IbftUnsignedRoundChangeMessageData readFrom(final RLPInput rlpInput) {
+  public static IbftUnsignedNewRoundMessageData readFrom(final RLPInput rlpInput) {
+
     rlpInput.enterList();
     final ConsensusRoundIdentifier roundIdentifier = ConsensusRoundIdentifier.readFrom(rlpInput);
-
-    final Optional<IbftPreparedCertificate> preparedCertificate;
-
-    if (rlpInput.nextIsNull()) {
-      rlpInput.skipNext();
-      preparedCertificate = Optional.empty();
-    } else {
-      preparedCertificate = Optional.of(IbftPreparedCertificate.readFrom(rlpInput));
-    }
+    final IbftRoundChangeCertificate roundChangeCertificate =
+        IbftRoundChangeCertificate.readFrom(rlpInput);
     rlpInput.leaveList();
 
-    return new IbftUnsignedRoundChangeMessageData(roundIdentifier, preparedCertificate);
+    return new IbftUnsignedNewRoundMessageData(roundIdentifier, roundChangeCertificate);
   }
 
   @Override
