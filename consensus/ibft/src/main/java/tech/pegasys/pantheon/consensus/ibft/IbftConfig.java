@@ -31,13 +31,13 @@ public class IbftConfig {
   private final Optional<Long> byzantiumBlock;
 
   public IbftConfig(
-      int chainId,
-      long epochLength,
-      long blockPeriod,
-      Optional<Long> homesteadBlock,
-      Optional<Long> eip150Block,
-      Optional<Long> eip158Block,
-      Optional<Long> byzantiumBlock) {
+      final int chainId,
+      final long epochLength,
+      final long blockPeriod,
+      final Optional<Long> homesteadBlock,
+      final Optional<Long> eip150Block,
+      final Optional<Long> eip158Block,
+      final Optional<Long> byzantiumBlock) {
     this.chainId = chainId;
     this.epochLength = epochLength;
     this.blockPeriod = blockPeriod;
