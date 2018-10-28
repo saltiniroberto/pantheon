@@ -21,28 +21,53 @@ import tech.pegasys.pantheon.ethereum.mainnet.MainnetBlockImporter;
 import tech.pegasys.pantheon.ethereum.mainnet.MainnetProtocolSpecs;
 import tech.pegasys.pantheon.ethereum.mainnet.ProtocolSchedule;
 import tech.pegasys.pantheon.ethereum.mainnet.ProtocolSpec;
+import tech.pegasys.pantheon.ethereum.mainnet.ProtocolSpecBuilder;
 
 import java.math.BigInteger;
 
 /** Factory for producing Ibft protocol specs for given configurations and known fork points */
 public class IbftProtocolSpecs {
 
-  /**
-   * Produce the ProtocolSpec for an IBFT chain that uses spurious dragon milestone configuration
-   *
-   * @param secondsBetweenBlocks the block period in seconds
-   * @param epochLength the number of blocks in each epoch
-   * @param chainId the id of the Chain.
-   * @param protocolSchedule the {@link ProtocolSchedule} this spec will be part of
-   * @return a configured ProtocolSpec for dealing with IBFT blocks
-   */
-  public static ProtocolSpec<IbftContext> spuriousDragon(
+  private final long secondsBetweenBlocks;
+  private final long epochLength;
+  private final int chainId;
+  private final ProtocolSchedule<IbftContext> protocolSchedule;
+
+  public IbftProtocolSpecs(
       final long secondsBetweenBlocks,
       final long epochLength,
       final int chainId,
       final ProtocolSchedule<IbftContext> protocolSchedule) {
+    this.secondsBetweenBlocks = secondsBetweenBlocks;
+    this.epochLength = epochLength;
+    this.chainId = chainId;
+    this.protocolSchedule = protocolSchedule;
+  }
+
+  public ProtocolSpec<IbftContext> frontier() {
+    return applyIbftSpecificModifications(MainnetProtocolSpecs.frontierDefinition());
+  }
+
+  public ProtocolSpec<IbftContext> homestead() {
+    return applyIbftSpecificModifications(MainnetProtocolSpecs.homesteadDefinition());
+  }
+
+  public ProtocolSpec<IbftContext> tangerineWhistle() {
+    return applyIbftSpecificModifications(MainnetProtocolSpecs.tangerineWhistleDefinition());
+  }
+
+  public ProtocolSpec<IbftContext> spuriousDragon() {
+    return applyIbftSpecificModifications(MainnetProtocolSpecs.spuriousDragonDefinition(chainId));
+  }
+
+  public ProtocolSpec<IbftContext> byzantium() {
+    return applyIbftSpecificModifications(MainnetProtocolSpecs.byzantiumDefinition(chainId));
+  }
+
+  private ProtocolSpec<IbftContext> applyIbftSpecificModifications(
+      final ProtocolSpecBuilder<Void> specBuilder) {
     final EpochManager epochManager = new EpochManager(epochLength);
-    return MainnetProtocolSpecs.spuriousDragonDefinition(chainId)
+    return specBuilder
         .<IbftContext>changeConsensusContextType(
             difficultyCalculator -> ibftBlockHeaderValidator(secondsBetweenBlocks),
             difficultyCalculator -> ibftBlockHeaderValidator(secondsBetweenBlocks),
@@ -55,7 +80,6 @@ public class IbftProtocolSpecs {
             (time, parent, protocolContext) -> BigInteger.ONE)
         .blockReward(Wei.ZERO)
         .blockHashFunction(IbftBlockHashing::calculateHashOfIbftBlockOnChain)
-        .name("IBFT")
         .build(protocolSchedule);
   }
 }
