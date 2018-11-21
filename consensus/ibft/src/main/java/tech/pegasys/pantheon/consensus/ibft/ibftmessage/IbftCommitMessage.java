@@ -14,24 +14,20 @@ package tech.pegasys.pantheon.consensus.ibft.ibftmessage;
 
 import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftSignedMessageData;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessagedata.IbftUnsignedCommitMessageData;
-import tech.pegasys.pantheon.ethereum.p2p.NetworkMemoryPool;
 import tech.pegasys.pantheon.ethereum.p2p.api.MessageData;
 import tech.pegasys.pantheon.ethereum.rlp.RLP;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
-
-import io.netty.buffer.ByteBuf;
 
 public class IbftCommitMessage extends AbstractIbftMessage {
 
   private static final int MESSAGE_CODE = IbftV2.COMMIT;
 
-  private IbftCommitMessage(final ByteBuf data) {
+  private IbftCommitMessage(final BytesValue data) {
     super(data);
   }
 
   public static IbftCommitMessage fromMessage(final MessageData message) {
     if (message instanceof IbftCommitMessage) {
-      message.retain();
       return (IbftCommitMessage) message;
     }
     final int code = message.getCode();
@@ -40,21 +36,18 @@ public class IbftCommitMessage extends AbstractIbftMessage {
           String.format("Message has code %d and thus is not a CommitMessage", code));
     }
 
-    final ByteBuf data = NetworkMemoryPool.allocate(message.getSize());
-    message.writeTo(data);
-    return new IbftCommitMessage(data);
+    return new IbftCommitMessage(message.getData());
   }
 
   @Override
   public IbftSignedMessageData<IbftUnsignedCommitMessageData> decode() {
-    return IbftSignedMessageData.readIbftSignedCommitMessageDataFrom(
-        RLP.input(BytesValue.wrapBuffer(data)));
+    return IbftSignedMessageData.readIbftSignedCommitMessageDataFrom(RLP.input(data));
   }
 
   public static IbftCommitMessage create(
       final IbftSignedMessageData<IbftUnsignedCommitMessageData> ibftPrepareMessageDecoded) {
 
-    return new IbftCommitMessage(writeMessageToByteBuf(ibftPrepareMessageDecoded));
+    return new IbftCommitMessage(ibftPrepareMessageDecoded.encode());
   }
 
   @Override
