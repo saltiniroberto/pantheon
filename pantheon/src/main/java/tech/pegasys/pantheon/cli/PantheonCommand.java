@@ -19,6 +19,7 @@ import tech.pegasys.pantheon.RunnerBuilder;
 import tech.pegasys.pantheon.cli.custom.CorsAllowedOriginsProperty;
 import tech.pegasys.pantheon.consensus.clique.jsonrpc.CliqueRpcApis;
 import tech.pegasys.pantheon.consensus.ibft.jsonrpc.IbftRpcApis;
+import tech.pegasys.pantheon.controller.KeyPairUtil;
 import tech.pegasys.pantheon.controller.PantheonController;
 import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.core.MiningParameters;
@@ -33,7 +34,6 @@ import tech.pegasys.pantheon.ethereum.jsonrpc.websocket.WebSocketConfiguration;
 import tech.pegasys.pantheon.ethereum.p2p.peers.DefaultPeer;
 import tech.pegasys.pantheon.ethereum.util.InvalidConfigurationException;
 import tech.pegasys.pantheon.util.BlockImporter;
-import tech.pegasys.pantheon.util.BlockchainImporter;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 
 import java.io.File;
@@ -45,6 +45,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -120,7 +121,6 @@ public class PantheonCommand implements Runnable {
   }
 
   private final BlockImporter blockImporter;
-  final BlockchainImporter blockchainImporter;
 
   private final PantheonControllerBuilder controllerBuilder;
   private final Builder synchronizerConfigurationBuilder;
@@ -145,6 +145,14 @@ public class PantheonCommand implements Runnable {
     description = "the path to Pantheon data directory (default: ${DEFAULT-VALUE})"
   )
   private final Path dataDir = getDefaultPantheonDataDir();
+
+  @Option(
+    names = {"--node-private-key"},
+    paramLabel = MANDATORY_PATH_FORMAT_HELP,
+    description =
+        "the path to the node's private key file (default: a file named \"key\" in the Pantheon data folder)"
+  )
+  private final File nodePrivateKeyFile = null;
 
   // Genesis file path with null default option if the option
   // is not defined on command line as this default is handled by Runner
@@ -189,8 +197,7 @@ public class PantheonCommand implements Runnable {
   @Option(
     names = {"--max-peers"},
     paramLabel = MANDATORY_INTEGER_FORMAT_HELP,
-    description =
-        "Maximium p2p peer connections that can be established (default: ${DEFAULT-VALUE})"
+    description = "Maximum p2p peer connections that can be established (default: ${DEFAULT-VALUE})"
   )
   private final Integer maxPeers = DEFAULT_MAX_PEERS;
 
@@ -201,6 +208,14 @@ public class PantheonCommand implements Runnable {
         "Maximum p2p peer connections for peers that are trailing behind our chain head (default: unlimited)"
   )
   private final Integer maxTrailingPeers = Integer.MAX_VALUE;
+
+  @Option(
+    names = {"--banned-nodeids"},
+    description = "A list of node IDs to ban from the p2p network.",
+    split = ",",
+    arity = "1..*"
+  )
+  private final Collection<String> bannedNodeIds = null;
 
   // TODO: Re-enable as per NC-1057/NC-1681
   //  @Option(
@@ -226,9 +241,15 @@ public class PantheonCommand implements Runnable {
     names = {"--rinkeby"},
     description =
         "Use the Rinkeby test network"
-            + "- see https://github.com/ethereum/EIPs/issues/225 (default: ${DEFAULT-VALUE})"
+            + " - see https://github.com/ethereum/EIPs/issues/225 (default: ${DEFAULT-VALUE})"
   )
   private final Boolean rinkeby = false;
+
+  @Option(
+    names = {"--ropsten"},
+    description = "Use the Ropsten test network (default: ${DEFAULT-VALUE})"
+  )
+  private final Boolean ropsten = false;
 
   @Option(
     names = {"--p2p-listen"},
@@ -356,12 +377,10 @@ public class PantheonCommand implements Runnable {
 
   public PantheonCommand(
       final BlockImporter blockImporter,
-      final BlockchainImporter blockchainImporter,
       final RunnerBuilder runnerBuilder,
       final PantheonControllerBuilder controllerBuilder,
       final Builder synchronizerConfigurationBuilder) {
     this.blockImporter = blockImporter;
-    this.blockchainImporter = blockchainImporter;
     this.runnerBuilder = runnerBuilder;
     this.controllerBuilder = controllerBuilder;
     this.synchronizerConfigurationBuilder = synchronizerConfigurationBuilder;
@@ -375,9 +394,7 @@ public class PantheonCommand implements Runnable {
     final CommandLine commandLine = new CommandLine(this);
 
     final ImportSubCommand importSubCommand = new ImportSubCommand(blockImporter);
-    final ImportBlockchainSubCommand importBlockchainSubCommand = new ImportBlockchainSubCommand();
     commandLine.addSubcommand("import", importSubCommand);
-    commandLine.addSubcommand("import-blockchain", importBlockchainSubCommand);
     commandLine.addSubcommand("export-pub-key", new ExportPublicKeySubCommand());
 
     commandLine.registerConverter(Address.class, Address::fromHexString);
@@ -410,6 +427,11 @@ public class PantheonCommand implements Runnable {
               + "or specify the beneficiary of mining (via --miner-coinbase <Address>)");
       return;
     }
+    if (ropsten && rinkeby) {
+      System.out.println(
+          "Unable to connect to multiple networks simultaneously. Remove one of --ropsten or --rinkeby");
+      return;
+    }
     final EthNetworkConfig ethNetworkConfig = ethNetworkConfig();
     synchronize(
         buildController(),
@@ -421,7 +443,7 @@ public class PantheonCommand implements Runnable {
         webSocketConfiguration());
   }
 
-  PantheonController<?, ?> buildController() {
+  PantheonController<?> buildController() {
     try {
       return controllerBuilder.build(
           buildSyncConfig(syncMode),
@@ -429,12 +451,17 @@ public class PantheonCommand implements Runnable {
           ethNetworkConfig(),
           syncWithOttoman,
           new MiningParameters(coinbase, minTransactionGasPrice, extraData, isMiningEnabled),
-          isDevMode);
+          isDevMode,
+          getNodePrivateKeyFile());
     } catch (final InvalidConfigurationException e) {
       throw new ExecutionException(new CommandLine(this), e.getMessage());
     } catch (final IOException e) {
       throw new ExecutionException(new CommandLine(this), "Invalid path", e);
     }
+  }
+
+  private File getNodePrivateKeyFile() {
+    return nodePrivateKeyFile != null ? nodePrivateKeyFile : KeyPairUtil.getDefaultKeyFile(dataDir);
   }
 
   private JsonRpcConfiguration jsonRpcConfiguration() {
@@ -465,7 +492,7 @@ public class PantheonCommand implements Runnable {
 
   // Blockchain synchronisation from peers.
   private void synchronize(
-      final PantheonController<?, ?> controller,
+      final PantheonController<?> controller,
       final boolean noPeerDiscovery,
       final Collection<?> bootstrapNodes,
       final int maxPeers,
@@ -487,9 +514,24 @@ public class PantheonCommand implements Runnable {
             maxPeers,
             jsonRpcConfiguration,
             webSocketConfiguration,
-            dataDir);
+            dataDir,
+            bannedNodeIds == null ? Collections.emptySet() : bannedNodeIds);
 
+    addShutdownHook(runner);
     runner.execute();
+  }
+
+  private void addShutdownHook(final Runner runner) {
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () -> {
+                  try {
+                    runner.close();
+                  } catch (Exception e) {
+                    throw new RuntimeException(e);
+                  }
+                }));
   }
 
   // Used to discover the default IP of the client.
@@ -562,8 +604,14 @@ public class PantheonCommand implements Runnable {
   }
 
   private EthNetworkConfig ethNetworkConfig() {
-    final EthNetworkConfig predefinedNetworkConfig =
-        rinkeby ? EthNetworkConfig.rinkeby() : EthNetworkConfig.mainnet();
+    final EthNetworkConfig predefinedNetworkConfig;
+    if (rinkeby) {
+      predefinedNetworkConfig = EthNetworkConfig.rinkeby();
+    } else if (ropsten) {
+      predefinedNetworkConfig = EthNetworkConfig.ropsten();
+    } else {
+      predefinedNetworkConfig = EthNetworkConfig.mainnet();
+    }
     return updateNetworkConfig(predefinedNetworkConfig);
   }
 

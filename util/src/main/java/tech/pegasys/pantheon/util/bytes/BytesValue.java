@@ -15,10 +15,10 @@ package tech.pegasys.pantheon.util.bytes;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkElementIndex;
 
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.netty.buffer.ByteBuf;
 import io.vertx.core.buffer.Buffer;
 
 /**
@@ -140,6 +140,21 @@ public interface BytesValue extends Comparable<BytesValue> {
   }
 
   /**
+   * Wraps a full Vert.x {@link Buffer} as a {@link BytesValue}.
+   *
+   * <p>Note that as the buffer is wrapped, any change to the content of that buffer may be
+   * reflected in the returned value.
+   *
+   * @param buffer The buffer to wrap.
+   * @param offset The offset in {@code buffer} from which to expose the bytes in the returned
+   *     value. That is, {@code wrapBuffer(buffer, i, 1).get(0) == buffer.getByte(i)}.
+   * @return A {@link BytesValue} that exposes the bytes of {@code buffer}.
+   */
+  static BytesValue wrapBuffer(final Buffer buffer, final int offset) {
+    return wrapBuffer(buffer, offset, buffer.length() - offset);
+  }
+
+  /**
    * Wraps a slice of a Vert.x {@link Buffer} as a {@link BytesValue}.
    *
    * <p>Note that as the buffer is wrapped, any change to the content of that buffer may be
@@ -157,17 +172,23 @@ public interface BytesValue extends Comparable<BytesValue> {
   }
 
   /**
-   * Wraps a full Netty {@link ByteBuf} as a {@link BytesValue}.
+   * Wraps a {@link ByteBuffer} as a {@link BytesValue}.
+   *
+   * <p>Note that as the buffer is wrapped, any change to the content of that buffer may be
+   * reflected in the returned value.
    *
    * @param buffer The buffer to wrap.
    * @return A {@link BytesValue} that exposes the bytes of {@code buffer}.
    */
-  static BytesValue wrapBuffer(final ByteBuf buffer) {
-    return wrapBuffer(buffer, buffer.readerIndex(), buffer.readableBytes());
+  static BytesValue wrapBuffer(final ByteBuffer buffer) {
+    return MutableBytesValue.wrapBuffer(buffer, 0, buffer.capacity());
   }
 
   /**
-   * Wraps a slice of a Netty {@link ByteBuf} as a {@link BytesValue}.
+   * Wraps a {@link ByteBuffer} as a {@link BytesValue}.
+   *
+   * <p>Note that as the buffer is wrapped, any change to the content of that buffer may be
+   * reflected in the returned value.
    *
    * @param buffer The buffer to wrap.
    * @param offset The offset in {@code buffer} from which to expose the bytes in the returned
@@ -176,7 +197,7 @@ public interface BytesValue extends Comparable<BytesValue> {
    * @return A {@link BytesValue} that exposes the equivalent of {@code buffer.getBytes(offset,
    *     offset + size)} (but without copying said bytes).
    */
-  static BytesValue wrapBuffer(final ByteBuf buffer, final int offset, final int size) {
+  static BytesValue wrapBuffer(final ByteBuffer buffer, final int offset, final int size) {
     return MutableBytesValue.wrapBuffer(buffer, offset, size);
   }
 
@@ -292,6 +313,17 @@ public interface BytesValue extends Comparable<BytesValue> {
    * @throws IndexOutOfBoundsException if {@code i &lt; 0} or {i &gt;= size()}.
    */
   byte get(int i);
+
+  /**
+   * Retrieves a byte in this value.
+   *
+   * @param i The index of the byte to fetch within the value (0-indexed).
+   * @return The byte at index {@code i} in this value.
+   * @throws IndexOutOfBoundsException if {@code i &lt; 0} or {i &gt;= size()}.
+   */
+  default byte get(final long i) {
+    return get(Math.toIntExact(i));
+  }
 
   /**
    * Retrieves the 4 bytes starting at the provided index in this value as an integer.
@@ -425,15 +457,8 @@ public interface BytesValue extends Comparable<BytesValue> {
     }
   }
 
-  /**
-   * Appends the bytes of this value to the provided Netty {@link ByteBuf}.
-   *
-   * @param buffer The {@link ByteBuf} to which to append this value.
-   */
-  default void appendTo(final ByteBuf buffer) {
-    for (int i = 0; i < size(); i++) {
-      buffer.writeByte(get(i));
-    }
+  default void copyTo(final byte[] dest, final int srcPos, final int destPos) {
+    System.arraycopy(getArrayUnsafe(), srcPos, dest, destPos, size() - srcPos);
   }
 
   /**

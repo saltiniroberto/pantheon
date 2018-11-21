@@ -12,7 +12,7 @@
  */
 package tech.pegasys.pantheon.ethereum.jsonrpc;
 
-import tech.pegasys.pantheon.ethereum.blockcreation.AbstractMiningCoordinator;
+import tech.pegasys.pantheon.ethereum.blockcreation.MiningCoordinator;
 import tech.pegasys.pantheon.ethereum.chain.Blockchain;
 import tech.pegasys.pantheon.ethereum.core.Synchronizer;
 import tech.pegasys.pantheon.ethereum.core.TransactionPool;
@@ -24,6 +24,7 @@ import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.DebugTraceTransac
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.EthAccounts;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.EthBlockNumber;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.EthCall;
+import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.EthChainId;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.EthCoinbase;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.EthEstimateGas;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.EthGasPrice;
@@ -87,14 +88,13 @@ public class JsonRpcMethodsFactory {
 
   public Map<String, JsonRpcMethod> methods(
       final String clientVersion,
-      final String chainId,
       final P2PNetwork peerNetworkingService,
       final Blockchain blockchain,
       final WorldStateArchive worldStateArchive,
       final Synchronizer synchronizer,
       final TransactionPool transactionPool,
       final ProtocolSchedule<?> protocolSchedule,
-      final AbstractMiningCoordinator<?, ?> miningCoordinator,
+      final MiningCoordinator miningCoordinator,
       final Set<Capability> supportedCapabilities,
       final Collection<RpcApi> rpcApis,
       final FilterManager filterManager) {
@@ -102,7 +102,6 @@ public class JsonRpcMethodsFactory {
         new BlockchainQueries(blockchain, worldStateArchive);
     return methods(
         clientVersion,
-        chainId,
         peerNetworkingService,
         blockchainQueries,
         synchronizer,
@@ -116,14 +115,13 @@ public class JsonRpcMethodsFactory {
 
   public Map<String, JsonRpcMethod> methods(
       final String clientVersion,
-      final String chainId,
       final P2PNetwork p2pNetwork,
       final BlockchainQueries blockchainQueries,
       final Synchronizer synchronizer,
       final ProtocolSchedule<?> protocolSchedule,
       final FilterManager filterManager,
       final TransactionPool transactionPool,
-      final AbstractMiningCoordinator<?, ?> miningCoordinator,
+      final MiningCoordinator miningCoordinator,
       final Set<Capability> supportedCapabilities,
       final Collection<RpcApi> rpcApis) {
     final Map<String, JsonRpcMethod> enabledMethods = new HashMap<>();
@@ -174,11 +172,12 @@ public class JsonRpcMethodsFactory {
                   blockchainQueries.getWorldStateArchive(),
                   protocolSchedule),
               parameter),
-          new EthMining<>(miningCoordinator),
+          new EthMining(miningCoordinator),
           new EthCoinbase(miningCoordinator),
           new EthProtocolVersion(supportedCapabilities),
-          new EthGasPrice<>(miningCoordinator),
-          new EthGetWork(miningCoordinator));
+          new EthGasPrice(miningCoordinator),
+          new EthGetWork(miningCoordinator),
+          new EthChainId(protocolSchedule.getChainId()));
     }
     if (rpcApis.contains(RpcApis.DEBUG)) {
       final BlockReplay blockReplay =
@@ -195,7 +194,7 @@ public class JsonRpcMethodsFactory {
     if (rpcApis.contains(RpcApis.NET)) {
       addMethods(
           enabledMethods,
-          new NetVersion(chainId),
+          new NetVersion(protocolSchedule.getChainId()),
           new NetListening(p2pNetwork),
           new NetPeerCount(p2pNetwork),
           new AdminPeers(p2pNetwork));
@@ -207,8 +206,8 @@ public class JsonRpcMethodsFactory {
       final MinerSetCoinbase minerSetCoinbase = new MinerSetCoinbase(miningCoordinator, parameter);
       addMethods(
           enabledMethods,
-          new MinerStart<>(miningCoordinator),
-          new MinerStop<>(miningCoordinator),
+          new MinerStart(miningCoordinator),
+          new MinerStop(miningCoordinator),
           minerSetCoinbase,
           new MinerSetEtherbase(minerSetCoinbase));
     }

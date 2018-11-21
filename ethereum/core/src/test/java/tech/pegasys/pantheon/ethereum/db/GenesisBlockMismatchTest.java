@@ -13,8 +13,8 @@
 package tech.pegasys.pantheon.ethereum.db;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static sun.security.krb5.Confounder.bytes;
 
+import tech.pegasys.pantheon.crypto.SecureRandomProvider;
 import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.core.Block;
 import tech.pegasys.pantheon.ethereum.core.BlockBody;
@@ -23,6 +23,7 @@ import tech.pegasys.pantheon.ethereum.core.BlockHeaderBuilder;
 import tech.pegasys.pantheon.ethereum.core.Hash;
 import tech.pegasys.pantheon.ethereum.core.LogsBloomFilter;
 import tech.pegasys.pantheon.ethereum.mainnet.MainnetBlockHashFunction;
+import tech.pegasys.pantheon.ethereum.storage.keyvalue.KeyValueStoragePrefixedKeyBlockchainStorage;
 import tech.pegasys.pantheon.ethereum.util.InvalidConfigurationException;
 import tech.pegasys.pantheon.services.kvstore.InMemoryKeyValueStorage;
 import tech.pegasys.pantheon.services.kvstore.KeyValueStorage;
@@ -30,11 +31,19 @@ import tech.pegasys.pantheon.util.bytes.Bytes32;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 import tech.pegasys.pantheon.util.uint.UInt256;
 
+import java.security.SecureRandom;
 import java.util.Collections;
 
 import org.junit.Test;
 
 public class GenesisBlockMismatchTest {
+  private static final SecureRandom srand = SecureRandomProvider.publicSecureRandom();
+
+  private static byte[] bytes(final int len) {
+    final byte[] bytes = new byte[len];
+    srand.nextBytes(bytes);
+    return bytes;
+  }
 
   @Test
   public void suppliedGenesisBlockMismatchStoredChainDataException() {
@@ -61,7 +70,10 @@ public class GenesisBlockMismatchTest {
     final BlockBody genesisBody00 = new BlockBody(Collections.emptyList(), Collections.emptyList());
     final Block genesisBlock00 = new Block(genesisHeader00, genesisBody00);
     final DefaultMutableBlockchain blockchain00 =
-        new DefaultMutableBlockchain(genesisBlock00, kvStore, MainnetBlockHashFunction::createHash);
+        new DefaultMutableBlockchain(
+            genesisBlock00,
+            new KeyValueStoragePrefixedKeyBlockchainStorage(
+                kvStore, MainnetBlockHashFunction::createHash));
 
     final BlockHeader genesisHeader01 =
         BlockHeaderBuilder.create()
@@ -89,7 +101,6 @@ public class GenesisBlockMismatchTest {
         .isThrownBy(() -> blockchain00.setGenesis(genesisBlock01))
         .withMessageContaining(
             "Supplied genesis block does not match stored chain data.\n"
-                + "Please ensure the integrity of the file: \'pantheon/ethereum/core/src/main/resources/mainnet.json\'.\n"
-                + "To set a custom genesis file employ the runtime option \'--genesis=PATH_TO_FILE\'.");
+                + "Please specify a different data directory with --datadir or specify the original genesis file with --genesis.");
   }
 }

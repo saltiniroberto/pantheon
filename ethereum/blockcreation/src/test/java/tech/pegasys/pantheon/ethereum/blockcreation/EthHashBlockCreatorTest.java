@@ -12,6 +12,7 @@
  */
 package tech.pegasys.pantheon.ethereum.blockcreation;
 
+import tech.pegasys.pantheon.config.GenesisConfigFile;
 import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.core.Block;
 import tech.pegasys.pantheon.ethereum.core.ExecutionContextTestFixture;
@@ -19,10 +20,12 @@ import tech.pegasys.pantheon.ethereum.core.PendingTransactions;
 import tech.pegasys.pantheon.ethereum.core.Wei;
 import tech.pegasys.pantheon.ethereum.mainnet.EthHashSolver;
 import tech.pegasys.pantheon.ethereum.mainnet.EthHasher.Light;
+import tech.pegasys.pantheon.ethereum.mainnet.ProtocolScheduleBuilder;
 import tech.pegasys.pantheon.ethereum.mainnet.ValidationTestUtils;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 
 import java.io.IOException;
+import java.util.function.Function;
 
 import com.google.common.collect.Lists;
 import org.assertj.core.api.Assertions;
@@ -41,7 +44,12 @@ public class EthHashBlockCreatorTest {
       BytesValue.fromHexString("0x476574682f76312e302e302f6c696e75782f676f312e342e32");
 
   private final ExecutionContextTestFixture executionContextTestFixture =
-      new ExecutionContextTestFixture();
+      ExecutionContextTestFixture.builder()
+          .protocolSchedule(
+              new ProtocolScheduleBuilder<>(
+                      GenesisConfigFile.DEFAULT.getConfigOptions(), 42, Function.identity())
+                  .createProtocolSchedule())
+          .build();
 
   @Test
   public void createMainnetBlock1() throws IOException {

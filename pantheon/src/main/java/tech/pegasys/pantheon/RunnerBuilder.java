@@ -12,14 +12,10 @@
  */
 package tech.pegasys.pantheon;
 
-import tech.pegasys.pantheon.consensus.clique.CliqueContext;
-import tech.pegasys.pantheon.consensus.clique.jsonrpc.CliqueJsonRpcMethodsFactory;
-import tech.pegasys.pantheon.consensus.ibft.IbftContext;
-import tech.pegasys.pantheon.consensus.ibft.jsonrpc.IbftJsonRpcMethodsFactory;
 import tech.pegasys.pantheon.controller.PantheonController;
 import tech.pegasys.pantheon.crypto.SECP256K1.KeyPair;
 import tech.pegasys.pantheon.ethereum.ProtocolContext;
-import tech.pegasys.pantheon.ethereum.blockcreation.AbstractMiningCoordinator;
+import tech.pegasys.pantheon.ethereum.blockcreation.MiningCoordinator;
 import tech.pegasys.pantheon.ethereum.chain.Blockchain;
 import tech.pegasys.pantheon.ethereum.core.Synchronizer;
 import tech.pegasys.pantheon.ethereum.core.TransactionPool;
@@ -54,6 +50,7 @@ import tech.pegasys.pantheon.ethereum.p2p.netty.NettyP2PNetwork;
 import tech.pegasys.pantheon.ethereum.p2p.peers.PeerBlacklist;
 import tech.pegasys.pantheon.ethereum.p2p.wire.Capability;
 import tech.pegasys.pantheon.ethereum.p2p.wire.SubProtocol;
+import tech.pegasys.pantheon.util.bytes.BytesValue;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -70,7 +67,7 @@ public class RunnerBuilder {
 
   public Runner build(
       final Vertx vertx,
-      final PantheonController<?, ?> pantheonController,
+      final PantheonController<?> pantheonController,
       final boolean discovery,
       final Collection<?> bootstrapPeers,
       final String discoveryHost,
@@ -78,7 +75,8 @@ public class RunnerBuilder {
       final int maxPeers,
       final JsonRpcConfiguration jsonRpcConfiguration,
       final WebSocketConfiguration webSocketConfiguration,
-      final Path dataDir) {
+      final Path dataDir,
+      final Collection<String> bannedNodeIds) {
 
     Preconditions.checkNotNull(pantheonController);
 
@@ -122,6 +120,10 @@ public class RunnerBuilder {
             .setClientId(PantheonInfo.version())
             .setSupportedProtocols(subProtocols);
 
+    final PeerBlacklist peerBlacklist =
+        new PeerBlacklist(
+            bannedNodeIds.stream().map(BytesValue::fromHexString).collect(Collectors.toSet()));
+
     final NetworkRunner networkRunner =
         NetworkRunner.builder()
             .protocolManagers(protocolManagers)
@@ -134,13 +136,12 @@ public class RunnerBuilder {
                         networkConfig,
                         caps,
                         PeerRequirement.aggregateOf(protocolManagers),
-                        new PeerBlacklist()))
+                        peerBlacklist))
             .build();
 
     final Synchronizer synchronizer = pantheonController.getSynchronizer();
     final TransactionPool transactionPool = pantheonController.getTransactionPool();
-    final AbstractMiningCoordinator<?, ?> miningCoordinator =
-        pantheonController.getMiningCoordinator();
+    final MiningCoordinator miningCoordinator = pantheonController.getMiningCoordinator();
 
     final FilterManager filterManager = createFilterManager(vertx, context, transactionPool);
 
@@ -213,11 +214,11 @@ public class RunnerBuilder {
   private Map<String, JsonRpcMethod> jsonRpcMethods(
       final ProtocolContext<?> context,
       final ProtocolSchedule<?> protocolSchedule,
-      final PantheonController<?, ?> pantheonController,
+      final PantheonController<?> pantheonController,
       final NetworkRunner networkRunner,
       final Synchronizer synchronizer,
       final TransactionPool transactionPool,
-      final AbstractMiningCoordinator<?, ?> miningCoordinator,
+      final MiningCoordinator miningCoordinator,
       final Set<Capability> supportedCapabilities,
       final Collection<RpcApi> jsonRpcApis,
       final FilterManager filterManager) {
@@ -225,7 +226,6 @@ public class RunnerBuilder {
         new JsonRpcMethodsFactory()
             .methods(
                 PantheonInfo.version(),
-                String.valueOf(pantheonController.getGenesisConfig().getChainId()),
                 networkRunner.getNetwork(),
                 context.getBlockchain(),
                 context.getWorldStateArchive(),
@@ -236,22 +236,7 @@ public class RunnerBuilder {
                 supportedCapabilities,
                 jsonRpcApis,
                 filterManager);
-
-    if (context.getConsensusState() instanceof CliqueContext) {
-      // This is checked before entering this if branch
-      @SuppressWarnings("unchecked")
-      final ProtocolContext<CliqueContext> cliqueProtocolContext =
-          (ProtocolContext<CliqueContext>) context;
-      methods.putAll(new CliqueJsonRpcMethodsFactory().methods(cliqueProtocolContext, jsonRpcApis));
-    }
-
-    if (context.getConsensusState() instanceof IbftContext) {
-      // This is checked before entering this if branch
-      @SuppressWarnings("unchecked")
-      final ProtocolContext<IbftContext> ibftProtocolContext =
-          (ProtocolContext<IbftContext>) context;
-      methods.putAll(new IbftJsonRpcMethodsFactory().methods(ibftProtocolContext, jsonRpcApis));
-    }
+    methods.putAll(pantheonController.getAdditionalJsonRpcMethods(jsonRpcApis));
     return methods;
   }
 

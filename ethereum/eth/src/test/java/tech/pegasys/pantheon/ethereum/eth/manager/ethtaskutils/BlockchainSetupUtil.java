@@ -13,27 +13,24 @@
 package tech.pegasys.pantheon.ethereum.eth.manager.ethtaskutils;
 
 import static org.assertj.core.util.Preconditions.checkArgument;
-import static tech.pegasys.pantheon.ethereum.core.InMemoryWorldState.createInMemoryWorldStateArchive;
+import static tech.pegasys.pantheon.ethereum.core.InMemoryStorageProvider.createInMemoryBlockchain;
+import static tech.pegasys.pantheon.ethereum.core.InMemoryStorageProvider.createInMemoryWorldStateArchive;
 
 import tech.pegasys.pantheon.ethereum.ProtocolContext;
 import tech.pegasys.pantheon.ethereum.chain.Blockchain;
-import tech.pegasys.pantheon.ethereum.chain.GenesisConfig;
+import tech.pegasys.pantheon.ethereum.chain.GenesisState;
 import tech.pegasys.pantheon.ethereum.chain.MutableBlockchain;
 import tech.pegasys.pantheon.ethereum.core.Block;
 import tech.pegasys.pantheon.ethereum.core.BlockHashFunction;
 import tech.pegasys.pantheon.ethereum.core.BlockHeader;
 import tech.pegasys.pantheon.ethereum.core.BlockImporter;
-import tech.pegasys.pantheon.ethereum.db.DefaultMutableBlockchain;
 import tech.pegasys.pantheon.ethereum.db.WorldStateArchive;
 import tech.pegasys.pantheon.ethereum.mainnet.HeaderValidationMode;
-import tech.pegasys.pantheon.ethereum.mainnet.MainnetBlockHashFunction;
 import tech.pegasys.pantheon.ethereum.mainnet.MainnetProtocolSchedule;
 import tech.pegasys.pantheon.ethereum.mainnet.ProtocolSchedule;
 import tech.pegasys.pantheon.ethereum.mainnet.ProtocolSpec;
 import tech.pegasys.pantheon.ethereum.mainnet.ScheduleBasedBlockHashFunction;
 import tech.pegasys.pantheon.ethereum.util.RawBlockIterator;
-import tech.pegasys.pantheon.services.kvstore.InMemoryKeyValueStorage;
-import tech.pegasys.pantheon.services.kvstore.KeyValueStorage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -49,8 +46,7 @@ import com.google.common.io.Resources;
 import org.junit.rules.TemporaryFolder;
 
 public class BlockchainSetupUtil<C> {
-  private final GenesisConfig<C> genesisConfig;
-  private final KeyValueStorage kvStore;
+  private final GenesisState genesisState;
   private final MutableBlockchain blockchain;
   private final ProtocolContext<C> protocolContext;
   private final ProtocolSchedule<C> protocolSchedule;
@@ -59,15 +55,13 @@ public class BlockchainSetupUtil<C> {
   private long maxBlockNumber;
 
   public BlockchainSetupUtil(
-      final GenesisConfig<C> genesisConfig,
-      final KeyValueStorage kvStore,
+      final GenesisState genesisState,
       final MutableBlockchain blockchain,
       final ProtocolContext<C> protocolContext,
       final ProtocolSchedule<C> protocolSchedule,
       final WorldStateArchive worldArchive,
       final List<Block> blocks) {
-    this.genesisConfig = genesisConfig;
-    this.kvStore = kvStore;
+    this.genesisState = genesisState;
     this.blockchain = blockchain;
     this.protocolContext = protocolContext;
     this.protocolSchedule = protocolSchedule;
@@ -103,16 +97,13 @@ public class BlockchainSetupUtil<C> {
     try {
       temp.create();
       final URL genesisFileUrl = getResourceUrl(temp, "testGenesis.json");
-      final GenesisConfig<Void> genesisConfig =
-          GenesisConfig.fromJson(
+      final GenesisState genesisState =
+          GenesisState.fromJson(
               Resources.toString(genesisFileUrl, Charsets.UTF_8), protocolSchedule);
-      final KeyValueStorage kvStore = new InMemoryKeyValueStorage();
-      final MutableBlockchain blockchain =
-          new DefaultMutableBlockchain(
-              genesisConfig.getBlock(), kvStore, MainnetBlockHashFunction::createHash);
+      final MutableBlockchain blockchain = createInMemoryBlockchain(genesisState.getBlock());
       final WorldStateArchive worldArchive = createInMemoryWorldStateArchive();
 
-      genesisConfig.writeStateTo(worldArchive.getMutable());
+      genesisState.writeStateTo(worldArchive.getMutable());
       final ProtocolContext<Void> protocolContext =
           new ProtocolContext<>(blockchain, worldArchive, null);
 
@@ -127,13 +118,7 @@ public class BlockchainSetupUtil<C> {
         }
       }
       return new BlockchainSetupUtil<>(
-          genesisConfig,
-          kvStore,
-          blockchain,
-          protocolContext,
-          protocolSchedule,
-          worldArchive,
-          blocks);
+          genesisState, blockchain, protocolContext, protocolSchedule, worldArchive, blocks);
     } catch (final IOException ex) {
       throw new IllegalStateException(ex);
     } finally {
@@ -163,12 +148,8 @@ public class BlockchainSetupUtil<C> {
     return maxBlockNumber;
   }
 
-  public GenesisConfig<C> getGenesisConfig() {
-    return genesisConfig;
-  }
-
-  public KeyValueStorage getKvStore() {
-    return kvStore;
+  public GenesisState getGenesisState() {
+    return genesisState;
   }
 
   public MutableBlockchain getBlockchain() {

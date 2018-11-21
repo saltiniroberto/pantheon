@@ -14,21 +14,15 @@ package tech.pegasys.pantheon.tests.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNodeConfig.pantheonNode;
-import static tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNodeConfig.pantheonRpcDisabledNode;
-import static tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNodeConfig.patheonNodeWithRpcApis;
 
 import tech.pegasys.pantheon.ethereum.jsonrpc.RpcApis;
 import tech.pegasys.pantheon.tests.acceptance.dsl.AcceptanceTestBase;
 import tech.pegasys.pantheon.tests.acceptance.dsl.node.PantheonNode;
 
+import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.web3j.protocol.Web3j;
-import org.web3j.protocol.exceptions.ClientConnectionException;
 
-@Ignore
 public class RpcApisTogglesAcceptanceTest extends AcceptanceTestBase {
 
   private PantheonNode rpcEnabledNode;
@@ -37,45 +31,49 @@ public class RpcApisTogglesAcceptanceTest extends AcceptanceTestBase {
 
   @Before
   public void before() throws Exception {
-    rpcEnabledNode = cluster.create(pantheonNode("rpc-enabled"));
-    rpcDisabledNode = cluster.create(pantheonRpcDisabledNode("rpc-disabled"));
-    ethApiDisabledNode = cluster.create(patheonNodeWithRpcApis("eth-api-disabled", RpcApis.NET));
+    rpcEnabledNode = pantheon.createArchiveNode("rpc-enabled");
+    rpcDisabledNode = pantheon.createArchiveNodeWithRpcDisabled("rpc-disabled");
+    ethApiDisabledNode = pantheon.createArchiveNodeWithRpcApis("eth-api-disabled", RpcApis.NET);
     cluster.start(rpcEnabledNode, rpcDisabledNode, ethApiDisabledNode);
   }
 
   @Test
   public void shouldSucceedConnectingToNodeWithJsonRpcEnabled() {
-    rpcEnabledNode.verifyJsonRpcEnabled();
+    rpcEnabledNode.verify(net.netVersion());
   }
 
   @Test
   public void shouldFailConnectingToNodeWithJsonRpcDisabled() {
-    rpcDisabledNode.verifyJsonRpcDisabled();
+    final String expectedMessage = "Failed to connect to /127.0.0.1:8545";
+
+    rpcDisabledNode.verify(net.netVersionExceptional(expectedMessage));
   }
 
   @Test
   public void shouldSucceedConnectingToNodeWithWsRpcEnabled() {
-    rpcEnabledNode.verifyWsRpcEnabled();
+    rpcEnabledNode.useWebSocketsForJsonRpc();
+
+    rpcEnabledNode.verify(net.netVersion());
   }
 
   @Test
   public void shouldFailConnectingToNodeWithWsRpcDisabled() {
-    rpcDisabledNode.verifyWsRpcDisabled();
+    rpcDisabledNode.verify(
+        node -> {
+          final Throwable thrown = catchThrowable(() -> rpcDisabledNode.useWebSocketsForJsonRpc());
+          assertThat(thrown).isInstanceOf(WebsocketNotConnectedException.class);
+        });
   }
 
   @Test
-  public void shouldSucceedCallingMethodFromEnabledApiGroup() throws Exception {
-    final Web3j web3j = ethApiDisabledNode.web3j();
-
-    assertThat(web3j.netVersion().send().getError()).isNull();
+  public void shouldSucceedCallingMethodFromEnabledApiGroup() {
+    ethApiDisabledNode.verify(net.netVersion());
   }
 
   @Test
   public void shouldFailCallingMethodFromDisabledApiGroup() {
-    final Web3j web3j = ethApiDisabledNode.web3j();
+    final String expectedMessage = "Invalid response received: 400";
 
-    assertThat(catchThrowable(() -> web3j.ethAccounts().send()))
-        .isInstanceOf(ClientConnectionException.class)
-        .hasMessageContaining("Invalid response received: 400");
+    ethApiDisabledNode.verify(eth.accountsExceptional(expectedMessage));
   }
 }

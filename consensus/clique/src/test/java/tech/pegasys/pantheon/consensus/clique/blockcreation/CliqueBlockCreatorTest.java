@@ -16,20 +16,22 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static tech.pegasys.pantheon.ethereum.core.InMemoryStorageProvider.createInMemoryBlockchain;
+import static tech.pegasys.pantheon.ethereum.core.InMemoryStorageProvider.createInMemoryWorldStateArchive;
 
+import tech.pegasys.pantheon.config.GenesisConfigFile;
 import tech.pegasys.pantheon.consensus.clique.CliqueContext;
 import tech.pegasys.pantheon.consensus.clique.CliqueExtraData;
 import tech.pegasys.pantheon.consensus.clique.CliqueHelpers;
 import tech.pegasys.pantheon.consensus.clique.CliqueProtocolSchedule;
-import tech.pegasys.pantheon.consensus.clique.CliqueProtocolSpecs;
+import tech.pegasys.pantheon.consensus.clique.CliqueVotingBlockInterface;
 import tech.pegasys.pantheon.consensus.clique.TestHelpers;
 import tech.pegasys.pantheon.consensus.clique.VoteTallyCache;
 import tech.pegasys.pantheon.consensus.common.VoteProposer;
 import tech.pegasys.pantheon.consensus.common.VoteTally;
-import tech.pegasys.pantheon.consensus.common.VoteType;
 import tech.pegasys.pantheon.crypto.SECP256K1.KeyPair;
 import tech.pegasys.pantheon.ethereum.ProtocolContext;
-import tech.pegasys.pantheon.ethereum.chain.GenesisConfig;
+import tech.pegasys.pantheon.ethereum.chain.GenesisState;
 import tech.pegasys.pantheon.ethereum.chain.MutableBlockchain;
 import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.core.AddressHelpers;
@@ -39,13 +41,8 @@ import tech.pegasys.pantheon.ethereum.core.BlockHeaderTestFixture;
 import tech.pegasys.pantheon.ethereum.core.PendingTransactions;
 import tech.pegasys.pantheon.ethereum.core.Util;
 import tech.pegasys.pantheon.ethereum.core.Wei;
-import tech.pegasys.pantheon.ethereum.db.DefaultMutableBlockchain;
 import tech.pegasys.pantheon.ethereum.db.WorldStateArchive;
-import tech.pegasys.pantheon.ethereum.mainnet.MainnetBlockHashFunction;
-import tech.pegasys.pantheon.ethereum.mainnet.MutableProtocolSchedule;
-import tech.pegasys.pantheon.ethereum.worldstate.KeyValueStorageWorldStateStorage;
-import tech.pegasys.pantheon.services.kvstore.InMemoryKeyValueStorage;
-import tech.pegasys.pantheon.services.kvstore.KeyValueStorage;
+import tech.pegasys.pantheon.ethereum.mainnet.ProtocolSchedule;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 
 import java.util.List;
@@ -61,29 +58,18 @@ public class CliqueBlockCreatorTest {
   private final KeyPair otherKeyPair = KeyPair.generate();
   private final List<Address> validatorList = Lists.newArrayList();
 
-  private final Block genesis = GenesisConfig.mainnet().getBlock();
-  private final KeyValueStorage keyValueStorage = new InMemoryKeyValueStorage();
-  private final MutableBlockchain blockchain =
-      new DefaultMutableBlockchain(genesis, keyValueStorage, MainnetBlockHashFunction::createHash);
-  private final WorldStateArchive stateArchive =
-      new WorldStateArchive(new KeyValueStorageWorldStateStorage(keyValueStorage));
+  private ProtocolSchedule<CliqueContext> protocolSchedule;
+  private final WorldStateArchive stateArchive = createInMemoryWorldStateArchive();
 
+  private MutableBlockchain blockchain;
   private ProtocolContext<CliqueContext> protocolContext;
-  private final MutableProtocolSchedule<CliqueContext> protocolSchedule =
-      new CliqueProtocolSchedule();
   private VoteProposer voteProposer;
 
   @Before
   public void setup() {
-    final CliqueProtocolSpecs specs =
-        new CliqueProtocolSpecs(
-            15,
-            30_000,
-            1,
-            Util.publicKeyToAddress(proposerKeyPair.getPublicKey()),
-            protocolSchedule);
-
-    protocolSchedule.putMilestone(0, specs.frontier());
+    protocolSchedule =
+        CliqueProtocolSchedule.create(
+            GenesisConfigFile.DEFAULT.getConfigOptions(), proposerKeyPair);
 
     final Address otherAddress = Util.publicKeyToAddress(otherKeyPair.getPublicKey());
     validatorList.add(otherAddress);
@@ -93,6 +79,9 @@ public class CliqueBlockCreatorTest {
     voteProposer = new VoteProposer();
     final CliqueContext cliqueContext = new CliqueContext(voteTallyCache, voteProposer, null);
 
+    final Block genesis =
+        GenesisState.fromConfig(GenesisConfigFile.mainnet(), protocolSchedule).getBlock();
+    blockchain = createInMemoryBlockchain(genesis);
     protocolContext = new ProtocolContext<>(blockchain, stateArchive, cliqueContext);
 
     // Add a block above the genesis
@@ -152,7 +141,7 @@ public class CliqueBlockCreatorTest {
             blockchain.getChainHeadHeader());
 
     final Block createdBlock = blockCreator.createBlock(0L);
-    assertThat(createdBlock.getHeader().getNonce()).isEqualTo(VoteType.ADD.getNonceValue());
+    assertThat(createdBlock.getHeader().getNonce()).isEqualTo(CliqueVotingBlockInterface.ADD_NONCE);
     assertThat(createdBlock.getHeader().getCoinbase()).isEqualTo(a1);
   }
 
@@ -177,7 +166,8 @@ public class CliqueBlockCreatorTest {
             blockchain.getChainHeadHeader());
 
     final Block createdBlock = blockCreator.createBlock(0L);
-    assertThat(createdBlock.getHeader().getNonce()).isEqualTo(VoteType.DROP.getNonceValue());
+    assertThat(createdBlock.getHeader().getNonce())
+        .isEqualTo(CliqueVotingBlockInterface.DROP_NONCE);
     assertThat(createdBlock.getHeader().getCoinbase()).isEqualTo(Address.fromHexString("0"));
   }
 }

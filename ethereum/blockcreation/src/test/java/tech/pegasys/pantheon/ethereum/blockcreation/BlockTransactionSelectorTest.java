@@ -19,6 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static tech.pegasys.pantheon.ethereum.mainnet.TransactionValidator.TransactionInvalidReason.NONCE_TOO_LOW;
 
+import tech.pegasys.pantheon.config.GenesisConfigFile;
 import tech.pegasys.pantheon.crypto.SECP256K1.KeyPair;
 import tech.pegasys.pantheon.ethereum.chain.Blockchain;
 import tech.pegasys.pantheon.ethereum.core.Address;
@@ -41,9 +42,9 @@ import tech.pegasys.pantheon.ethereum.mainnet.ProtocolSchedule;
 import tech.pegasys.pantheon.ethereum.mainnet.TransactionProcessor;
 import tech.pegasys.pantheon.ethereum.mainnet.TransactionValidator.TransactionInvalidReason;
 import tech.pegasys.pantheon.ethereum.mainnet.ValidationResult;
+import tech.pegasys.pantheon.ethereum.storage.keyvalue.KeyValueStorageWorldStateStorage;
 import tech.pegasys.pantheon.ethereum.vm.TestBlockchain;
 import tech.pegasys.pantheon.ethereum.worldstate.DefaultMutableWorldState;
-import tech.pegasys.pantheon.ethereum.worldstate.KeyValueStorageWorldStateStorage;
 import tech.pegasys.pantheon.services.kvstore.InMemoryKeyValueStorage;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 import tech.pegasys.pantheon.util.uint.UInt256;
@@ -53,7 +54,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
-import io.vertx.core.json.JsonObject;
 import org.junit.Test;
 
 public class BlockTransactionSelectorTest {
@@ -63,7 +63,7 @@ public class BlockTransactionSelectorTest {
   @Test
   public void emptyPendingTransactionsResultsInEmptyVettingResult() {
     final ProtocolSchedule<Void> protocolSchedule =
-        DevelopmentProtocolSchedule.create(new JsonObject());
+        DevelopmentProtocolSchedule.create(GenesisConfigFile.DEFAULT.getConfigOptions());
     final Blockchain blockchain = new TestBlockchain();
     final TransactionProcessor transactionProcessor =
         protocolSchedule.getByBlockNumber(0).getTransactionProcessor();

@@ -32,8 +32,6 @@ import org.apache.logging.log4j.Logger;
 
 public class Runner implements AutoCloseable {
 
-  static final String KEY_PATH = "key";
-
   private static final Logger LOG = LogManager.getLogger();
 
   private final Vertx vertx;
@@ -45,7 +43,7 @@ public class Runner implements AutoCloseable {
   private final Optional<JsonRpcHttpService> jsonRpc;
   private final Optional<WebSocketService> websocketRpc;
 
-  private final PantheonController<?, ?> pantheonController;
+  private final PantheonController<?> pantheonController;
   private final Path dataDir;
 
   Runner(
@@ -53,7 +51,7 @@ public class Runner implements AutoCloseable {
       final NetworkRunner networkRunner,
       final Optional<JsonRpcHttpService> jsonRpc,
       final Optional<WebSocketService> websocketRpc,
-      final PantheonController<?, ?> pantheonController,
+      final PantheonController<?> pantheonController,
       final Path dataDir) {
     this.vertx = vertx;
     this.networkRunner = networkRunner;
@@ -85,6 +83,7 @@ public class Runner implements AutoCloseable {
   @Override
   public void close() throws Exception {
     networkRunner.stop();
+    networkRunner.awaitStop();
     exec.shutdown();
     try {
       jsonRpc.ifPresent(service -> service.stop().join());

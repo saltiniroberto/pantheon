@@ -18,12 +18,9 @@ import tech.pegasys.pantheon.ethereum.chain.BlockAddedEvent;
 import tech.pegasys.pantheon.ethereum.chain.BlockAddedObserver;
 import tech.pegasys.pantheon.ethereum.chain.Blockchain;
 import tech.pegasys.pantheon.ethereum.chain.MinedBlockObserver;
-import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.core.BlockHeader;
 import tech.pegasys.pantheon.ethereum.core.Wei;
 import tech.pegasys.pantheon.ethereum.eth.sync.state.SyncState;
-import tech.pegasys.pantheon.ethereum.mainnet.EthHashSolution;
-import tech.pegasys.pantheon.ethereum.mainnet.EthHashSolverInputs;
 import tech.pegasys.pantheon.util.Subscribers;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 
@@ -33,7 +30,7 @@ import org.apache.logging.log4j.Logger;
 
 public abstract class AbstractMiningCoordinator<
         C, M extends BlockMiner<C, ? extends AbstractBlockCreator<C>>>
-    implements BlockAddedObserver {
+    implements BlockAddedObserver, MiningCoordinator {
   private static final Logger LOG = getLogger();
   protected boolean isEnabled = false;
   protected volatile Optional<M> currentRunningMiner = Optional.empty();
@@ -54,6 +51,7 @@ public abstract class AbstractMiningCoordinator<
     syncState.addInSyncListener(this::inSyncChanged);
   }
 
+  @Override
   public void enable() {
     synchronized (this) {
       if (isEnabled) {
@@ -66,6 +64,7 @@ public abstract class AbstractMiningCoordinator<
     }
   }
 
+  @Override
   public void disable() {
     synchronized (this) {
       if (!isEnabled) {
@@ -76,6 +75,7 @@ public abstract class AbstractMiningCoordinator<
     }
   }
 
+  @Override
   public boolean isRunning() {
     synchronized (this) {
       return currentRunningMiner.isPresent();
@@ -121,40 +121,18 @@ public abstract class AbstractMiningCoordinator<
   }
 
   // Required for JSON RPC, and are deemed to be valid for all mining mechanisms
+  @Override
   public void setMinTransactionGasPrice(final Wei minGasPrice) {
     executor.setMinTransactionGasPrice(minGasPrice);
   }
 
+  @Override
   public Wei getMinTransactionGasPrice() {
     return executor.getMinTransactionGasPrice();
   }
 
+  @Override
   public void setExtraData(final BytesValue extraData) {
     executor.setExtraData(extraData);
-  }
-
-  public void setCoinbase(final Address coinbase) {
-    throw new UnsupportedOperationException(
-        "Current consensus mechanism prevents setting coinbase.");
-  }
-
-  public Optional<Address> getCoinbase() {
-    throw new UnsupportedOperationException(
-        "Current consensus mechanism prevents querying of coinbase.");
-  }
-
-  public Optional<Long> hashesPerSecond() {
-    throw new UnsupportedOperationException(
-        "Current consensus mechanism prevents querying of hashrate.");
-  }
-
-  public Optional<EthHashSolverInputs> getWorkDefinition() {
-    throw new UnsupportedOperationException(
-        "Current consensus mechanism prevents querying work definition.");
-  }
-
-  public boolean submitWork(final EthHashSolution solution) {
-    throw new UnsupportedOperationException(
-        "Current consensus mechanism prevents submission of work solutions.");
   }
 }

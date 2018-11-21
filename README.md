@@ -2,6 +2,7 @@
  [![Build Status](https://jenkins.pegasys.tech/job/Pantheon/job/master/badge/icon)](https://jenkins.pegasys.tech/job/Pantheon/job/master/)
  [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/PegasysEng/pantheon/blob/master/LICENSE)
  [ ![Download](https://api.bintray.com/packages/consensys/pegasys-repo/pantheon/images/download.svg) ](https://bintray.com/consensys/pegasys-repo/pantheon/_latestVersion)
+ [![Gitter chat](https://badges.gitter.im/PegaSysEng/pantheon.png)](https://gitter.im/PegaSysEng/pantheon)
  
 Pantheon is an Apache 2.0 licensed, MainNet compatible, Ethereum client written in Java. 
 
@@ -44,3 +45,7 @@ Instructions for how to get started with developing on the Pantheon codebase. Pl
 [Command Line Options]: https://github.com/PegaSysEng/pantheon/wiki/Pantheon-CLI-Syntax
 [JSON-RPC API]: https://github.com/PegaSysEng/pantheon/wiki/JSON-RPC-API
 [Using Pantheon]: https://github.com/PegaSysEng/pantheon/wiki/Transactions
+
+## Release Notes
+
+[v0.8.2 Release Notes](CHANGELOG.md)

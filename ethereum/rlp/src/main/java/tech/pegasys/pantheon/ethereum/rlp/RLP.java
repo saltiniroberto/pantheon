@@ -77,8 +77,8 @@ public abstract class RLP {
    *     deeply nested corruption/malformation of the input will not be detected by this method
    *     call, but only later when the input is read.
    */
-  public static VertxBufferRLPInput input(final Buffer buffer, final int offset) {
-    return new VertxBufferRLPInput(buffer, offset, false);
+  public static BytesValueRLPInput input(final Buffer buffer, final int offset) {
+    return new BytesValueRLPInput(BytesValue.wrapBuffer(buffer, offset), false, false);
   }
 
   /**
@@ -271,5 +271,16 @@ public abstract class RLP {
         in.skipNext();
       }
     }
+  }
+
+  /**
+   * Given a {@link BytesValue} containing rlp-encoded data, determines the full length of the
+   * encoded value (including the prefix) by inspecting the prefixed metadata.
+   *
+   * @param value the rlp-encoded byte string
+   * @return the length of the encoded data, according to the prefixed metadata
+   */
+  public static int calculateSize(final BytesValue value) {
+    return RLPDecodingHelpers.rlpElementMetadata(value::get, value.size(), 0).getEncodedSize();
   }
 }

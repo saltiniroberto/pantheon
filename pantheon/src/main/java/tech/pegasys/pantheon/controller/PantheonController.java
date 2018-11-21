@@ -12,83 +12,71 @@
  */
 package tech.pegasys.pantheon.controller;
 
-import tech.pegasys.pantheon.consensus.clique.CliqueProtocolSchedule;
-import tech.pegasys.pantheon.consensus.ibftlegacy.IbftProtocolSchedule;
+import static java.util.Collections.emptyMap;
+
+import tech.pegasys.pantheon.config.GenesisConfigFile;
+import tech.pegasys.pantheon.config.GenesisConfigOptions;
 import tech.pegasys.pantheon.crypto.SECP256K1.KeyPair;
 import tech.pegasys.pantheon.ethereum.ProtocolContext;
-import tech.pegasys.pantheon.ethereum.blockcreation.AbstractBlockCreator;
-import tech.pegasys.pantheon.ethereum.blockcreation.AbstractMiningCoordinator;
-import tech.pegasys.pantheon.ethereum.blockcreation.BlockMiner;
-import tech.pegasys.pantheon.ethereum.chain.GenesisConfig;
+import tech.pegasys.pantheon.ethereum.blockcreation.MiningCoordinator;
 import tech.pegasys.pantheon.ethereum.core.MiningParameters;
 import tech.pegasys.pantheon.ethereum.core.Synchronizer;
 import tech.pegasys.pantheon.ethereum.core.TransactionPool;
 import tech.pegasys.pantheon.ethereum.eth.sync.SynchronizerConfiguration;
+import tech.pegasys.pantheon.ethereum.jsonrpc.RpcApi;
+import tech.pegasys.pantheon.ethereum.jsonrpc.internal.methods.JsonRpcMethod;
 import tech.pegasys.pantheon.ethereum.mainnet.MainnetProtocolSchedule;
 import tech.pegasys.pantheon.ethereum.mainnet.ProtocolSchedule;
 import tech.pegasys.pantheon.ethereum.p2p.config.SubProtocolConfiguration;
+import tech.pegasys.pantheon.ethereum.storage.StorageProvider;
 
 import java.io.Closeable;
-import java.io.IOException;
-import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Map;
 
-import io.vertx.core.json.JsonObject;
-
-public interface PantheonController<C, M extends BlockMiner<C, ? extends AbstractBlockCreator<C>>>
-    extends Closeable {
+public interface PantheonController<C> extends Closeable {
 
   String DATABASE_PATH = "database";
 
-  static PantheonController<?, ?> fromConfig(
+  static PantheonController<?> fromConfig(
+      final GenesisConfigFile genesisConfigFile,
       final SynchronizerConfiguration syncConfig,
-      final String configContents,
-      final Path pantheonHome,
+      final StorageProvider storageProvider,
       final boolean ottomanTestnetOperation,
       final int networkId,
       final MiningParameters miningParameters,
-      final KeyPair nodeKeys)
-      throws IOException {
+      final KeyPair nodeKeys) {
 
-    final JsonObject config = new JsonObject(configContents);
-    final JsonObject configOptions = config.getJsonObject("config");
+    final GenesisConfigOptions configOptions = genesisConfigFile.getConfigOptions();
 
-    if (configOptions.containsKey("ethash")) {
+    if (configOptions.isEthHash()) {
       return MainnetPantheonController.init(
-          pantheonHome,
-          GenesisConfig.fromConfig(config, MainnetProtocolSchedule.fromConfig(configOptions)),
+          storageProvider,
+          genesisConfigFile,
+          MainnetProtocolSchedule.fromConfig(configOptions),
           syncConfig,
           miningParameters,
           nodeKeys);
-    } else if (configOptions.containsKey("ibft")) {
+    } else if (configOptions.isIbft()) {
       return IbftPantheonController.init(
-          pantheonHome,
-          GenesisConfig.fromConfig(config, IbftProtocolSchedule.create(configOptions)),
-          syncConfig,
-          ottomanTestnetOperation,
-          configOptions.getJsonObject("ibft"),
-          networkId,
-          nodeKeys);
-    } else if (configOptions.containsKey("clique")) {
-      return CliquePantheonController.init(
-          pantheonHome,
-          GenesisConfig.fromConfig(config, CliqueProtocolSchedule.create(configOptions, nodeKeys)),
+          storageProvider,
+          genesisConfigFile,
           syncConfig,
           miningParameters,
-          configOptions.getJsonObject("clique"),
+          ottomanTestnetOperation,
           networkId,
           nodeKeys);
+    } else if (configOptions.isClique()) {
+      return CliquePantheonController.init(
+          storageProvider, genesisConfigFile, syncConfig, miningParameters, networkId, nodeKeys);
     } else {
       throw new IllegalArgumentException("Unknown consensus mechanism defined");
     }
   }
 
-  default ProtocolSchedule<C> getProtocolSchedule() {
-    return getGenesisConfig().getProtocolSchedule();
-  }
-
   ProtocolContext<C> getProtocolContext();
 
-  GenesisConfig<C> getGenesisConfig();
+  ProtocolSchedule<C> getProtocolSchedule();
 
   Synchronizer getSynchronizer();
 
@@ -98,5 +86,10 @@ public interface PantheonController<C, M extends BlockMiner<C, ? extends Abstrac
 
   TransactionPool getTransactionPool();
 
-  AbstractMiningCoordinator<C, M> getMiningCoordinator();
+  MiningCoordinator getMiningCoordinator();
+
+  default Map<String, JsonRpcMethod> getAdditionalJsonRpcMethods(
+      final Collection<RpcApi> enabledRpcApis) {
+    return emptyMap();
+  }
 }

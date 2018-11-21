@@ -16,11 +16,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static tech.pegasys.pantheon.ethereum.core.InMemoryWorldState.createInMemoryWorldStateArchive;
+import static tech.pegasys.pantheon.ethereum.core.InMemoryStorageProvider.createInMemoryBlockchain;
+import static tech.pegasys.pantheon.ethereum.core.InMemoryStorageProvider.createInMemoryWorldStateArchive;
 
 import tech.pegasys.pantheon.ethereum.ProtocolContext;
 import tech.pegasys.pantheon.ethereum.blockcreation.EthHashMiningCoordinator;
-import tech.pegasys.pantheon.ethereum.chain.GenesisConfig;
+import tech.pegasys.pantheon.ethereum.chain.GenesisState;
 import tech.pegasys.pantheon.ethereum.chain.MutableBlockchain;
 import tech.pegasys.pantheon.ethereum.core.Block;
 import tech.pegasys.pantheon.ethereum.core.BlockHeader;
@@ -30,7 +31,6 @@ import tech.pegasys.pantheon.ethereum.core.PendingTransactions;
 import tech.pegasys.pantheon.ethereum.core.Synchronizer;
 import tech.pegasys.pantheon.ethereum.core.Transaction;
 import tech.pegasys.pantheon.ethereum.core.TransactionPool;
-import tech.pegasys.pantheon.ethereum.db.DefaultMutableBlockchain;
 import tech.pegasys.pantheon.ethereum.db.WorldStateArchive;
 import tech.pegasys.pantheon.ethereum.eth.EthProtocol;
 import tech.pegasys.pantheon.ethereum.jsonrpc.internal.filter.FilterIdGenerator;
@@ -47,8 +47,6 @@ import tech.pegasys.pantheon.ethereum.mainnet.ValidationResult;
 import tech.pegasys.pantheon.ethereum.p2p.api.P2PNetwork;
 import tech.pegasys.pantheon.ethereum.p2p.wire.Capability;
 import tech.pegasys.pantheon.ethereum.util.RawBlockIterator;
-import tech.pegasys.pantheon.services.kvstore.InMemoryKeyValueStorage;
-import tech.pegasys.pantheon.services.kvstore.KeyValueStorage;
 
 import java.net.URL;
 import java.nio.file.Paths;
@@ -80,7 +78,7 @@ public abstract class AbstractEthJsonRpcHttpServiceTest {
 
   protected static Block GENESIS_BLOCK;
 
-  protected static GenesisConfig<?> GENESIS_CONFIG;
+  protected static GenesisState GENESIS_CONFIG;
 
   protected final Vertx vertx = Vertx.vertx();
 
@@ -93,8 +91,6 @@ public abstract class AbstractEthJsonRpcHttpServiceTest {
   protected final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
   protected final String CLIENT_VERSION = "TestClientVersion/0.1.0";
-
-  protected final String NET_VERSION = "6986785976597";
 
   protected static final Collection<RpcApi> JSON_RPC_APIS =
       Arrays.asList(RpcApis.ETH, RpcApis.NET, RpcApis.WEB3);
@@ -137,7 +133,7 @@ public abstract class AbstractEthJsonRpcHttpServiceTest {
     final String gensisjson = Resources.toString(genesisJsonUrl, Charsets.UTF_8);
 
     GENESIS_BLOCK = BLOCKS.get(0);
-    GENESIS_CONFIG = GenesisConfig.fromJson(gensisjson, PROTOCOL_SCHEDULE);
+    GENESIS_CONFIG = GenesisState.fromJson(gensisjson, PROTOCOL_SCHEDULE);
   }
 
   @Before
@@ -150,13 +146,10 @@ public abstract class AbstractEthJsonRpcHttpServiceTest {
         .thenReturn(ValidationResult.valid());
     final PendingTransactions pendingTransactionsMock = mock(PendingTransactions.class);
     when(transactionPoolMock.getPendingTransactions()).thenReturn(pendingTransactionsMock);
-    final KeyValueStorage keyValueStorage = new InMemoryKeyValueStorage();
     stateArchive = createInMemoryWorldStateArchive();
     GENESIS_CONFIG.writeStateTo(stateArchive.getMutable(Hash.EMPTY_TRIE_HASH));
 
-    blockchain =
-        new DefaultMutableBlockchain(
-            GENESIS_BLOCK, keyValueStorage, MainnetBlockHashFunction::createHash);
+    blockchain = createInMemoryBlockchain(GENESIS_BLOCK);
     context = new ProtocolContext<>(blockchain, stateArchive, null);
 
     final BlockchainQueries blockchainQueries = new BlockchainQueries(blockchain, stateArchive);
@@ -175,7 +168,6 @@ public abstract class AbstractEthJsonRpcHttpServiceTest {
         new JsonRpcMethodsFactory()
             .methods(
                 CLIENT_VERSION,
-                NET_VERSION,
                 peerDiscoveryMock,
                 blockchainQueries,
                 synchronizerMock,
