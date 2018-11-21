@@ -14,7 +14,6 @@ package tech.pegasys.pantheon.consensus.ibft.ibftmessagedata;
 
 import tech.pegasys.pantheon.consensus.ibft.ConsensusRoundIdentifier;
 import tech.pegasys.pantheon.consensus.ibft.ibftmessage.IbftV2;
-import tech.pegasys.pantheon.ethereum.rlp.BytesValueRLPOutput;
 import tech.pegasys.pantheon.ethereum.rlp.RLPInput;
 import tech.pegasys.pantheon.ethereum.rlp.RLPOutput;
 
@@ -44,11 +43,10 @@ public class IbftUnsignedNewRoundMessageData extends AbstractIbftUnsignedMessage
   @Override
   public void writeTo(final RLPOutput rlpOutput) {
     // RLP encode of the message data content (round identifier and prepared certificate)
-    BytesValueRLPOutput ibftMessage = new BytesValueRLPOutput();
-    ibftMessage.startList();
-    roundChangeIdentifier.writeTo(ibftMessage);
-    roundChangeCertificate.writeTo(ibftMessage);
-    ibftMessage.endList();
+    rlpOutput.startList();
+    roundChangeIdentifier.writeTo(rlpOutput);
+    roundChangeCertificate.writeTo(rlpOutput);
+    rlpOutput.endList();
   }
 
   public static IbftUnsignedNewRoundMessageData readFrom(final RLPInput rlpInput) {
