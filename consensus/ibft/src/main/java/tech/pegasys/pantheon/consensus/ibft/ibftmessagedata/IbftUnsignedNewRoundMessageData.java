@@ -25,11 +25,15 @@ public class IbftUnsignedNewRoundMessageData extends AbstractIbftUnsignedMessage
 
   private final IbftRoundChangeCertificate roundChangeCertificate;
 
+  private final IbftSignedMessageData<IbftUnsignedPrePrepareMessageData> ibftPrePrepareMessage;
+
   public IbftUnsignedNewRoundMessageData(
       final ConsensusRoundIdentifier roundIdentifier,
-      final IbftRoundChangeCertificate roundChangeCertificate) {
+      final IbftRoundChangeCertificate roundChangeCertificate,
+      final IbftSignedMessageData<IbftUnsignedPrePrepareMessageData> ibftPrePrepareMessage) {
     this.roundChangeIdentifier = roundIdentifier;
     this.roundChangeCertificate = roundChangeCertificate;
+    this.ibftPrePrepareMessage = ibftPrePrepareMessage;
   }
 
   public ConsensusRoundIdentifier getRoundChangeIdentifier() {
@@ -46,6 +50,7 @@ public class IbftUnsignedNewRoundMessageData extends AbstractIbftUnsignedMessage
     rlpOutput.startList();
     roundChangeIdentifier.writeTo(rlpOutput);
     roundChangeCertificate.writeTo(rlpOutput);
+    ibftPrePrepareMessage.writeTo(rlpOutput);
     rlpOutput.endList();
   }
 
@@ -55,9 +60,12 @@ public class IbftUnsignedNewRoundMessageData extends AbstractIbftUnsignedMessage
     final ConsensusRoundIdentifier roundIdentifier = ConsensusRoundIdentifier.readFrom(rlpInput);
     final IbftRoundChangeCertificate roundChangeCertificate =
         IbftRoundChangeCertificate.readFrom(rlpInput);
+    final IbftSignedMessageData<IbftUnsignedPrePrepareMessageData> ibftPrePrepareMessage =
+        IbftSignedMessageData.readIbftSignedPrePrepareMessageDataFrom(rlpInput);
     rlpInput.leaveList();
 
-    return new IbftUnsignedNewRoundMessageData(roundIdentifier, roundChangeCertificate);
+    return new IbftUnsignedNewRoundMessageData(
+        roundIdentifier, roundChangeCertificate, ibftPrePrepareMessage);
   }
 
   @Override

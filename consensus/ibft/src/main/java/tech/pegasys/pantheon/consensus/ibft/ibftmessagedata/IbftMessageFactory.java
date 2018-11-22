@@ -74,10 +74,13 @@ public class IbftMessageFactory {
   public IbftSignedMessageData<IbftUnsignedNewRoundMessageData>
       createIbftSignedNewRoundChangeMessageData(
           final ConsensusRoundIdentifier roundIdentifier,
-          final IbftRoundChangeCertificate roundChangeCertificate) {
+          final IbftRoundChangeCertificate roundChangeCertificate,
+          final IbftSignedMessageData<IbftUnsignedPrePrepareMessageData>
+              ibftPrePrepareMessageData) {
 
     IbftUnsignedNewRoundMessageData newRoundUnsignedMessageData =
-        new IbftUnsignedNewRoundMessageData(roundIdentifier, roundChangeCertificate);
+        new IbftUnsignedNewRoundMessageData(
+            roundIdentifier, roundChangeCertificate, ibftPrePrepareMessageData);
 
     return createSignedMessage(newRoundUnsignedMessageData);
   }
