@@ -27,16 +27,7 @@ public class IbftCommitMessage extends AbstractIbftMessage {
   }
 
   public static IbftCommitMessage fromMessage(final MessageData message) {
-    if (message instanceof IbftCommitMessage) {
-      return (IbftCommitMessage) message;
-    }
-    final int code = message.getCode();
-    if (code != MESSAGE_CODE) {
-      throw new IllegalArgumentException(
-          String.format("Message has code %d and thus is not a CommitMessage", code));
-    }
-
-    return new IbftCommitMessage(message.getData());
+    return fromMessage(message, MESSAGE_CODE, IbftCommitMessage.class, IbftCommitMessage::new);
   }
 
   @Override

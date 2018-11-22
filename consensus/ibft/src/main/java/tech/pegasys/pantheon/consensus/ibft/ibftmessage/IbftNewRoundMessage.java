@@ -27,16 +27,7 @@ public class IbftNewRoundMessage extends AbstractIbftMessage {
   }
 
   public static IbftNewRoundMessage fromMessage(final MessageData message) {
-    if (message instanceof IbftNewRoundMessage) {
-      return (IbftNewRoundMessage) message;
-    }
-    final int code = message.getCode();
-    if (code != MESSAGE_CODE) {
-      throw new IllegalArgumentException(
-          String.format("Message has code %d and thus is not a NewRoundMessage", code));
-    }
-
-    return new IbftNewRoundMessage(message.getData());
+    return fromMessage(message, MESSAGE_CODE, IbftNewRoundMessage.class, IbftNewRoundMessage::new);
   }
 
   @Override
