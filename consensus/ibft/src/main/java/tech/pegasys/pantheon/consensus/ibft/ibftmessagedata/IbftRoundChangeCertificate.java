@@ -45,4 +45,9 @@ public class IbftRoundChangeCertificate {
     rlpOutput.writeList(ibftRoundChangeMessages, IbftSignedMessageData::writeTo);
     rlpOutput.endList();
   }
+
+  public Collection<IbftSignedMessageData<IbftUnsignedRoundChangeMessageData>>
+      getIbftRoundChangeMessages() {
+    return ibftRoundChangeMessages;
+  }
 }
