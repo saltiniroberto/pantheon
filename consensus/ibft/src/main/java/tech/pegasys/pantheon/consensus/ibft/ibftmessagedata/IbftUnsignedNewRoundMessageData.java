@@ -44,6 +44,10 @@ public class IbftUnsignedNewRoundMessageData extends AbstractIbftUnsignedMessage
     return roundChangeCertificate;
   }
 
+  public IbftSignedMessageData<IbftUnsignedPrePrepareMessageData> getIbftPrePrepareMessage() {
+    return ibftPrePrepareMessage;
+  }
+
   @Override
   public void writeTo(final RLPOutput rlpOutput) {
     // RLP encode of the message data content (round identifier and prepared certificate)
