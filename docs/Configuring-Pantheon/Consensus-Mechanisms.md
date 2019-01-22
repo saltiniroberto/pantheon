@@ -20,9 +20,9 @@ and add blocks to the blockchain. Nodes are added to or removed from the signer/
 Properties to consider when comparing Clique and IBFT 2.0 are: 
 
 * Immediate finality 
-* Liveness 
+* Validators availability
 * Speed 
-* Minimum number of validators 
+* Type of Byzantine-fault-tolerance
 
 ### Immediate Finality 
 
@@ -30,14 +30,12 @@ IBFT 2.0 has immediate finality. When using IBFT 2.0 there are no forks and all 
 
 Clique does not have immediate finality. Implementations using Clique must be aware of forks and chain reorganizations occurring. 
 
-### Liveness 
+### Validators availability
 
-Clique is more fault tolerant than IBFT 2.0. Clique tolerates up to half to the validators failing. IBFT 2.0 networks 
-tolerate up to (n-1)/3 faulty nodes. For example, in an IBFT 2.0 network of:
-
-* 3, no bad node are tolerated
-* 4-6, 1 bad node is tolerated 
-* 7-9, 2 bad nodes are tolerated 
+IBFT 2.0 requires at least 2/3 of the validators (rounded up to the next integer) to be always online for the network to
+be able to create new blocks and progress.
+Clique only requires more then 1/2 of the validators (rounded up to the next integer) to be always online for the
+network to be able to mine new blocks.
 
 ### Speed 
 
@@ -46,9 +44,19 @@ increases number as the of validators increases.
 
 For IBFT 2.0, the time to add new blocks increases as the number of validators increases.   
 
-### Minimum Number of Validators 
+### Type of Byzantine-fault-tolerance
 
-IBFT 2.0 requires 4 nodes to be Byzantine fault tolerant. 
+IBFT 2.0 features a classical BFT consensus protocol that ensures safety (no fork is possible) provided that no more than
+(n-1)/3 of the validators (truncated to the integer value) are Byzantine.
+For example in an IBFT 2.0 network of:
+* 3, no Byzantine nodes are tolerated
+* 4-6, 1 Byzantine node is tolerated
+* 7-9, 2 Byzantine nodes are tolerated
+
+Clique features a probabilistic consensus protocol (à la Nakamoto) where forks are possible but the deeper a block is
+in the chain, the more probable is that the block is final (i.e. it will not be part of a reorganization ever).
+Also, the higher the network latency is, the more depth is required for a block to be considered stable.
+
 
 
 
