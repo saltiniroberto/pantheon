@@ -20,9 +20,9 @@ and add blocks to the blockchain. Nodes are added to or removed from the signer/
 Properties to consider when comparing Clique and IBFT 2.0 are: 
 
 * [Immediate finality](#immediate-finality) 
-* [Required validator availability](#required-validator-availability)
-* [Speed](#speed) 
+* [Required validator availability](#required-validator-availability) 
 * [Type of Byzantine Fault Tolerance](#type-of-byzantine-fault-tolerance)
+* [Speed](#speed)
 
 ### Immediate Finality 
 
@@ -32,10 +32,35 @@ Clique does not have immediate finality. Implementations using Clique must be aw
 
 ### Required Validator Availability
 
-IBFT 2.0 requires at least 2/3 of the validators (rounded up to the next integer) to be online for the network to
-be able to create new blocks and progress.
-Clique requires at least 1/2 of the validators (rounded up to the next integer) to be online for the
-network to be able to mine new blocks.
+For the network to be able to create blocks and progress, the amount of validators (rounded up to the next integer)
+required to be online is at least:
+
+* 2/3 for IBFT 2.0.
+* 1/2 for Clique.
+
+### Type of Byzantine Fault Tolerance
+
+#### IBFT 2.0 
+
+IBFT 2.0 features a classical BFT consensus protocol that ensures safety (no fork is possible) provided that no more than
+(n-1)/3 of the validators (truncated to the integer value) are Byzantine.
+For example in an IBFT 2.0 network of:
+
+* 3, no Byzantine nodes are tolerated
+* 4-6, 1 Byzantine node is tolerated
+* 7-9, 2 Byzantine nodes are tolerated
+
+If more than (n-1)/3 of the validators (truncated to the integer value) are Byzantine, forks and reorganizations may occur 
+from any height after which sufficient nodes were compromised. 
+
+#### Clique
+
+Clique features a probabilistic consensus protocol (like Nakamoto) where minor forks always occur. The deeper a block is
+in the chain, the more probable it is that the block is final (that is, the block will not be part of a reorganization event).
+The higher the network latency is, the more depth is required for a block to be considered stable.
+
+If more than 1/2 of the validators (rounded up to the next integer) are Byzantine, the network is compromised 
+and the history of the chain can be re-written.
 
 ### Speed 
 
@@ -43,20 +68,6 @@ Reaching consensus and adding blocks is faster in Clique networks. For Clique, t
 increases number as the of validators increases. 
 
 For IBFT 2.0, the time to add new blocks increases as the number of validators increases.   
-
-### Type of Byzantine Fault Tolerance
-
-IBFT 2.0 features a classical BFT consensus protocol that ensures safety (no fork is possible) provided that no more than
-(n-1)/3 of the validators (truncated to the integer value) are Byzantine.
-For example in an IBFT 2.0 network of:
-* 3, no Byzantine nodes are tolerated
-* 4-6, 1 Byzantine node is tolerated
-* 7-9, 2 Byzantine nodes are tolerated
-
-Clique features a probabilistic consensus protocol (like Ethash) where forks are possible but the deeper a block is
-in the chain, the more probable is that the block is final (i.e. it will not be part of a reorganization ever).
-Also, the higher the network latency is, the more depth is required for a block to be considered stable.
-
 
 
 
