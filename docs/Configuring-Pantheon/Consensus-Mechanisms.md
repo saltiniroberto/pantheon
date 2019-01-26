@@ -19,10 +19,10 @@ and add blocks to the blockchain. Nodes are added to or removed from the signer/
    
 Properties to consider when comparing Clique and IBFT 2.0 are: 
 
-* Immediate finality 
-* Validators availability
-* Speed 
-* Type of Byzantine-fault-tolerance
+* [Immediate finality](#immediate-finality) 
+* [Required validator availability](#required-validator-availability)
+* [Speed](#speed) 
+* [Type of Byzantine Fault Tolerance](#type-of-byzantine-fault-tolerance)
 
 ### Immediate Finality 
 
@@ -30,11 +30,11 @@ IBFT 2.0 has immediate finality. When using IBFT 2.0 there are no forks and all 
 
 Clique does not have immediate finality. Implementations using Clique must be aware of forks and chain reorganizations occurring. 
 
-### Validators availability
+### Required Validator Availability
 
-IBFT 2.0 requires at least 2/3 of the validators (rounded up to the next integer) to be always online for the network to
+IBFT 2.0 requires at least 2/3 of the validators (rounded up to the next integer) to be online for the network to
 be able to create new blocks and progress.
-Clique only requires more then 1/2 of the validators (rounded up to the next integer) to be always online for the
+Clique requires at least 1/2 of the validators (rounded up to the next integer) to be online for the
 network to be able to mine new blocks.
 
 ### Speed 
@@ -44,7 +44,7 @@ increases number as the of validators increases.
 
 For IBFT 2.0, the time to add new blocks increases as the number of validators increases.   
 
-### Type of Byzantine-fault-tolerance
+### Type of Byzantine Fault Tolerance
 
 IBFT 2.0 features a classical BFT consensus protocol that ensures safety (no fork is possible) provided that no more than
 (n-1)/3 of the validators (truncated to the integer value) are Byzantine.
@@ -53,7 +53,7 @@ For example in an IBFT 2.0 network of:
 * 4-6, 1 Byzantine node is tolerated
 * 7-9, 2 Byzantine nodes are tolerated
 
-Clique features a probabilistic consensus protocol (à la Nakamoto) where forks are possible but the deeper a block is
+Clique features a probabilistic consensus protocol (like Ethash) where forks are possible but the deeper a block is
 in the chain, the more probable is that the block is final (i.e. it will not be part of a reorganization ever).
 Also, the higher the network latency is, the more depth is required for a block to be considered stable.
 
