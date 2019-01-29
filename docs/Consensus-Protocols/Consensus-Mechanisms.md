@@ -65,7 +65,7 @@ and the history of the chain can be re-written.
 ### Speed 
 
 Reaching consensus and adding blocks is faster in Clique networks. For Clique, the probability of a fork 
-increases number as the of validators increases. 
+increases as the number of validators increases. 
 
 For IBFT 2.0, the time to add new blocks increases as the number of validators increases.   
 
