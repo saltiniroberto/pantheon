@@ -50,15 +50,15 @@ nav:
         - Getting Started Overview: Getting-Started/Getting-Started.md
         - Starting Pantheon: Getting-Started/Starting-Pantheon.md
         - Running Pantheon from Docker Image: Getting-Started/Run-Docker-Image.md
-        - Private Network Quickstart Tutorial: Getting-Started/Private-Network-Quickstart.md
     - Tutorials:
+        - Private Network Quickstart: Tutorials/Private-Network-Quickstart.md
         - Creating a Private Network: Tutorials/Create-Private-Network.md
     - Consensus Protocols:
         - Pantheon Consensus Protocols: Consensus-Protocols/Overview-Consensus.md
+        - Comparing PoA Consensus Protocols: Consensus-Protocols/Comparing-PoA.md
         - Clique: Consensus-Protocols/Clique.md
         - IBFT 2.0: Consensus-Protocols/IBFT.md
     - Configuring Pantheon:
-        - Consensus Mechanisms: Configuring-Pantheon/Consensus-Mechanisms.md
         - Using a Configuration File: Configuring-Pantheon/Using-Configuration-File.md
         - Network ID and Chain ID: Configuring-Pantheon/NetworkID-And-ChainID.md
         - Node Keys: Configuring-Pantheon/Node-Keys.md

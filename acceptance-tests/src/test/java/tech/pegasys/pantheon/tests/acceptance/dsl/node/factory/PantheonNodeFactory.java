@@ -58,7 +58,8 @@ public class PantheonNodeFactory {
             config.isDevMode(),
             config.getGenesisConfigProvider(),
             serverSocket.getLocalPort(),
-            config.getP2pEnabled());
+            config.getP2pEnabled(),
+            config.isDiscoveryEnabled());
     serverSocket.close();
 
     return node;
@@ -95,6 +96,17 @@ public class PantheonNodeFactory {
             .setName(name)
             .jsonRpcEnabled()
             .webSocketEnabled()
+            .build());
+  }
+
+  public PantheonNode createArchiveNodeWithDiscoveryDisabledAndAdmin(final String name)
+      throws IOException {
+    return create(
+        new PantheonFactoryConfigurationBuilder()
+            .setName(name)
+            .setJsonRpcConfiguration(jsonRpcConfigWithAdmin())
+            .webSocketEnabled()
+            .setDiscoveryEnabled(false)
             .build());
   }
 
@@ -188,6 +200,11 @@ public class PantheonNodeFactory {
             .setJsonRpcConfiguration(rpcConfig)
             .setPermissioningConfiguration(permissioningConfiguration)
             .build());
+  }
+
+  public PantheonNode createNodeWithNoDiscovery(final String name) throws IOException {
+    return create(
+        new PantheonFactoryConfigurationBuilder().setName(name).setDiscoveryEnabled(false).build());
   }
 
   public PantheonNode createCliqueNode(final String name) throws IOException {
@@ -316,6 +333,10 @@ public class PantheonNodeFactory {
 
   private JsonRpcConfiguration jsonRpcConfigWithPermissioning() {
     return createJsonRpcConfigWithRpcApiEnabled(RpcApis.PERM);
+  }
+
+  private JsonRpcConfiguration jsonRpcConfigWithAdmin() {
+    return createJsonRpcConfigWithRpcApiEnabled(RpcApis.ADMIN);
   }
 
   private JsonRpcConfiguration createJsonRpcConfigWithRpcApiEnabled(final RpcApi rpcApi) {

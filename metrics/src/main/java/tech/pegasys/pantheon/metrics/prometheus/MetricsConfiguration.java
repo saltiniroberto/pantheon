@@ -22,9 +22,17 @@ public class MetricsConfiguration {
   private static final String DEFAULT_METRICS_HOST = "127.0.0.1";
   public static final int DEFAULT_METRICS_PORT = 9545;
 
+  private static final String DEFAULT_METRICS_PUSH_HOST = "127.0.0.1";
+  public static final int DEFAULT_METRICS_PUSH_PORT = 9001;
+
   private boolean enabled;
   private int port;
   private String host;
+  private boolean pushEnabled;
+  private int pushPort;
+  private String pushHost;
+  private int pushInterval;
+  private String prometheusJob;
   private Collection<String> hostsWhitelist = Collections.singletonList("localhost");
 
   public static MetricsConfiguration createDefault() {
@@ -32,6 +40,11 @@ public class MetricsConfiguration {
     metricsConfiguration.setEnabled(false);
     metricsConfiguration.setPort(DEFAULT_METRICS_PORT);
     metricsConfiguration.setHost(DEFAULT_METRICS_HOST);
+    metricsConfiguration.setPushEnabled(false);
+    metricsConfiguration.setPushPort(DEFAULT_METRICS_PUSH_PORT);
+    metricsConfiguration.setPushHost(DEFAULT_METRICS_PUSH_HOST);
+    metricsConfiguration.setPushInterval(15);
+    metricsConfiguration.setPrometheusJob("pantheon-client");
 
     return metricsConfiguration;
   }
@@ -62,6 +75,46 @@ public class MetricsConfiguration {
     this.host = host;
   }
 
+  public int getPushPort() {
+    return pushPort;
+  }
+
+  public void setPushPort(final int pushPort) {
+    this.pushPort = pushPort;
+  }
+
+  public String getPushHost() {
+    return pushHost;
+  }
+
+  public void setPushHost(final String pushHost) {
+    this.pushHost = pushHost;
+  }
+
+  public boolean isPushEnabled() {
+    return pushEnabled;
+  }
+
+  public void setPushEnabled(final boolean pushEnabled) {
+    this.pushEnabled = pushEnabled;
+  }
+
+  public int getPushInterval() {
+    return pushInterval;
+  }
+
+  public void setPushInterval(final int pushInterval) {
+    this.pushInterval = pushInterval;
+  }
+
+  public String getPrometheusJob() {
+    return prometheusJob;
+  }
+
+  public void setPrometheusJob(final String prometheusJob) {
+    this.prometheusJob = prometheusJob;
+  }
+
   Collection<String> getHostsWhitelist() {
     return Collections.unmodifiableCollection(this.hostsWhitelist);
   }
@@ -80,6 +133,18 @@ public class MetricsConfiguration {
         + ", host='"
         + host
         + '\''
+        + ", pushEnabled="
+        + pushEnabled
+        + ", pushPort="
+        + pushPort
+        + ", pushHost='"
+        + pushHost
+        + '\''
+        + ", pushInterval="
+        + pushInterval
+        + ", prometheusJob='"
+        + prometheusJob
+        + '\''
         + ", hostsWhitelist="
         + hostsWhitelist
         + '}';
@@ -92,13 +157,27 @@ public class MetricsConfiguration {
     final MetricsConfiguration that = (MetricsConfiguration) o;
     return enabled == that.enabled
         && port == that.port
+        && pushEnabled == that.pushEnabled
+        && pushPort == that.pushPort
+        && pushInterval == that.pushInterval
         && Objects.equals(host, that.host)
+        && Objects.equals(pushHost, that.pushHost)
+        && Objects.equals(prometheusJob, that.prometheusJob)
         && com.google.common.base.Objects.equal(
             Lists.newArrayList(hostsWhitelist), Lists.newArrayList(that.hostsWhitelist));
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(enabled, port, host, hostsWhitelist);
+    return Objects.hash(
+        enabled,
+        port,
+        host,
+        pushEnabled,
+        pushPort,
+        pushHost,
+        pushInterval,
+        prometheusJob,
+        hostsWhitelist);
   }
 }
