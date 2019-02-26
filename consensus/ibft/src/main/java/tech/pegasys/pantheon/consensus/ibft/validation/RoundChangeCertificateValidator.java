@@ -29,6 +29,7 @@ import tech.pegasys.pantheon.ethereum.core.Block;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,7 +59,8 @@ public class RoundChangeCertificateValidator {
     final Collection<SignedData<RoundChangePayload>> roundChangeMsgs =
         roundChangeCert.getRoundChangePayloads();
 
-    if (roundChangeMsgs.size() < quorum) {
+    if (roundChangeMsgs.stream().map(SignedData::getAuthor).collect(Collectors.toSet()).size()
+        < quorum) {
       LOG.info("Invalid RoundChangeCertificate, insufficient RoundChange messages.");
       return false;
     }
